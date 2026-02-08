@@ -33,6 +33,12 @@ export class Player {
     this.interactables = [];
     this.currentInteractable = null;
 
+    // Mouse movement tracking (for fourth_wall vs silence distinction)
+    this.hasMouseMoved = false;
+    this._mouseMovedThisFrame = false;
+    this._onMouseMove = () => { this._mouseMovedThisFrame = true; };
+    document.addEventListener('mousemove', this._onMouseMove);
+
     // Wall bump tracking
     this.wallBumpCount = 0;
     this.wallBumpTimer = 0;
@@ -156,6 +162,10 @@ export class Player {
 
   update(delta) {
     if (!this.controls.isLocked) return;
+
+    // Track mouse movement (reset each frame, set by mousemove listener)
+    this.hasMouseMoved = this._mouseMovedThisFrame;
+    this._mouseMovedThisFrame = false;
 
     // Damping
     this.velocity.x -= this.velocity.x * 10.0 * delta;

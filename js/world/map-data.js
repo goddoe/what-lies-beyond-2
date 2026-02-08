@@ -58,6 +58,7 @@ function room(id, {
   props = [],
   lightPos = null,
   noLight = false,
+  eraMin = null,
 }) {
   return {
     id,
@@ -74,6 +75,7 @@ function room(id, {
     props,           // [{type, position, size, color}]
     lightPos,        // [x, y, z] relative to room origin, or null for center
     noLight,         // if true, skip creating a PointLight for this room
+    eraMin,          // minimum era for this room to exist (null = always)
   };
 }
 
@@ -131,7 +133,7 @@ export const ROOMS = [
     triggers: [
       { id: 'hallway_enter', position: [0, 1, 7], size: [4, 3, 2] },
       { id: 'hallway_midpoint', position: [0, 1, 0], size: [4, 3, 2] },
-      { id: 'decision_point', position: [0, 1, -7], size: [4, 3, 2] },
+      { id: 'decision_point', position: [0, 1, -4], size: [4, 3, 3] },
       { id: 'loop_back', position: [0, 1, 9], size: [4, 3, 2] },
     ],
     props: [
@@ -162,7 +164,7 @@ export const ROOMS = [
     wallColor: 0x464856,
     floorColor: 0x30303c,
     ceilingColor: 0x282833,
-    noLight: true,
+    lightIntensity: 0.6,
     doors: [
       { wall: 'east', offset: 0, width: 2, height: 2.5 },    // from HALLWAY_1
       { wall: 'west', offset: 0, width: 2, height: 2.5 },    // to OFFICE_WING
@@ -274,7 +276,7 @@ export const ROOMS = [
     wallColor: 0x4a4a5a,
     floorColor: 0x323240,
     ceilingColor: 0x282833,
-    noLight: true,
+    lightIntensity: 0.6,
     doors: [
       { wall: 'east', offset: 0, width: 2, height: 2.5 },    // from OFFICE_WING
       { wall: 'west', offset: 0, width: 2, height: 2.5 },    // to CONFERENCE
@@ -431,7 +433,7 @@ export const ROOMS = [
     floorColor: 0x1a1a15,
     ceilingColor: 0x2a2a22,
     lightColor: 0xccaa77,
-    lightIntensity: 0.3,
+    lightIntensity: 0.5,
     fogColor: 0x0a0a08,
     doors: [
       { wall: 'east', offset: 0, width: 2, height: 2.5 },    // from ARCHIVE
@@ -512,7 +514,7 @@ export const ROOMS = [
     wallColor: 0x4a4a5e,
     floorColor: 0x323240,
     ceilingColor: 0x282833,
-    noLight: true,
+    lightIntensity: 0.6,
     doors: [
       { wall: 'south', offset: 0, width: 2, height: 2.5 },   // from CONFERENCE
       { wall: 'north', offset: 0, width: 2, height: 2.5 },   // to UPPER_OFFICE
@@ -659,7 +661,7 @@ export const ROOMS = [
     wallColor: 0x4a5a4a,
     floorColor: 0x303830,
     ceilingColor: 0x283028,
-    noLight: true,
+    lightIntensity: 0.6,
     doors: [
       { wall: 'south', offset: 0, width: 2, height: 2.5 },   // from UPPER_OFFICE
       { wall: 'north', offset: 0, width: 2, height: 2.5 },   // to GARDEN_ANTECHAMBER
@@ -770,7 +772,7 @@ export const ROOMS = [
     wallColor: 0x444840,
     floorColor: 0x282825,
     ceilingColor: 0x282828,
-    noLight: true,
+    lightIntensity: 0.6,
     doors: [
       { wall: 'west', offset: 0, width: 2, height: 2.5 },    // from HALLWAY_1
       { wall: 'east', offset: 0, width: 2, height: 2.5 },    // to MAINTENANCE
@@ -799,7 +801,7 @@ export const ROOMS = [
     wallColor: 0x4a4a40,
     floorColor: 0x2a2a25,
     lightColor: 0xccaa80,
-    lightIntensity: 0.4,
+    lightIntensity: 0.6,
     doors: [
       { wall: 'west', offset: 0, width: 2, height: 2.5 },    // from CORRIDOR_DEF_1
       { wall: 'east', offset: 0, width: 2, height: 2.5 },    // to CORRIDOR_DEF_2
@@ -842,7 +844,7 @@ export const ROOMS = [
     floorColor: 0x2a2218,
     ceilingColor: 0x3a3028,
     lightColor: 0xcc8855,
-    lightIntensity: 0.3,
+    lightIntensity: 0.5,
     doors: [
       { wall: 'north', offset: 0, width: 2, height: 2.5 },   // from MAINTENANCE
     ],
@@ -912,7 +914,7 @@ export const ROOMS = [
     floorColor: 0x282830,
     ceilingColor: 0x303038,
     lightColor: 0xccccee,
-    lightIntensity: 0.5,
+    lightIntensity: 0.65,
     doors: [
       { wall: 'south', offset: 0, width: 2, height: 2.5 },   // from SECURITY_CHECKPOINT
     ],
@@ -949,7 +951,7 @@ export const ROOMS = [
     wallColor: 0x2a2a35,
     floorColor: 0x1a1a22,
     ceilingColor: 0x222228,
-    noLight: true,
+    lightIntensity: 0.6,
     doors: [
       { wall: 'west', offset: 0, width: 2, height: 2.5 },    // from MAINTENANCE
       { wall: 'east', offset: 0, width: 2, height: 2.5 },    // to SERVER_ROOM
@@ -978,7 +980,7 @@ export const ROOMS = [
     wallColor: 0x2a2a3a,
     floorColor: 0x1a1a25,
     lightColor: 0x6688ff,
-    lightIntensity: 0.5,
+    lightIntensity: 0.7,
     fogColor: 0x0a0a1a,
     doors: [
       { wall: 'west', offset: 0, width: 2, height: 2.5 },    // from CORRIDOR_DEF_2
@@ -1027,7 +1029,7 @@ export const ROOMS = [
     floorColor: 0x222830,
     ceilingColor: 0x2a3038,
     lightColor: 0x88aaee,
-    lightIntensity: 0.5,
+    lightIntensity: 0.65,
     doors: [
       { wall: 'north', offset: 0, width: 2, height: 2.5 },   // to SERVER_ROOM
     ],
@@ -1138,7 +1140,7 @@ export const ROOMS = [
     wallColor: 0x1a1a28,
     floorColor: 0x111118,
     ceilingColor: 0x181820,
-    noLight: true,
+    lightIntensity: 0.6,
     doors: [
       { wall: 'south', offset: 0, width: 2, height: 2.5 },   // from SERVER_ROOM
       { wall: 'north', offset: 0, width: 2, height: 2.5 },   // to DATA_CENTER
@@ -1165,7 +1167,7 @@ export const ROOMS = [
     wallColor: 0x1a1a2a,
     floorColor: 0x111118,
     lightColor: 0x4466ff,
-    lightIntensity: 0.4,
+    lightIntensity: 0.6,
     fogColor: 0x050510,
     doors: [
       { wall: 'south', offset: 0, width: 2, height: 2.5 },   // from CORRIDOR_DEF_3
@@ -1214,7 +1216,7 @@ export const ROOMS = [
     floorColor: 0x0f0f18,
     ceilingColor: 0x181822,
     lightColor: 0x4466ff,
-    lightIntensity: 0.35,
+    lightIntensity: 0.55,
     fogColor: 0x050510,
     doors: [
       { wall: 'east', offset: 0, width: 2, height: 2.5 },    // from DATA_CENTER
@@ -1254,10 +1256,11 @@ export const ROOMS = [
     floorColor: 0x0f0f0f,
     ceilingColor: 0x1a1a1a,
     lightColor: 0xcc4444,
-    lightIntensity: 0.3,
+    lightIntensity: 0.5,
     fogColor: 0x050505,
     doors: [
       { wall: 'west', offset: 0, width: 2, height: 2.5 },    // from DATA_CENTER
+      { wall: 'east', offset: 0, width: 2, height: 2.5, eraMin: 5 },  // to SUBJECT_CHAMBER (era 5+)
     ],
     triggers: [
       { id: 'deep_storage_enter', position: [-2, 1, 0], size: [3, 4, 6] },
@@ -1295,7 +1298,7 @@ export const ROOMS = [
     wallColor: 0x0f0f1a,
     floorColor: 0x0a0a10,
     ceilingColor: 0x121218,
-    noLight: true,
+    lightIntensity: 0.85,
     doors: [
       { wall: 'south', offset: 0, width: 2, height: 2.5 },   // from DATA_CENTER
       { wall: 'north', offset: 0, width: 2, height: 2.5 },   // to CONTROL_ROOM
@@ -1322,7 +1325,7 @@ export const ROOMS = [
     wallColor: 0x0f0f1f,
     floorColor: 0x0a0a12,
     lightColor: 0x3355ff,
-    lightIntensity: 0.3,
+    lightIntensity: 0.85,
     fogColor: 0x030308,
     doors: [
       { wall: 'south', offset: 0, width: 2, height: 2.5 },
@@ -1353,6 +1356,46 @@ export const ROOMS = [
       { type: 'floor_light', position: [1, 0.01, 2], size: [0.1, 0.02, 0.1], color: 0x3355ff },
       { type: 'floor_light', position: [-1, 0.01, 0], size: [0.1, 0.02, 0.1], color: 0x3355ff },
       { type: 'floor_light', position: [1, 0.01, 0], size: [0.1, 0.02, 0.1], color: 0x3355ff },
+    ],
+  }),
+
+  // ===================================================================
+  // 35. SUBJECT_CHAMBER  (NEW — era 5+ only)
+  // Origin: (65,0,-45), Size: 6x3x6
+  // Walls: N z=-48, S z=-42, E x=68, W x=62
+  // Connected to DEEP_STORAGE east wall (x=62 shared)
+  // ===================================================================
+  room('SUBJECT_CHAMBER', {
+    origin: [65, 0, -45],
+    size: [6, 3, 6],
+    wallColor: 0x1a1a1a,
+    floorColor: 0x0f0f0f,
+    ceilingColor: 0x1a1a1a,
+    lightColor: 0xcc6644,
+    lightIntensity: 0.45,
+    fogColor: 0x050505,
+    eraMin: 5,
+    doors: [
+      { wall: 'west', offset: 0, width: 2, height: 2.5 },    // from DEEP_STORAGE
+    ],
+    triggers: [
+      { id: 'subject_chamber_enter', position: [-1, 1, 0], size: [3, 3, 4] },
+      { id: 'subject_chamber_inspect', position: [1, 1, -1], size: [3, 3, 3] },
+    ],
+    props: [
+      // Makeshift cot
+      { type: 'bench', position: [1.5, 0, -2], size: [1.5, 0.3, 0.7], color: 0x444433 },
+      // Old blanket on cot
+      { type: 'debris', position: [1.5, 0.3, -2], size: [1.3, 0.05, 0.6], color: 0x555544 },
+      // Old monitor (lore terminal)
+      { type: 'document', position: [-2, 0.5, -2.5], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_subject_7490' },
+      // Small console (terminal)
+      { type: 'console', position: [-2, 0, -2], size: [0.8, 0.7, 0.4], color: 0x333322 },
+      // Scratched tally marks on wall (decorative)
+      { type: 'debris', position: [2.8, 1.2, 0], size: [0.05, 0.8, 1.5], color: 0x333322 },
+      // Food containers (debris)
+      { type: 'debris', position: [0, 0, 1.5], size: [0.3, 0.1, 0.3], color: 0x444433 },
+      { type: 'debris', position: [0.5, 0, 2], size: [0.2, 0.08, 0.2], color: 0x444433 },
     ],
   }),
 
@@ -1408,6 +1451,9 @@ export const CONNECTIONS = [
   { from: 'DATA_CENTER', wall: 'east', to: 'DEEP_STORAGE', toWall: 'west' },
   { from: 'DATA_CENTER', wall: 'north', to: 'CORRIDOR_DEF_4', toWall: 'south' },
   { from: 'CORRIDOR_DEF_4', wall: 'north', to: 'CONTROL_ROOM', toWall: 'south' },
+
+  // Era-conditional connections
+  { from: 'DEEP_STORAGE', wall: 'east', to: 'SUBJECT_CHAMBER', toWall: 'west', eraMin: 5 },
 ];
 
 // Player start position

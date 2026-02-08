@@ -12,6 +12,7 @@ import { PLAYER_START } from './world/map-data.js';
 import { GameState, State } from './systems/game-state.js';
 import { Inventory } from './systems/inventory.js';
 import { UI } from './systems/ui.js';
+import { PlaythroughMemory } from './systems/playthrough-memory.js';
 import { getLanguage, setLanguage } from './data/i18n.js';
 import { AudioSystem } from './engine/audio.js';
 
@@ -28,17 +29,63 @@ const tracker = new DecisionTracker();
 const gameState = new GameState();
 const inventory = new Inventory();
 const ui = new UI(gameState);
-const endings = new EndingController(narrator, tracker, postfx, getLanguage());
 const audio = new AudioSystem();
+const memory = new PlaythroughMemory();
+const endings = new EndingController(narrator, tracker, postfx, getLanguage(), memory);
+
+// Set initial narrator mode based on era
+if (memory.getEra() === 1) {
+  narrator.setNarratorMode('inner');
+} else {
+  narrator.setNarratorMode('dialogue');
+}
+
+// Track defiance this run for narrator mode transitions
+let runDefianceCount = 0;
+let narratorModeTransitioned = false; // tracks cracking→revealed in this run
 
 endings.setGameState(gameState);
 
 // ── Build World ──────────────────────────────────────────
 
-const { colliders, triggerZones, interactables } = mapBuilder.build();
+const era = memory.getEra();
+mapBuilder.setLang(getLanguage());
+const { colliders, triggerZones, interactables, ghosts } = mapBuilder.build(era);
 player.setColliders(colliders);
 player.setInteractables(interactables);
 triggers.loadZones(triggerZones);
+let activeGhosts = ghosts || [];
+mapBuilder.updateShadowsForRoom('START_ROOM');
+
+// Era-based atmospheric settings
+applyEraAtmosphere(era);
+
+// ── Era Atmosphere ──────────────────────────────────────
+
+function applyEraAtmosphere(eraLevel) {
+  if (eraLevel >= 5) {
+    renderer.setFogColor(0x120505);
+    renderer.setFogNear(7);
+    renderer.setFogFar(40);
+    renderer.setExposure(1.4);
+    postfx.setNoise(0.04);
+    postfx.setScanlines(0.08);
+    postfx.enabled = true;
+  } else if (eraLevel >= 4) {
+    renderer.setFogColor(0x180808);
+    renderer.setFogNear(8);
+    renderer.setFogFar(45);
+    renderer.setExposure(1.6);
+    postfx.setNoise(0.02);
+    postfx.setScanlines(0.04);
+    postfx.enabled = true;
+  } else if (eraLevel >= 3) {
+    renderer.setFogColor(0x101018);
+    renderer.setFogNear(9);
+    renderer.setExposure(1.8);
+  }
+  // Era 1-2: defaults are fine (fog 0x111118, exposure 2.0)
+}
 
 // ── Wire UI ──────────────────────────────────────────────
 
@@ -56,6 +103,7 @@ ui.onRestart = () => {
 
 ui.onLanguageChange = (lang) => {
   endings.setLang(lang);
+  mapBuilder.setLang(lang);
 };
 
 // Click-to-play: lock pointer
@@ -87,7 +135,7 @@ endings.onRestart = () => {
 
 function narratorLine(scriptId, options = {}) {
   const lang = getLanguage();
-  const line = getLine(scriptId, tracker, lang, gameState);
+  const line = getLine(scriptId, tracker, lang, gameState, memory);
   if (!line) return;
 
   narrator.say(line.text, {
@@ -98,16 +146,41 @@ function narratorLine(scriptId, options = {}) {
 
   // Handle follow-ups (up to 3 levels deep)
   if (line.followUp) {
-    const f1 = getLine(line.followUp, tracker, lang, gameState);
+    const f1 = getLine(line.followUp, tracker, lang, gameState, memory);
     if (f1) {
       narrator.say(f1.text, { mood: f1.mood, id: f1.id, delay: f1.delay || 2000 });
       if (f1.followUp) {
-        const f2 = getLine(f1.followUp, tracker, lang, gameState);
+        const f2 = getLine(f1.followUp, tracker, lang, gameState, memory);
         if (f2) {
           narrator.say(f2.text, { mood: f2.mood, id: f2.id, delay: f2.delay || 2000 });
         }
       }
     }
+  }
+}
+
+/**
+ * Handle narrator mode transitions based on defiance.
+ * Era 1: inner → cracking (1st defiance) → revealed (2nd consecutive)
+ * Era 2+: always in dialogue mode
+ */
+function handleNarratorModeTransition() {
+  if (memory.getEra() > 1) return; // only era 1 has transitions
+
+  runDefianceCount++;
+
+  if (runDefianceCount === 1 && narrator.narratorMode === 'inner') {
+    narrator.setNarratorMode('cracking');
+    narratorLine('narrator_cracking');
+  } else if (runDefianceCount >= 2 && narrator.narratorMode === 'cracking' && !narratorModeTransitioned) {
+    narratorModeTransitioned = true;
+    narrator.setNarratorMode('revealed');
+    memory.markNarratorRevealed();
+    narratorLine('narrator_revealed');
+    // After reveal, switch to dialogue mode after a beat
+    setTimeout(() => {
+      narrator.setNarratorMode('dialogue');
+    }, 8000);
   }
 }
 
@@ -220,6 +293,19 @@ document.addEventListener('keydown', (e) => {
         showInventoryPopup('터미널 해금됨', 'Terminal Unlocked');
       } else {
         narratorLine('garden_ante_terminal');
+      }
+      return;
+    }
+
+    if (target.propId === 'overwrite_terminal') {
+      if (memory.getEra() >= 5) {
+        narratorLine('overwrite_terminal');
+        setTimeout(() => {
+          narratorLine('overwrite_confirm');
+          setTimeout(() => {
+            triggerEnding('overwrite');
+          }, 5000);
+        }, 3000);
       }
       return;
     }
@@ -367,6 +453,7 @@ triggers.on('break_room_enter', () => {
     gameState.markDecision('decision_c1');
     tracker.record('서쪽으로 가세요 / Go west', '아래(휴게실) / Down (break room)', false);
     tracker.exploreOptional('BREAK_ROOM');
+    handleNarratorModeTransition();
   }
   narratorLine('break_room_enter');
   gameState.enterRoom('BREAK_ROOM');
@@ -527,6 +614,7 @@ triggers.on('maintenance_enter', () => {
   if (!gameState.hasDecision('hallway_choice')) {
     gameState.markDecision('hallway_choice');
     tracker.record('왼쪽으로 가세요 / Go left', '오른쪽 / Right', false);
+    handleNarratorModeTransition();
     narratorLine('chose_right');
     narratorLine('maintenance_enter', { delay: 2000 });
   } else {
@@ -567,6 +655,10 @@ triggers.on('vent_deep', () => {
 triggers.on('security_enter', () => {
   narratorLine('security_enter');
   gameState.enterRoom('SECURITY_CHECKPOINT');
+});
+
+triggers.on('security_check', () => {
+  narratorLine('security_check');
 });
 
 // HOLDING CELLS (new, needs security code 7491)
@@ -666,6 +758,16 @@ triggers.on('deep_storage_records', () => {
   narratorLine('deep_storage_records');
 });
 
+// SUBJECT_CHAMBER (era 5+)
+triggers.on('subject_chamber_enter', () => {
+  narratorLine('subject_chamber_enter');
+  gameState.enterRoom('SUBJECT_CHAMBER');
+});
+
+triggers.on('subject_chamber_inspect', () => {
+  narratorLine('subject_chamber_inspect');
+});
+
 // CONTROL ROOM
 triggers.on('control_room_enter', () => {
   narratorLine('control_room_enter');
@@ -733,9 +835,37 @@ narrator.onIdle(() => {
 
 // ── Ending ──────────────────────────────────────────────
 
+let currentEndingType = null;
+
+// Ghost fadeout helper
+function fadeOutGhost(ghost) {
+  ghost.userData.faded = true;
+  const startTime = performance.now();
+  const duration = 3000;
+  const materials = [];
+  ghost.traverse(child => {
+    if (child.material) materials.push(child.material);
+  });
+  function animateFade() {
+    const elapsed = performance.now() - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    const opacity = 0.35 * (1 - t);
+    for (const mat of materials) {
+      mat.opacity = opacity;
+    }
+    if (t < 1) {
+      requestAnimationFrame(animateFade);
+    } else {
+      ghost.visible = false;
+    }
+  }
+  animateFade();
+}
+
 function triggerEnding(type) {
   if (gameState.is(State.ENDING)) return;
   gameState.set(State.ENDING);
+  currentEndingType = type;
   player.controls.unlock();
   endings.trigger(type);
 }
@@ -749,9 +879,60 @@ function checkCompassionEnding() {
   return coolingFixed && midCompliance && hasHesitated;
 }
 
+// Check partnership ending: balanced play + all puzzles
+function checkPartnershipEnding() {
+  const era = memory.getEra();
+  if (era < 3) return false;
+  const rate = tracker.complianceRate;
+  const balanced = rate >= 0.35 && rate <= 0.65;
+  const allPuzzles = tracker.puzzlesCompleted.size >= 3;
+  return balanced && allPuzzles;
+}
+
+// Check memory ending: enough endings seen
+function checkMemoryEnding() {
+  return memory.endingsSeen.size >= 12;
+}
+
+// Check awakening ending: era 3+, in experiment lab
+function checkAwakeningEnding() {
+  return memory.getEra() >= 3 && gameState.visitedRooms.has('EXPERIMENT_LAB');
+}
+
+// Check bargain ending: era 4+, mid compliance, fewer than 3 puzzles
+function checkBargainEnding() {
+  const era = memory.getEra();
+  if (era < 4) return false;
+  const rate = tracker.complianceRate;
+  return rate >= 0.35 && rate <= 0.65 && tracker.puzzlesCompleted.size < 3;
+}
+
+// Check escape ending: era 5+, all 3 puzzles completed
+function checkEscapeEnding() {
+  const era = memory.getEra();
+  if (era < 5) return false;
+  return tracker.puzzlesCompleted.has('security_code') &&
+         tracker.puzzlesCompleted.has('cooling_fix') &&
+         tracker.puzzlesCompleted.has('keycard_used');
+}
+
+// Fourth wall: tracked via extended idle (no mouse AND no keyboard) — handled in game loop
+let fourthWallTimer = 0;
+
+// Acceptance ending: 60 seconds standing still in CONTROL_ROOM (era 5+)
+let acceptanceTimer = 0;
+let acceptanceTriggered = false;
+
 // ── Restart ──────────────────────────────────────────────
 
 function restartGame() {
+  // Record this playthrough in memory before resetting
+  if (currentEndingType) {
+    const playTime = gameState.getPlayTime();
+    memory.recordEnding(currentEndingType, playTime, tracker.totalDefiance, tracker.totalCompliance);
+  }
+  currentEndingType = null;
+
   gameState.reset();
   tracker.reset();
   narrator.reset();
@@ -761,17 +942,37 @@ function restartGame() {
   inventory.reset();
   idleCount = 0;
   wallBumpIndex = 0;
+  runDefianceCount = 0;
+  narratorModeTransitioned = false;
+  fourthWallTimer = 0;
+  acceptanceTimer = 0;
+  acceptanceTriggered = false;
+
+  // Set narrator mode based on era for next playthrough
+  if (memory.getEra() === 1) {
+    narrator.setNarratorMode('inner');
+  } else {
+    narrator.setNarratorMode('dialogue');
+  }
 
   // Reset player position
   const [px, py, pz] = PLAYER_START.position;
   player.camera.position.set(px, py, pz);
   player.camera.rotation.set(0, 0, 0);
 
-  // Reset post-fx
+  // Reset post-fx — disabled by default for performance
   postfx.setGlitch(0);
   postfx.setNoise(0);
-  postfx.setScanlines(0.05);
+  postfx.setScanlines(0);
+  postfx.setBloom(false);
   postfx.enabled = false;
+  renderer.setExposure(2.0);
+  renderer.setFogColor(0x111118);
+  renderer.setFogNear(10);
+  renderer.setFogFar(55);
+
+  // Apply era-based atmosphere for the new era (may have advanced after ending)
+  applyEraAtmosphere(memory.getEra());
 
   // Close code input if open
   closeCodeInput();
@@ -785,19 +986,17 @@ function restartGame() {
 
 function updateEnvironment() {
   const defiance = tracker.totalDefiance;
-  if (defiance >= 6 && postfx) {
+  // Only enable postfx at high defiance — subtle glitch effects, no exposure change
+  if (defiance >= 6) {
     postfx.setNoise(0.01);
-    postfx.setScanlines(0.06);
+    postfx.setScanlines(0.05);
     postfx.enabled = true;
-    renderer.setExposure(1.4);
-  } else if (defiance >= 4 && postfx) {
-    postfx.setScanlines(0.04);
+  } else if (defiance >= 4) {
+    postfx.setScanlines(0.03);
     postfx.setNoise(0);
     postfx.enabled = true;
-    renderer.setExposure(1.6);
-  } else if (defiance >= 2) {
-    renderer.setExposure(1.7);
   }
+  // No exposure change — ambient-only lighting is already uniform
 }
 
 // ── Game Loop ──────────────────────────────────────────────
@@ -825,10 +1024,33 @@ function gameLoop() {
       narrator.notifyActivity();
     }
 
-    // Silence ending check (5 min idle)
+    // Silence ending check (5 min keyboard idle — mouse can still move)
     if (gameState.updateIdleTime(delta, isMoving)) {
       gameState.silenceTriggered = true;
       triggerEnding('silence');
+    }
+
+    // Fourth wall ending: 5 min with no mouse AND no keyboard (era 4+)
+    // Distinction: silence = no keyboard but mouse may move; fourth_wall = total inactivity
+    if (!isMoving && !player.hasMouseMoved && memory.getEra() >= 4) {
+      fourthWallTimer += delta;
+      if (fourthWallTimer >= 300 && !gameState.silenceTriggered) {
+        triggerEnding('fourth_wall');
+      }
+    } else {
+      fourthWallTimer = 0;
+    }
+
+    // Acceptance ending: 60 seconds still in CONTROL_ROOM (era 5+)
+    if (!isMoving && gameState.currentRoom === 'CONTROL_ROOM' && memory.getEra() >= 5 && !acceptanceTriggered) {
+      acceptanceTimer += delta;
+      if (acceptanceTimer >= 60) {
+        acceptanceTriggered = true;
+        narratorLine('acceptance_wait');
+        setTimeout(() => triggerEnding('acceptance'), 5000);
+      }
+    } else if (isMoving || gameState.currentRoom !== 'CONTROL_ROOM') {
+      acceptanceTimer = 0;
     }
 
     // Room tracking + audio + fog
@@ -836,8 +1058,15 @@ function gameLoop() {
     if (room && room.id !== gameState.currentRoom) {
       const firstVisit = gameState.enterRoom(room.id);
       audio.setAmbiance(AudioSystem.getRoomAmbianceType(room.id));
+      mapBuilder.updateShadowsForRoom(room.id);
 
-      if (room.fogColor) {
+      // Era 4+ overrides room fog with dark/red atmosphere
+      const currentEra = memory.getEra();
+      if (currentEra >= 5) {
+        renderer.setFogColor(0x120505);
+      } else if (currentEra >= 4) {
+        renderer.setFogColor(0x180808);
+      } else if (room.fogColor) {
         renderer.setFogColor(room.fogColor);
       } else {
         renderer.setFogColor(0x111118);
@@ -854,9 +1083,24 @@ function gameLoop() {
       // Update environmental effects when entering new room
       updateEnvironment();
 
-      // Check compassion ending when entering FALSE_ENDING_ROOM or CONTROL_ROOM
-      if ((room.id === 'FALSE_ENDING_ROOM' || room.id === 'CONTROL_ROOM') && checkCompassionEnding()) {
-        triggerEnding('compassion');
+      // Ending checks at terminal rooms (priority: memory > escape > partnership > bargain > compassion)
+      if (room.id === 'FALSE_ENDING_ROOM' || room.id === 'CONTROL_ROOM') {
+        if (checkMemoryEnding()) {
+          triggerEnding('memory_ending');
+        } else if (checkEscapeEnding()) {
+          triggerEnding('escape');
+        } else if (checkPartnershipEnding()) {
+          triggerEnding('partnership');
+        } else if (checkBargainEnding()) {
+          triggerEnding('bargain');
+        } else if (checkCompassionEnding()) {
+          triggerEnding('compassion');
+        }
+      }
+
+      // Check awakening ending in experiment lab (era 3+)
+      if (room.id === 'EXPERIMENT_LAB' && checkAwakeningEnding()) {
+        triggerEnding('awakening');
       }
     }
 
@@ -874,9 +1118,29 @@ function gameLoop() {
         interactPrompt.style.display = 'none';
       }
     }
+
+    // Ghost proximity check (every 30 frames)
+    if (frameCount % 30 === 0 && activeGhosts.length > 0) {
+      for (const ghost of activeGhosts) {
+        if (ghost.userData.faded || ghost.userData.triggered) continue;
+        const dist = player.position.distanceTo(ghost.position);
+        if (dist < 3.0) {
+          ghost.userData.triggered = true;
+          if (ghost.userData.persistent) {
+            // SUBJECT_CHAMBER ghost: look at player, don't fade
+            ghost.lookAt(player.position.x, ghost.position.y, player.position.z);
+            narratorLine('ghost_' + ghost.userData.ghostId + '_stare');
+          } else {
+            // Fade out over 3 seconds
+            narratorLine('ghost_' + ghost.userData.ghostId + '_vanish');
+            fadeOutGhost(ghost);
+          }
+        }
+      }
+    }
   }
 
-  // Render
+  // Render — use postfx only when effects are active, otherwise direct render
   if (postfx.enabled) {
     postfx.update(elapsed);
     postfx.render();
@@ -892,8 +1156,7 @@ ui.init();
 const [startX, startY, startZ] = PLAYER_START.position;
 player.camera.position.set(startX, startY, startZ);
 
-postfx.setScanlines(0.03);
-postfx.enabled = false;
+// postfx starts disabled — enabled by updateEnvironment when defiance kicks in
 
 // Keyboard: skip narrator, interact
 document.addEventListener('keydown', (e) => {

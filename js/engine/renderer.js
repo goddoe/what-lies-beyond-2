@@ -7,7 +7,7 @@ export class Renderer {
     // Scene
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x111118);
-    this.scene.fog = new THREE.Fog(0x111118, 8, 50);
+    this.scene.fog = new THREE.Fog(0x111118, 10, 55);
 
     // Camera
     this.camera = new THREE.PerspectiveCamera(
@@ -25,12 +25,18 @@ export class Renderer {
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.shadowMap.enabled = false;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.8;
+    this.renderer.toneMappingExposure = 2.0;
 
-    // Default ambient light (r160 uses physical units - needs higher intensity)
-    this.ambientLight = new THREE.AmbientLight(0x8090b0, 1.5);
+    // Shadows disabled for performance
+    this.renderer.shadowMap.enabled = false;
+
+    // Uniform ambient lighting — no per-room PointLights for performance
+    // HemisphereLight gives subtle top/bottom color variation
+    this.hemiLight = new THREE.HemisphereLight(0x8899bb, 0x334455, 3.0);
+    this.scene.add(this.hemiLight);
+
+    this.ambientLight = new THREE.AmbientLight(0x8090b0, 2.5);
     this.scene.add(this.ambientLight);
 
     // Resize handler
@@ -57,5 +63,13 @@ export class Renderer {
 
   setExposure(value) {
     this.renderer.toneMappingExposure = value;
+  }
+
+  setFogNear(value) {
+    this.scene.fog.near = value;
+  }
+
+  setFogFar(value) {
+    this.scene.fog.far = value;
   }
 }

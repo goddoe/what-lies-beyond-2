@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
 // Custom scanline + glitch shader
 const GlitchScanlineShader = {
@@ -69,9 +70,16 @@ export class PostFX {
     const renderPass = new RenderPass(scene, camera);
     this.composer.addPass(renderPass);
 
+    // Bloom pass — only enabled during defiance effects to save GPU
+    const resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
+    this.bloomPass = new UnrealBloomPass(resolution, 0.3, 0.6, 0.85);
+    this.bloomPass.enabled = false;
+    this.composer.addPass(this.bloomPass);
+
     this.glitchPass = new ShaderPass(GlitchScanlineShader);
     this.composer.addPass(this.glitchPass);
 
+    // PostFX disabled by default — use direct renderer for performance
     this.enabled = false;
   }
 
@@ -80,9 +88,12 @@ export class PostFX {
     if (intensity > 0) this.enabled = true;
   }
 
+  setBloom(enabled) {
+    this.bloomPass.enabled = enabled;
+  }
+
   setScanlines(intensity) {
     this.glitchPass.uniforms.scanlineIntensity.value = intensity;
-    if (intensity > 0) this.enabled = true;
   }
 
   setNoise(intensity) {

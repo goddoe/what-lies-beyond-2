@@ -150,6 +150,34 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Narrator mode styles */
+.narrator-line.mode-inner {
+  font-style: italic;
+  opacity: 0.85;
+  padding-left: 1em;
+  color: rgba(200, 210, 230, 0.85);
+}
+
+.narrator-line.mode-cracking {
+  animation: lineAppear 0.4s ease-out, crackingShake 3s ease-in-out infinite;
+}
+
+@keyframes crackingShake {
+  0%, 92%, 100% { transform: translateX(0); }
+  94% { transform: translateX(2px); }
+  96% { transform: translateX(-1px); }
+  98% { transform: translateX(1px); }
+}
+
+.narrator-line.mode-revealed {
+  /* Slightly bolder presence */
+  letter-spacing: 0.04em;
+}
+
+.narrator-line.mode-dialogue {
+  letter-spacing: 0.03em;
+}
+
 /* Narrator mood text colors */
 .narrator-line.mood-calm { color: rgba(200, 215, 255, 0.95); }
 .narrator-line.mood-surprised { color: rgba(255, 230, 150, 0.95); }
@@ -165,6 +193,14 @@ body {
   0%, 100% { color: rgba(255, 70, 70, 0.95); }
   50% { color: rgba(255, 140, 70, 0.7); }
 }
+
+/* Inner voice mood (Era 1 — player's own thoughts) */
+.narrator-line.mood-inner {
+  color: rgba(180, 195, 220, 0.8);
+  font-style: italic;
+}
+
+.narrator-line.mood-amused { color: rgba(200, 220, 160, 0.95); }
 
 /* Extended mood colors */
 .narrator-line.mood-pleased { color: rgba(180, 230, 180, 0.95); }

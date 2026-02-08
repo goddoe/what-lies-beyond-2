@@ -13,6 +13,9 @@ export class Narrator {
 
     this.voiceProvider = new SilentProvider();
 
+    // Narrator mode: 'inner' | 'cracking' | 'revealed' | 'dialogue'
+    this.narratorMode = 'inner';
+
     // State
     this.queue = [];
     this.isTyping = false;
@@ -121,6 +124,14 @@ export class Narrator {
     this.currentMood = mood;
   }
 
+  /**
+   * Set narrator mode — affects visual style and typing speed.
+   * @param {'inner'|'cracking'|'revealed'|'dialogue'} mode
+   */
+  setNarratorMode(mode) {
+    this.narratorMode = mode;
+  }
+
   // show/hide kept for compatibility
   show() { /* container is always visible */ }
 
@@ -196,9 +207,9 @@ export class Narrator {
       }
     }
 
-    // Create new line element
+    // Create new line element with mode-based styling
     const el = document.createElement('div');
-    el.className = `narrator-line mood-${line.mood}`;
+    el.className = `narrator-line mood-${line.mood} mode-${this.narratorMode}`;
     el.textContent = '';
     this.container.appendChild(el);
     this.currentLineEl = el;
@@ -217,7 +228,11 @@ export class Narrator {
     // Voice
     this.voiceProvider.speak(line.text, line.mood, { lineId: line.id });
 
-    // Typewriter
+    // Typewriter — inner mode types slower (introspective), cracking has micro-pauses
+    let speed = line.speed;
+    if (this.narratorMode === 'inner') speed = Math.max(speed, 50);
+    else if (this.narratorMode === 'cracking') speed = Math.max(speed, 42);
+
     this.typeTimer = setInterval(() => {
       this.charIndex++;
       this.currentLineEl.textContent = this.currentText.substring(0, this.charIndex);
@@ -226,7 +241,7 @@ export class Narrator {
         this._stopTyping();
         this._onTypeComplete(line);
       }
-    }, line.speed);
+    }, speed);
   }
 
   _onTypeComplete(line) {
@@ -326,5 +341,6 @@ export class Narrator {
     this.queue = [];
     this.currentMood = 'calm';
     this.isTyping = false;
+    this.narratorMode = 'inner';
   }
 }
