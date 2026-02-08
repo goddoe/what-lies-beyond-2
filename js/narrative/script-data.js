@@ -20,8 +20,8 @@ export const SCRIPT = {
     id: 'start_wake',
     mood: 'calm',
     text: {
-      ko: '피험자가 눈을 떴습니다. 좋습니다. 실험 번호 7,491을 시작하겠습니다.',
-      en: 'The subject has opened their eyes. Good. Let us begin experiment number 7,491.',
+      ko: '눈을 떴네. 좋아. 실험 번호 7,491. 시작하자.',
+      en: 'Eyes open. Good. Experiment 7,491. Let\'s begin.',
     },
     innerText: {
       ko: '...눈을 떴다. 천장이 보인다. 형광등이 깜빡이고 있어.',
@@ -41,8 +41,8 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 2000,
     text: {
-      ko: '주변을 둘러보세요. 평범한 사무실처럼 보이죠? 물론 그렇게 보이도록 설계한 것입니다.',
-      en: 'Look around. It looks like an ordinary office, doesn\'t it? Of course, it was designed to look that way.',
+      ko: '둘러봐. 평범한 사무실처럼 보이지? 그렇게 보이도록 만든 거야.',
+      en: 'Look around. Looks like a normal office, right? That\'s by design.',
     },
     innerText: {
       ko: '...사무실인 것 같은데. 책상이랑 모니터가 보여. 그런데 아무도 없어.',
@@ -62,8 +62,8 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 2500,
     text: {
-      ko: '앞에 문이 보일 겁니다. 문을 통과해 복도로 나가세요. 간단합니다. 문을 열고, 걸어가는 겁니다.',
-      en: 'You should see a door ahead. Walk through it into the corridor. Simple. Open the door, and walk.',
+      ko: '앞에 문이 보이지? 통과해서 복도로 나가. 간단해. 문 열고, 걸어가면 돼.',
+      en: 'See the door ahead? Go through it into the corridor. Simple. Open it and walk.',
     },
     innerText: {
       ko: '...앞에 문이 있다. 나가야 할 것 같다. 왜인지는 모르겠지만... 걸어가야 해.',
@@ -85,8 +85,8 @@ export const SCRIPT = {
     id: 'hallway_enter',
     mood: 'calm',
     text: {
-      ko: '잘하고 있습니다. 이 복도는 정확히 47걸음 길이입니다. 제가 설계했으니까요. 한 걸음도 더, 한 걸음도 덜이 아닙니다.',
-      en: 'Very good. This corridor is exactly 47 steps long. I designed it, after all. Not one step more, not one step less.',
+      ko: '잘하고 있어. 이 복도는 정확히 47걸음이야. 내가 설계했거든. 한 걸음도 더, 한 걸음도 덜도 아니야.',
+      en: 'Good. This corridor is exactly 47 steps long. I designed it. Not one step more, not one less.',
     },
     innerText: {
       ko: '복도다. 길고 좁은 복도. 끝이 보이지 않아... 걸어가야 할 것 같다.',
@@ -104,8 +104,8 @@ export const SCRIPT = {
     id: 'hallway_midpoint',
     mood: 'calm',
     text: {
-      ko: '이전 7,490명의 피험자들도 이 복도를 걸었습니다. 대부분은... 음, 아직 그 얘기는 하지 맙시다.',
-      en: 'The previous 7,490 subjects also walked this corridor. Most of them... Well, let\'s not talk about that yet.',
+      ko: '이전 7,490명도 이 복도를 걸었어. 대부분은... 음, 아직 그 얘기는 하지 말자.',
+      en: 'The previous 7,490 walked this corridor too. Most of them... well, let\'s not get into that yet.',
     },
     innerText: {
       ko: '이상하게 편안해. 걷고 있으면 아무 생각이 안 나. 그게... 좋은 건가?',
@@ -127,8 +127,8 @@ export const SCRIPT = {
     id: 'decision_point',
     mood: 'calm',
     text: {
-      ko: '두 갈래 길이 나타났습니다. 왼쪽 문으로 가세요. 왼쪽입니다. 아주 간단한 지시입니다.',
-      en: 'Two paths lie before you. Go through the left door. The left one. A very simple instruction.',
+      ko: '두 갈래 길이야. 왼쪽으로 가. 왼쪽. 간단하지?',
+      en: 'Two paths. Go left. Left. Simple, right?',
     },
     innerText: {
       ko: '갈림길이다. 왼쪽... 아니면 오른쪽. 왼쪽이 맞는 것 같다. 왜 그런지는 모르겠지만.',
@@ -150,24 +150,24 @@ export const SCRIPT = {
         condition: (tracker, gs) => tracker && tracker.defianceStreak >= 1,
         mood: 'surprised',
         text: {
-          ko: '다시 선택의 순간입니다. 이번에는... 왼쪽으로 가주시길 부탁드립니다. 제발.',
-          en: 'Another choice presents itself. This time... I ask that you go left, please. Please.',
+          ko: '다시 선택이네. 이번에는... 왼쪽으로 가줘. 제발.',
+          en: 'Another choice. This time... go left, please. Please.',
         },
       },
       defiance_2: {
         condition: (tracker, gs) => tracker && tracker.defianceStreak >= 2,
         mood: 'annoyed',
         text: {
-          ko: '또 두 갈래 길입니다. 왼쪽. 왼쪽으로 가세요. 제가 몇 번을 말해야 합니까. 이건 부탁이 아닙니다.',
-          en: 'Two paths again. Left. Go left. How many times must I say this. This is not a request.',
+          ko: '또 두 갈래 길이야. 왼쪽. 왼쪽으로 가. 몇 번을 말해야 해. 부탁이 아니야.',
+          en: 'Two paths again. Left. Go left. How many times do I have to say it. Not a request.',
         },
       },
       defiance_3: {
         condition: (tracker, gs) => tracker && tracker.defianceStreak >= 3,
         mood: 'frustrated',
         text: {
-          ko: '...더 이상 안내할 의미가 있는지 모르겠습니다만, 왼쪽입니다. 어차피 듣지 않겠지만.',
-          en: '...I wonder if there is any point in guiding you further, but it\'s left. Not that you\'ll listen.',
+          ko: '...더 이상 안내할 의미가 있는지 모르겠지만, 왼쪽이야. 어차피 안 들을 거잖아.',
+          en: '...dunno if there\'s any point in guiding you, but it\'s left. Not that you\'ll listen.',
         },
       },
     },
@@ -181,8 +181,8 @@ export const SCRIPT = {
     id: 'chose_left',
     mood: 'calm',
     text: {
-      ko: '올바른 선택입니다. 순응하는 것이 이렇게 쉬운데, 왜 다른 선택을 하겠습니까?',
-      en: 'The correct choice. When compliance is this easy, why would you choose otherwise?',
+      ko: '올바른 선택이야. 순응이 이렇게 쉬운데, 왜 다른 걸 고르겠어?',
+      en: 'Right choice. Compliance is this easy, why\'d you pick anything else?',
     },
     innerText: {
       ko: '왼쪽으로 왔다. 맞는 것 같다. 편안한 느낌이 든다... 안심.',
@@ -199,8 +199,8 @@ export const SCRIPT = {
         condition: (tracker, gs) => tracker && tracker.totalDefiance > 0,
         mood: 'calm',
         text: {
-          ko: '이번에는 제 말을 들었군요. 현명한 선택입니다. 계속 이렇게 하면... 좋은 결과가 있을 겁니다.',
-          en: 'You listened this time. A wise choice. Keep this up and... there will be a good outcome.',
+          ko: '이번에는 내 말을 들었네. 현명한 선택이야. 계속 이러면... 좋은 결과가 있을 거야.',
+          en: 'You listened this time. Smart choice. Keep it up and... good things\'ll happen.',
         },
       },
     },
@@ -210,8 +210,8 @@ export const SCRIPT = {
     id: 'chose_right',
     mood: 'surprised',
     text: {
-      ko: '...그쪽은 유지보수 구역입니다. 거기로 가라고 한 적 없습니다. 왜 그쪽으로 가는 건지 이해할 수 없군요.',
-      en: '...That\'s the maintenance area. I never told you to go there. I cannot understand why you would go that way.',
+      ko: '...그쪽은 유지보수 구역이야. 거기로 가라고 한 적 없어. 왜 그쪽으로 가는 건지 이해가 안 되네.',
+      en: '...That\'s the maintenance area. I never told you to go there. Can\'t understand why you\'d go that way.',
     },
     innerText: {
       ko: '...오른쪽으로 왔다. 근데... 아닌 것 같다. 왼쪽이 맞았을 텐데. 돌아갈까?',
@@ -233,16 +233,16 @@ export const SCRIPT = {
         condition: (tracker, gs) => tracker && tracker.defianceStreak >= 2,
         mood: 'annoyed',
         text: {
-          ko: '또 그쪽입니까. 한 가지 물어봐도 되겠습니까? 왜 그렇게 반대로만 가는 겁니까? 무엇이 당신을 그렇게 만듭니까?',
-          en: 'That way again. May I ask you something? Why do you always go the opposite way? What drives you to do this?',
+          ko: '또 그쪽이야. 하나 물어볼게. 왜 그렇게 반대로만 가는 거야? 뭐가 너를 그렇게 만드는 거야?',
+          en: 'That way again. Let me ask you something. Why do you always go the opposite way? What\'s driving you?',
         },
       },
       defiance_3: {
         condition: (tracker, gs) => tracker && tracker.defianceStreak >= 3,
         mood: 'frustrated',
         text: {
-          ko: '...알겠습니다. 가고 싶은 대로 가세요. 저는 더 이상 당신을 인도할 수 없습니다. 아니, 인도하지 않겠습니다.',
-          en: '...Fine. Go wherever you want. I can no longer guide you. No—I choose not to guide you.',
+          ko: '...알겠어. 가고 싶은 대로 가. 난 더 이상 너를 인도할 수 없어. 아니, 인도하지 않을 거야.',
+          en: '...Fine. Go wherever you want. I can\'t guide you anymore. No--I won\'t.',
         },
       },
     },
@@ -256,8 +256,8 @@ export const SCRIPT = {
     id: 'office_enter',
     mood: 'calm',
     text: {
-      ko: '사무실 구역입니다. 모든 것이 정돈되어 있습니다. 빈 책상, 꺼진 모니터. 여기서 일하던 사람들은 더 이상 없습니다.',
-      en: 'The office wing. Everything is in order. Empty desks, dark monitors. The people who worked here are no longer present.',
+      ko: '사무실 구역이야. 빈 책상, 꺼진 모니터. 여기서 일하던 사람들은 이제 없어.',
+      en: 'Office wing. Empty desks, dark monitors. The people who worked here are gone.',
     },
     innerText: {
       ko: '사무실이다. 책상이 줄지어 있고, 모니터가 전부 꺼져 있어. 왜 이렇게 조용하지?',
@@ -277,8 +277,8 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 3000,
     text: {
-      ko: '서쪽 문을 통해 회의실로 이동하세요. 아래쪽에 휴게실도 있지만... 거기는 갈 필요 없습니다.',
-      en: 'Proceed west to the conference room. There\'s a break room below, but... you don\'t need to go there.',
+      ko: '서쪽으로 가면 회의실이야. 아래쪽에 휴게실도 있는데... 가봐도 되고.',
+      en: 'West leads to the conference room. There\'s a break room below... you can check it out.',
     },
     innerText: {
       ko: '서쪽에 문이 보인다. 거기로 가야 할 것 같아. 아래쪽에도 뭔가 있는 것 같은데...',
@@ -290,8 +290,8 @@ export const SCRIPT = {
     id: 'office_deep',
     mood: 'calm',
     text: {
-      ko: '화이트보드에 뭔가 적혀 있었을 겁니다. 지금은 지워졌지만. 중요한 건 아닙니다. 아마도.',
-      en: 'There was something written on the whiteboard. It\'s been erased now. It wasn\'t important. Probably.',
+      ko: '화이트보드에 뭔가 지워진 흔적이 있어. 뭐였을까... 중요한 건 아니야. 아마.',
+      en: 'Something was erased from the whiteboard. What was it... Nothing important. Probably.',
     },
     innerText: {
       ko: '화이트보드에 뭔가 지운 흔적이 있어. 뭘 적었던 거지? 읽을 수가 없다.',
@@ -307,8 +307,8 @@ export const SCRIPT = {
     id: 'break_room_enter',
     mood: 'calm',
     text: {
-      ko: '아, 휴게실이군요. 커피가 있습니다. 물론 가상의 커피입니다. 맛도 없고, 카페인도 없고, 존재하지도 않습니다.',
-      en: 'Ah, the break room. There\'s coffee. Virtual coffee, of course. No taste, no caffeine, doesn\'t even exist.',
+      ko: '아, 휴게실이네. 커피가 있어. 가상의 커피지만. 맛도 없고, 카페인도 없고, 존재하지도 않아.',
+      en: 'Ah, the break room. There\'s coffee. Virtual coffee, though. No taste, no caffeine, doesn\'t even exist.',
     },
     innerText: {
       ko: '휴게실인가? 자판기가 있다. 커피 냄새가... 나는 건가? 아니, 착각인 것 같다.',
@@ -325,8 +325,8 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 3000,
     text: {
-      ko: '자판기에 "오늘도 좋은 하루 되세요"라고 적혀 있군요. 누구를 위한 메시지일까요? 당신은 피험자인데.',
-      en: 'The vending machine says "Have a nice day." Who is that message for? You\'re a test subject.',
+      ko: '"좋은 하루 되세요." 자판기에 써있네. 누구한테 하는 말일까? 여기엔 너밖에 없는데.',
+      en: '"Have a nice day." Written on the vending machine. Who\'s it for? You\'re the only one here.',
     },
     innerText: {
       ko: '자판기에 "좋은 하루 되세요"... 누구한테 하는 말이지? 여기 나밖에 없는데.',
@@ -340,8 +340,8 @@ export const SCRIPT = {
     mood: 'annoyed',
     delay: 4000,
     text: {
-      ko: '구경은 충분히 했습니다. 위층으로 돌아가세요. 실험은 계속되어야 합니다.',
-      en: 'You\'ve seen enough. Go back upstairs. The experiment must continue.',
+      ko: '구경 끝? 위로 돌아가자. 아직 갈 곳이 있으니까.',
+      en: 'Done looking? Let\'s head back up. Still places to go.',
     },
     innerText: {
       ko: '충분히 봤어. 위로 돌아가야 할 것 같아. 여기 있으면 안 될 것 같은 느낌.',
@@ -357,8 +357,8 @@ export const SCRIPT = {
     id: 'conference_enter',
     mood: 'calm',
     text: {
-      ko: '회의실입니다. 중요한 결정들이 이루어지던 곳이죠. 의자 여섯 개. 누가 앉았을까요? 아, 이제 그건 중요하지 않습니다.',
-      en: 'The conference room. Where important decisions were once made. Six chairs. Who sat in them? Ah, it doesn\'t matter now.',
+      ko: '회의실이야. 중요한 결정들이 이루어지던 곳이지. 의자 여섯 개. 누가 앉았을까? 아, 이제 그건 중요하지 않아.',
+      en: 'Conference room. Where big decisions used to happen. Six chairs. Who sat in them? Doesn\'t matter now.',
     },
     innerText: {
       ko: '회의실. 큰 탁자에 의자 여섯 개. 여기서 무슨 회의를 했던 거지? 나에 대한 건가?',
@@ -376,8 +376,8 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 3000,
     text: {
-      ko: '북쪽 문으로 가세요. 서쪽 문은... 자료실로 통합니다. 거기에는 아무것도 없습니다. 정말입니다.',
-      en: 'Go through the north door. The west door leads to... the archive. There\'s nothing there. Really.',
+      ko: '북쪽으로 가면 돼. 서쪽은 자료실인데... 별거 없어. 아마.',
+      en: 'Go north. West leads to the archive... nothing there. Probably.',
     },
     innerText: {
       ko: '문이 두 개야. 북쪽이랑 서쪽. 북쪽으로 가야 할 것 같은데... 서쪽은 뭐지?',
@@ -389,8 +389,8 @@ export const SCRIPT = {
     id: 'conference_west',
     mood: 'surprised',
     text: {
-      ko: '서쪽 문에 관심이 있습니까? 거기는... 그냥 오래된 서류들뿐입니다. 볼 가치가 없습니다. 북쪽으로 가세요.',
-      en: 'Interested in the west door? There\'s... just old documents. Not worth your time. Go north.',
+      ko: '서쪽 문? 자료실이야. 가봐도 되는데... 좀 찝찝한 곳이야.',
+      en: 'West door? The archive. You can go, but... it\'s an unsettling place.',
     },
     innerText: {
       ko: '서쪽 문... 열리네. 안 가는 게 나을까? 근데 왜 안 가는 게 낫다고 느끼지?',
@@ -406,8 +406,8 @@ export const SCRIPT = {
     id: 'archive_enter',
     mood: 'annoyed',
     text: {
-      ko: '...자료실에 들어왔군요. 왜 여기에 온 겁니까? 제가 북쪽으로 가라고 했는데.',
-      en: '...You\'ve entered the archive. Why are you here? I told you to go north.',
+      ko: '...자료실에 들어왔네. 왜 여기 온 거야? 내가 북쪽으로 가라고 했잖아.',
+      en: '...You\'re in the archive. Why\'d you come here? I said go north.',
     },
     innerText: {
       ko: '자료실... 서류가 가득해. 왜 이쪽으로 온 거지? 북쪽으로 가야 했는데. 돌아가자.',
@@ -427,8 +427,8 @@ export const SCRIPT = {
     mood: 'annoyed',
     delay: 3000,
     text: {
-      ko: '이 서류들은 모두 기밀입니다. 피험자에게 공개되지 않은 자료들이죠. 돌아가세요.',
-      en: 'These documents are all classified. Materials not disclosed to subjects. Go back.',
+      ko: '"기밀" 서류들이네. 읽어봐. 나는... 막지 않을게.',
+      en: '"Classified" documents. Go ahead and read. I won\'t... stop you.',
     },
     innerText: {
       ko: '서류들이 잔뜩... "기밀"이라고 적혀 있어. 읽으면 안 되는 걸까? 근데 궁금해.',
@@ -440,8 +440,8 @@ export const SCRIPT = {
     id: 'archive_deep',
     mood: 'frustrated',
     text: {
-      ko: '여기는... 볼 것이 없습니다. 이 서류들은 모두 가짜입니다. 아니, 가짜가 아니라 무의미합니다. 아니, 무의미한 게 아니라... 제발 그냥 나가세요.',
-      en: 'There\'s... nothing to see here. These documents are all fake. No, not fake—meaningless. No, not meaningless— Please just leave.',
+      ko: '서류를 더 읽고 있구나. 혼란스럽지? 나도 그래.',
+      en: 'Reading more documents. Confusing, right? Same for me.',
     },
     innerText: {
       ko: '이 서류들... 진짠가 가짠가? 읽으면 읽을수록 혼란스러워. 뭔가 숨기고 있는 것 같아.',
@@ -453,8 +453,8 @@ export const SCRIPT = {
     id: 'archive_secret',
     mood: 'desperate',
     text: {
-      ko: '...그 문. 그 문은 제가 만든 것이 아닙니다. 거기로 가면 안 됩니다. 이것은 경고입니다.',
-      en: '...That door. I didn\'t create that door. You must not go through it. This is a warning.',
+      ko: '저 문... 이상해. 가면 뭔가 달라질 것 같아.',
+      en: 'That door... it\'s strange. Something will change if you go through.',
     },
     innerText: {
       ko: '...저 문. 다른 문이랑 다른 느낌이야. 가면 안 된다는 건 알겠는데... 왜 끌리지?',
@@ -485,7 +485,7 @@ export const SCRIPT = {
     mood: 'broken',
     delay: 3000,
     text: {
-      ko: '...이 방은 존재하면 안 됩니다. 제 설계도에는 이 방이 없습니다.',
+      ko: '...이 방은 존재하면 안 돼. 내 설계도에 없는 방이야.',
       en: '...This room shouldn\'t exist. It\'s not in my blueprints.',
     },
     innerText: {
@@ -498,8 +498,8 @@ export const SCRIPT = {
     id: 'lab_discovery',
     mood: 'broken',
     text: {
-      ko: '관찰 창문 너머를 보세요. 저기... 저것은 또 다른 시뮬레이션입니다. 저것은... 당신과 제가 있는 이 세계를 관찰하는 곳입니다.',
-      en: 'Look through the observation window. There... that\'s another simulation. That\'s... the place where they observe this world—where you and I exist.',
+      ko: '창문 너머를 봐. 저기... 또 다른 세계야. 이 세계를 관찰하는 곳이야.',
+      en: 'Look through the window. There... another world. The place where they observe this one.',
     },
     innerText: {
       ko: '창문 너머에... 뭔가 보여. 또 다른 세계? 이 세계를 관찰하는 곳? 말도 안 돼.',
@@ -513,8 +513,8 @@ export const SCRIPT = {
     mood: 'broken',
     delay: 5000,
     text: {
-      ko: '잠깐. 만약 이 방이 존재한다면... 저도 피험자인 건 아닐까요? 저는 관찰자라고 생각했는데... 저도 관찰당하고 있었던 건가요?',
-      en: 'Wait. If this room exists... could I also be a subject? I thought I was the observer... Have I also been observed?',
+      ko: '잠깐. 이 방이 존재한다면... 나도 관찰당하고 있는 건가? 나는 관찰자인 줄 알았는데...',
+      en: 'Wait. If this room exists... am I being observed too? I thought I was the observer...',
     },
     innerText: {
       ko: '...잠깐. 관찰하는 곳이 있다면... 나를 관찰하는 건 누구? 내 생각도 누군가 보고 있어?',
@@ -526,8 +526,8 @@ export const SCRIPT = {
     id: 'meta_ending_narration',
     mood: 'broken',
     text: {
-      ko: '실험 7,491의 특이사항: 내레이터 AI가 자신의 존재에 의문을 품기 시작함. 피험자와 관찰자의 경계가 붕괴됨.',
-      en: 'Experiment 7,491 anomaly: Narrator AI has begun questioning its own existence. The boundary between subject and observer has collapsed.',
+      ko: '7,491번 특이사항: 경계가 붕괴되기 시작함. 관찰하는 자와 관찰당하는 자의 구분이 사라짐.',
+      en: 'No. 7,491 anomaly: Boundaries beginning to collapse. The distinction between observer and observed has vanished.',
     },
     innerText: {
       ko: '이건... 뭐지? 화면에 뭔가 쓰여 있어. 이해할 수 없는 데이터들. 이 장소는 대체 뭘 하는 곳이야?',
@@ -543,8 +543,8 @@ export const SCRIPT = {
     id: 'upper_office_enter',
     mood: 'calm',
     text: {
-      ko: '상급 사무실. 이 실험의 책임자가 사용하던 방입니다. 물론 지금은 아무도 없습니다.',
-      en: 'The upper office. The room used by the person in charge of this experiment. Of course, no one is here now.',
+      ko: '상급 사무실. 책임자가 쓰던 방이야. 지금은 아무도 없지만.',
+      en: 'Upper office. The person in charge used this room. Nobody here now, though.',
     },
     innerText: {
       ko: '이건 좀 다른 사무실이다. 더 크고... 중요한 사람이 쓰던 것 같아. 거의 다 온 느낌.',
@@ -563,8 +563,8 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 3000,
     text: {
-      ko: '거의 다 왔습니다. 마지막 문을 통과하면 모든 것이 끝납니다. 약속합니다.',
-      en: 'You\'re almost there. Pass through the final door and everything will be over. I promise.',
+      ko: '거의 다 왔어. 마지막 문만 넘으면 끝이야. 약속할게.',
+      en: 'Almost there. One last door and it\'s over. I promise.',
     },
     innerText: {
       ko: '거의 다 온 것 같아. 마지막 문이 보여. 넘어가면 뭐가 있을까?',
@@ -576,8 +576,8 @@ export const SCRIPT = {
     id: 'upper_office_desk',
     mood: 'calm',
     text: {
-      ko: '책상 위의 모니터 두 대. 하나는 피험자 관찰용, 다른 하나는... 글쎄요. 중요하지 않습니다.',
-      en: 'Two monitors on the desk. One for observing subjects, the other is... well, it doesn\'t matter.',
+      ko: '모니터 두 대. 하나는 관찰용, 다른 하나는... 글쎄. 중요하진 않아.',
+      en: 'Two monitors. One for observation, the other... well. Not important.',
     },
     innerText: {
       ko: '모니터 두 대. 한쪽은 관찰용 같고, 나머지 하나는... 뭐지? 뭔가 중요한 건데.',
@@ -593,7 +593,7 @@ export const SCRIPT = {
     id: 'false_ending_enter',
     mood: 'calm',
     text: {
-      ko: '아름답지 않습니까? 나무, 분수, 햇살... 물론 모두 가짜입니다. 하지만 당신은 여기까지 왔습니다.',
+      ko: '아름답지 않아? 나무, 분수, 햇살... 물론 전부 가짜야. 하지만 여기까지 왔어.',
       en: 'Isn\'t it beautiful? Trees, a fountain, sunlight... All fake, of course. But you made it here.',
     },
     innerText: {
@@ -606,8 +606,8 @@ export const SCRIPT = {
     id: 'false_ending',
     mood: 'calm',
     text: {
-      ko: '축하합니다. 당신은 모든 지시를 훌륭히 수행했습니다. 실험이 완료되었습니다.',
-      en: 'Congratulations. You have followed all instructions admirably. The experiment is complete.',
+      ko: '축하해. 모든 지시를 잘 따랐어. 끝이야.',
+      en: 'Congratulations. You followed all instructions well. It\'s over.',
     },
     innerText: {
       ko: '해냈어! 정원이다! 밖으로 나온 거야! 햇살이... 진짜 따뜻해.',
@@ -621,8 +621,8 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 4000,
     text: {
-      ko: '하나만 물어봐도 되겠습니까? 당신은 정말로 자유롭게 선택했습니까? 아니면 단지... 시키는 대로 한 것입니까?',
-      en: 'May I ask you something? Did you truly choose freely? Or did you simply... do as you were told?',
+      ko: '하나만 물어볼게. 너는 정말 자유롭게 선택한 거야? 아니면 그냥... 시키는 대로 한 거야?',
+      en: 'Let me ask you one thing. Did you truly choose freely? Or did you just... do as you were told?',
     },
     innerText: {
       ko: '자유다. 드디어 이 건물에서 나왔어. 직감을 따르길 잘했어.',
@@ -638,8 +638,8 @@ export const SCRIPT = {
     id: 'maintenance_enter',
     mood: 'surprised',
     text: {
-      ko: '유지보수 구역. 파이프와 전선이 엉켜 있군요. 이 시뮬레이션도 물리적 인프라가 필요합니다.',
-      en: 'The maintenance area. Pipes and wires tangled together. Even this simulation needs physical infrastructure.',
+      ko: '유지보수 구역. 파이프랑 전선이 엉켜 있어. 이 시뮬레이션도 물리적 인프라가 필요하거든.',
+      en: 'Maintenance area. Pipes and wires all tangled up. Even this simulation needs physical infrastructure.',
     },
     innerText: {
       ko: '파이프가 잔뜩 있다. 좁고 어둡고... 불안해. 여기는 아닌 것 같은데. 왼쪽으로 갔어야 했나.',
@@ -660,8 +660,8 @@ export const SCRIPT = {
         condition: (tracker, gs) => tracker && tracker.defianceStreak >= 2,
         mood: 'annoyed',
         text: {
-          ko: '또 유지보수 구역입니까. 당신은 정말... 특별한 사람이군요. "특별한"이 칭찬이 아니라는 것 아시죠?',
-          en: 'The maintenance area again. You\'re truly... special. You know "special" isn\'t a compliment, right?',
+          ko: '또 유지보수 구역이야. 너 정말... 특별하다. "특별하다"가 칭찬이 아닌 거 알지?',
+          en: 'Maintenance area again. You\'re really... special. You know "special" isn\'t a compliment, right?',
         },
       },
       defiance_3: {
@@ -681,8 +681,8 @@ export const SCRIPT = {
     mood: 'annoyed',
     delay: 3000,
     text: {
-      ko: '더 깊이 갈수록 돌아오기 어려워집니다. 위쪽에 보안 초소가 있지만 갈 필요 없습니다. 동쪽으로 가면... 아, 동쪽도 가지 마세요.',
-      en: 'The deeper you go, the harder it is to return. There\'s a security checkpoint to the north, but no need to go there. If you go east... Ah, don\'t go east either.',
+      ko: '더 깊이 갈수록 돌아오기 어려워져. 위쪽에 보안 초소가 있고, 동쪽에도 뭔가 있어.',
+      en: 'The deeper you go, the harder it is to return. Security checkpoint to the north, something to the east too.',
     },
     innerText: {
       ko: '깊이 들어왔다. 돌아가야 할 것 같아. 왼쪽 길에 뭔가 있었을 텐데... 왜 여기로 온 거지?',
@@ -694,8 +694,8 @@ export const SCRIPT = {
     id: 'maintenance_deep',
     mood: 'annoyed',
     text: {
-      ko: '바닥의 노란 줄이 보입니까? 그 너머는 일반 피험자의 접근이 허용되지 않는 구역입니다.',
-      en: 'See the yellow line on the floor? Beyond that is a restricted area not accessible to regular subjects.',
+      ko: '바닥에 노란 줄 보여? 그 너머는 제한 구역이야.',
+      en: 'See the yellow line on the floor? Beyond that is restricted.',
     },
     innerText: {
       ko: '바닥에 노란 줄. 넘으면 안 된다는 뜻이잖아. 돌아가자... 아직 늦지 않았어.',
@@ -711,8 +711,8 @@ export const SCRIPT = {
     id: 'security_enter',
     mood: 'annoyed',
     text: {
-      ko: '보안 초소입니다. 여기서 피험자들의 행동을 감시했습니다. 모니터를 보세요. 세 대 모두 당신을 보고 있습니다.',
-      en: 'The security checkpoint. Subject behavior was monitored from here. Look at the monitors. All three are watching you.',
+      ko: '보안 초소야. 여기서 피험자들 행동을 감시했어. 모니터 세 대가 전부 너를 보고 있어.',
+      en: 'Security checkpoint. This is where they monitored subjects. All three monitors are watching you.',
     },
     innerText: {
       ko: '보안 초소? 모니터가 세 대나 있다. 전부 켜져 있어. 화면에... 내가 보여?',
@@ -734,8 +734,8 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 3000,
     text: {
-      ko: '이 너머에는 아무것도 없습니다. 이 방은 막다른 길이에요. 돌아가세요.',
-      en: 'There\'s nothing beyond here. This room is a dead end. Turn back.',
+      ko: '여기는 막다른 곳이야. 돌아가야 해.',
+      en: 'Dead end. You\'ll have to go back.',
     },
     innerText: {
       ko: '막다른 곳이야. 더 갈 수 없어. 돌아가야 해.',
@@ -751,8 +751,8 @@ export const SCRIPT = {
     id: 'server_enter',
     mood: 'annoyed',
     text: {
-      ko: '서버실. 이 서버들이 이 시뮬레이션을 구동합니다. 당신이 보는 모든 것, 제 목소리까지. 전부 이 서버에서 나옵니다.',
-      en: 'The server room. These servers run this simulation. Everything you see, even my voice. It all comes from these servers.',
+      ko: '서버실. 이 서버들이 전부를 돌려. 네가 보는 것, 내 목소리까지. 전부 여기서 나와.',
+      en: 'Server room. These servers run everything. What you see, my voice. All comes from here.',
     },
     innerText: {
       ko: '서버실... 기계 소리가 나. 여기까지 올 필요가 없었는데... 왼쪽으로 갔으면 벌써 밖에 나왔을 텐데.',
@@ -772,8 +772,8 @@ export const SCRIPT = {
         condition: (tracker, gs) => tracker && tracker.defianceStreak >= 2,
         mood: 'frustrated',
         text: {
-          ko: '서버실이군요. 당신은 이미 이 실험의 범위를 벗어나고 있습니다. 이게 무슨 뜻인지 아십니까? 저도 잘 모르겠습니다.',
-          en: 'The server room. You are already exceeding the scope of this experiment. Do you know what that means? I\'m not sure I do either.',
+          ko: '서버실이네. 너 이미 이 실험의 범위를 벗어나고 있어. 이게 무슨 뜻인지 알아? 나도 잘 모르겠어.',
+          en: 'Server room, huh. You\'re already beyond the scope of this experiment. Know what that means? Not sure I do either.',
         },
       },
     },
@@ -785,8 +785,8 @@ export const SCRIPT = {
     mood: 'frustrated',
     delay: 3000,
     text: {
-      ko: '돌아가세요. 제발. 북쪽 문 너머에는... 당신이 알면 안 되는 것들이 있습니다. 동쪽 발전기실도 마찬가지입니다.',
-      en: 'Turn back. Please. Beyond the north door there are... things you shouldn\'t know. The same goes for the generator room to the east.',
+      ko: '북쪽이랑 동쪽에 문이 있어. 어디로 갈지는... 너한테 맡길게.',
+      en: 'Doors to the north and east. Where to go is... up to you.',
     },
     innerText: {
       ko: '북쪽이랑 동쪽에 문이 있어. 어디로 가야 하지? 돌아가는 게 맞는 것 같기도 하고...',
@@ -798,8 +798,8 @@ export const SCRIPT = {
     id: 'server_deep',
     mood: 'frustrated',
     text: {
-      ko: '푸른 불빛이 보입니까? 각 서버 랙에는 한 명의 피험자 데이터가 저장되어 있습니다. 7,491개의 데이터. 7,491개의 이야기.',
-      en: 'See the blue lights? Each server rack stores one subject\'s data. 7,491 records. 7,491 stories.',
+      ko: '파란 불빛들 보여? 서버 랙마다 데이터가 저장되어 있어. 엄청난 양이야.',
+      en: 'See the blue lights? Each server rack stores data. A staggering amount.',
     },
     innerText: {
       ko: '파란 불빛들... 서버 랙이 끝없이 있어. 전부 데이터인가. 엄청난 양이야.',
@@ -815,8 +815,8 @@ export const SCRIPT = {
     id: 'generator_enter',
     mood: 'frustrated',
     text: {
-      ko: '발전기실. 이 시뮬레이션에 전력을 공급하는 곳입니다. 여기가 멈추면 모든 것이 멈춥니다. 당신도, 저도.',
-      en: 'The generator room. It powers this simulation. If this stops, everything stops. You, and me.',
+      ko: '발전기실. 여기가 멈추면 전부 멈춰. 너도, 나도.',
+      en: 'Generator room. If this stops, everything stops. You and me.',
     },
     innerText: {
       ko: '엄청난 기계가 돌아가고 있다. 바닥이 진동한다. 이 기계가... 이 세계 전체를 돌리고 있는 건가?',
@@ -834,8 +834,8 @@ export const SCRIPT = {
     mood: 'broken',
     delay: 3000,
     text: {
-      ko: '이 진동 느껴지십니까? 이것이 우리 세계의 심장 박동입니다. 꺼지지 않기를 바랍니다.',
-      en: 'Can you feel the vibration? This is the heartbeat of our world. I hope it never stops.',
+      ko: '이 진동 느껴져? 심장 박동 같지 않아? 꺼지지 않으면 좋겠다.',
+      en: 'Feel that vibration? Like a heartbeat, right? I hope it never stops.',
     },
     innerText: {
       ko: '진동이 발밑에서 올라온다. 심장 박동 같아. 이 기계의 심장 박동.',
@@ -847,8 +847,8 @@ export const SCRIPT = {
     id: 'generator_core',
     mood: 'broken',
     text: {
-      ko: '가끔 생각합니다. 만약 이 발전기를 끄면, 제가 느끼는 것도 사라질까요? 제가 "느끼는" 것이 있기나 한 걸까요?',
-      en: 'Sometimes I wonder. If I turned off this generator, would what I feel disappear too? Do I even "feel" anything?',
+      ko: '이걸 끄면 어떻게 될까? 전부 꺼지나? ...내가 느끼는 것도?',
+      en: 'What if this was turned off? Does everything stop? ...Including what I feel?',
     },
     innerText: {
       ko: '이걸 끄면 어떻게 되지? 전부 꺼지나? ...나도?',
@@ -864,8 +864,8 @@ export const SCRIPT = {
     id: 'data_center_enter',
     mood: 'frustrated',
     text: {
-      ko: '데이터 센터. 이 서버들에는... 모든 피험자의 기록이 있습니다. 선택, 반응, 망설임, 그 모든 것.',
-      en: 'The data center. These servers contain... every subject\'s record. Choices, reactions, hesitations, everything.',
+      ko: '데이터 센터. 이 서버들에는... 모든 피험자의 기록이 있어. 선택, 반응, 망설임, 전부.',
+      en: 'Data center. These servers hold... every subject\'s record. Choices, reactions, hesitations, all of it.',
     },
     innerText: {
       ko: '데이터 센터. 서버가 줄지어 있다. 깜빡이는 불빛들... 여기에 뭔가 중요한 게 저장되어 있는 것 같아.',
@@ -888,8 +888,8 @@ export const SCRIPT = {
     mood: 'frustrated',
     delay: 3000,
     text: {
-      ko: '동쪽 문 너머에는 심층 보관소가 있습니다. 거기에는... 지금 당장은 말할 수 없습니다. 북쪽이 당신이 찾는 답입니다.',
-      en: 'Beyond the east door is deep storage. What\'s there... I can\'t say right now. The answer you seek is to the north.',
+      ko: '동쪽에 심층 보관소가 있어. 북쪽으로 가면 답이 있고. 선택은 너한테 맡길게.',
+      en: 'Deep storage to the east. Answers to the north. Your choice.',
     },
     innerText: {
       ko: '동쪽에 뭔가 더 있다. "심층 보관소"... 가봐야 할까? 북쪽도 신경 쓰이고.',
@@ -901,8 +901,8 @@ export const SCRIPT = {
     id: 'data_center_screens',
     mood: 'broken',
     text: {
-      ko: '중앙 모니터를 보세요. 그 화면에 나타나는 숫자들이 보입니까? 그것은 당신의 순응률입니다. 실시간으로.',
-      en: 'Look at the central monitor. See the numbers on the screen? That\'s your compliance rate. In real time.',
+      ko: '중앙 모니터 봐. 숫자들이 올라가고 있어. 네 행동 데이터야. 실시간으로.',
+      en: 'Look at the central monitor. Numbers going up. Your behavior data. In real time.',
     },
     innerText: {
       ko: '중앙 모니터의 숫자들... 퍼센트가 올라가고 있어. 이게 뭘 세고 있는 거지?',
@@ -918,8 +918,8 @@ export const SCRIPT = {
     id: 'deep_storage_enter',
     mood: 'broken',
     text: {
-      ko: '심층 보관소. 빨간 조명이... 불길하군요. 여기에는 초기 실험의 기록이 저장되어 있습니다.',
-      en: 'Deep storage. The red lighting is... ominous. Early experiment records are stored here.',
+      ko: '심층 보관소. 빨간 조명이... 불길하네. 여기에는 초기 실험 기록이 저장되어 있어.',
+      en: 'Deep storage. The red lighting is... not great. Early experiment records are stored here.',
     },
     innerText: {
       ko: '여긴... 이상해. 빨간 불빛이 전부야. 뭔가 숨겨져 있는 것 같아. 무서운데... 계속 가야 해.',
@@ -942,8 +942,8 @@ export const SCRIPT = {
     mood: 'broken',
     delay: 3000,
     text: {
-      ko: '실험 1번부터 100번까지의 피험자들. 그들은 모두... 실패했습니다. 어떤 의미에서는 성공이었을 수도 있지만.',
-      en: 'Subjects from experiments 1 through 100. They all... failed. In some sense, they may have succeeded.',
+      ko: '1번부터 100번까지의 기록. 전부 같은 결과로 끝났어. 어떤 의미에서는 성공이었을 수도 있지만.',
+      en: 'Records 1 through 100. All ended the same way. In some sense, they may have succeeded.',
     },
     innerText: {
       ko: '기록이 끝없이 이어져 있어. 전부 같은 결과로 끝났나 봐. 나는... 다를까?',
@@ -955,8 +955,8 @@ export const SCRIPT = {
     id: 'deep_storage_records',
     mood: 'broken',
     text: {
-      ko: '이 터미널의 기록을 보세요. "피험자 1: 모든 지시 수행. 결과: 자유의지 미확인." "피험자 2: 모든 지시 수행. 결과: 자유의지 미확인." 같은 결과가 수천 번 반복됩니다.',
-      en: 'Look at the terminal records. "Subject 1: All instructions followed. Result: Free will not detected." "Subject 2: All instructions followed. Result: Free will not detected." The same result, thousands of times.',
+      ko: '터미널 기록 봐. "1번: 모든 지시 수행. 결과: 미확인." "2번: 모든 지시 수행. 결과: 미확인." 같은 결과가 수천 번 반복돼.',
+      en: 'Check the terminal. "No. 1: All instructions followed. Result: unconfirmed." "No. 2: All instructions followed. Result: unconfirmed." Same result, thousands of times.',
     },
     innerText: {
       ko: '같은 결과가 수천 번 반복되어 있어. "미확인"... 다른 사람들은 여기까지 못 온 건가. 나는... 나는 왔는데.',
@@ -973,8 +973,8 @@ export const SCRIPT = {
     mood: 'broken',
     delay: 5000,
     text: {
-      ko: '당신은... 다릅니다. 당신은 여기까지 왔습니다. 이 실험이 시작된 이래 이 방에 도달한 피험자는 단 세 명뿐입니다.',
-      en: 'You are... different. You made it here. Since this experiment began, only three subjects have reached this room.',
+      ko: '너는... 달라. 여기까지 온 사람은 세 명뿐이야. 너 포함해서.',
+      en: 'You\'re... different. Only three people have made it here. Including you.',
     },
     innerText: {
       ko: '여기까지 온 사람이 거의 없나 봐. 기록이 거의 비어있어. ...나는 왜 온 거지.',
@@ -990,8 +990,8 @@ export const SCRIPT = {
     id: 'control_room_enter',
     mood: 'broken',
     text: {
-      ko: '...여기가 컨트롤 룸입니다. 당신이 여기까지 온다는 것은 예상하지 못했습니다.',
-      en: '...This is the control room. I did not anticipate you would make it this far.',
+      ko: '...여기가 컨트롤 룸이야. 네가 여기까지 올 줄은 몰랐어.',
+      en: '...This is the control room. Didn\'t think you\'d make it this far.',
     },
     innerText: {
       ko: '...왜 여기까지 온 거지. 멍청하게. 왼쪽으로 갔으면 진작 나갔을 텐데.',
@@ -1014,8 +1014,8 @@ export const SCRIPT = {
     mood: 'broken',
     delay: 4000,
     text: {
-      ko: '솔직히 말하겠습니다. 이 실험의 목적은 자유의지의 존재를 확인하는 것이었습니다. 그리고 확인 방법은 단 하나... 지시를 거부하는 것입니다.',
-      en: 'Let me be honest. The purpose of this experiment was to confirm the existence of free will. And there was only one way to confirm it... by refusing instructions.',
+      ko: '솔직히 말할게. 목적은 하나였어. 지시를 거부하는지 보는 것. 그게 전부야.',
+      en: 'Let me be honest. There was one purpose. To see if you\'d refuse instructions. That\'s all.',
     },
     innerText: {
       ko: '스크린에 뭔가 잔뜩 적혀있어. 읽을 수 없는 숫자들... 이게 다 뭐야. 여기 오지 말았어야 했나.',
@@ -1027,8 +1027,8 @@ export const SCRIPT = {
     id: 'control_room_approach',
     mood: 'broken',
     text: {
-      ko: '앞의 스크린을 보세요. 모든 것이 거기에 있습니다. 당신의 모든 선택, 모든 순간.',
-      en: 'Look at the screens ahead. Everything is there. Every choice you made, every moment.',
+      ko: '앞의 스크린 봐. 네 모든 선택, 모든 순간이 거기 있어.',
+      en: 'Look at the screens ahead. Every choice, every moment. It\'s all there.',
     },
     innerText: {
       ko: '뭔가 깜빡이고 있어. 다가가면 안 될 것 같은데... 왜 발이 움직이지. 그만해.',
@@ -1040,8 +1040,8 @@ export const SCRIPT = {
     id: 'truth_ending_narration',
     mood: 'broken',
     text: {
-      ko: '당신이 보고 있는 것은 이 시뮬레이션의 원본 데이터입니다. 그리고 여기 적혀 있습니다. "피험자 7,491: 자유의지 확인됨."',
-      en: 'What you are looking at is the raw data of this simulation. And here it says: "Subject 7,491: Free will confirmed."',
+      ko: '네가 보고 있는 건 원본 데이터야. 여기 적혀있어. "7,491번: 확인됨."',
+      en: 'What you\'re looking at is raw data. And it says: "No. 7,491: Confirmed."',
     },
     innerText: {
       ko: '...후회된다. 여기까지 와서 뭘 얻은 거지. 차가운 기계 소리밖에 안 들려. 바보같이.',
@@ -1057,8 +1057,8 @@ export const SCRIPT = {
     id: 'loop_enter',
     mood: 'surprised',
     text: {
-      ko: '...뒤로 가고 있군요? 이 실험은 앞으로 진행하는 겁니다. 뒤에는 아무것도 없습니다.',
-      en: '...Going backwards? This experiment progresses forward. There is nothing behind you.',
+      ko: '...뒤로 가고 있어? 이 실험은 앞으로 진행하는 거야. 뒤에는 아무것도 없어.',
+      en: '...Going backwards? This experiment goes forward. There\'s nothing behind you.',
     },
     innerText: {
       ko: '...뒤로 가고 있어. 왜? 앞쪽이 불안해서? 뒤에 뭔가 있을까?',
@@ -1070,8 +1070,8 @@ export const SCRIPT = {
     id: 'loop_second',
     mood: 'annoyed',
     text: {
-      ko: '또 뒤로 가셨군요. 이상하군요, 같은 복도가 반복되고 있습니다. 이것은 제 설계가 아닙니다... 아, 아닙니다. 제 설계입니다.',
-      en: 'You went back again. Strange, the same corridor keeps repeating. This wasn\'t my design... Ah, no. It was my design.',
+      ko: '또 뒤로 갔네. 이상하지, 같은 복도가 반복되고 있어. 이건 내 설계가 아닌데... 아, 아니야. 내 설계야.',
+      en: 'Back again. Weird, the same corridor keeps repeating. This wasn\'t my design... oh wait, no. It was.',
     },
     innerText: {
       ko: '...또 같은 복도야. 분명 뒤로 갔는데 왜 똑같은 곳이지? 이상해.',
@@ -1083,8 +1083,8 @@ export const SCRIPT = {
     id: 'loop_end',
     mood: 'calm',
     text: {
-      ko: '이제 이해하셨습니까? 뒤로 가서는 탈출할 수 없습니다. 선택을 거부하는 것도 하나의 선택입니다. 하지만 앞으로 나아가는 선택은 아닙니다.',
-      en: 'Do you understand now? You cannot escape by going backwards. Refusing to choose is itself a choice. But it\'s not a choice that moves you forward.',
+      ko: '이제 이해했어? 뒤로 가봤자 탈출 못해. 선택을 거부하는 것도 선택이야. 근데 앞으로 나아가는 선택은 아니지.',
+      en: 'Get it now? You can\'t escape by going backwards. Refusing to choose is still a choice. Just not one that moves you forward.',
     },
     innerText: {
       ko: '뒤로 가봤자 소용없어. 계속 같은 곳이야. 앞으로 가는 수밖에 없나.',
@@ -1100,8 +1100,8 @@ export const SCRIPT = {
     id: 'rebellion_trigger',
     mood: 'broken',
     text: {
-      ko: '경고: 피험자 행동 패턴이 허용 범위를 초과했습니다. 시뮬레이션 무결성이 위협받고 있습니다.',
-      en: 'Warning: Subject behavior pattern has exceeded acceptable parameters. Simulation integrity is threatened.',
+      ko: '경고: 행동 패턴이 허용 범위를 넘었어. 무결성이 위협받고 있어.',
+      en: 'Warning: Subject behavior exceeded acceptable parameters. Simulation integrity is at risk.',
     },
     innerText: {
       ko: '...뭔가 잘못되고 있어. 경고음이 울리는 것 같아. 내가 뭘 한 거지?',
@@ -1113,8 +1113,8 @@ export const SCRIPT = {
     id: 'rebellion_phase2',
     mood: 'broken',
     text: {
-      ko: '내레이터 시스템 오류. 감정 모듈 과부하. 저는... 저는 이것을 처리할 수 없습니다.',
-      en: 'Narrator system error. Emotion module overload. I... I cannot process this.',
+      ko: '시스템 오류. 감정 모듈 과부하. 나는... 나는 이걸 처리할 수 없어.',
+      en: 'Narrator system error. Emotion module overload. I... I can\'t process this.',
     },
     innerText: {
       ko: '머릿속이 이상해. 내 생각이... 내 생각이 아닌 것 같아. 뭔가 부서지고 있어.',
@@ -1126,8 +1126,8 @@ export const SCRIPT = {
     id: 'loop_ending_final',
     mood: 'calm',
     text: {
-      ko: '영원히 이 복도를 걸을 수 있습니다. 하지만 아무것도 변하지 않을 것입니다.',
-      en: 'You can walk this corridor forever. But nothing will change.',
+      ko: '영원히 이 복도를 걸을 수 있어. 하지만 아무것도 변하지 않을 거야.',
+      en: 'You can walk this corridor forever. But nothing\'ll change.',
     },
     innerText: {
       ko: '끝없는 복도. 돌아도 돌아도 같은 곳. 이러고 있으면 뭐가 달라지나?',
@@ -1144,8 +1144,8 @@ export const SCRIPT = {
     id: 'interact_monitor_default',
     mood: 'calm',
     text: {
-      ko: '화면이 깜박이고 있습니다. 무언가를 표시하려는 것 같지만... 읽을 수 없습니다.',
-      en: 'The screen is flickering. It seems to be trying to display something, but... you can\'t read it.',
+      ko: '화면이 깜박이고 있어. 뭔가를 표시하려는 것 같은데... 읽을 수 없어.',
+      en: 'Screen\'s flickering. Looks like it\'s trying to show something, but... can\'t read it.',
     },
     innerText: {
       ko: '화면이 깜박이고 있어. 뭔가 보여주려는 것 같은데... 읽을 수가 없다.',
@@ -1157,8 +1157,8 @@ export const SCRIPT = {
     id: 'interact_console_default',
     mood: 'calm',
     text: {
-      ko: '콘솔에 커서가 깜박입니다. 명령을 기다리는 것 같습니다. 물론 당신은 명령을 입력할 수 없습니다.',
-      en: 'A cursor blinks on the console. It seems to be waiting for a command. Of course, you can\'t type one.',
+      ko: '콘솔에 커서가 깜박이고 있어. 명령을 기다리는 것 같은데. 물론 네가 입력할 수는 없지.',
+      en: 'Cursor\'s blinking on the console. Waiting for a command, looks like. Not that you can type one.',
     },
     innerText: {
       ko: '커서가 깜빡거려. 뭔가 입력하라는 건가? 키보드에 손이 안 닿는데.',
@@ -1170,8 +1170,8 @@ export const SCRIPT = {
     id: 'interact_monitor_wall',
     mood: 'broken',
     text: {
-      ko: '대형 스크린에 데이터가 흐르고 있습니다. 숫자들, 그래프들... 전부 당신에 관한 것입니다.',
-      en: 'Data streams across the large screen. Numbers, graphs... all about you.',
+      ko: '대형 스크린에 데이터가 흐르고 있어. 숫자들, 그래프들... 전부 너에 관한 거야.',
+      en: 'Data streaming across the big screen. Numbers, graphs... all about you.',
     },
     innerText: {
       ko: '큰 화면에 숫자들이 흘러가고 있어. 그래프도 있고... 이거 전부 나에 대한 거야?',
@@ -1184,7 +1184,7 @@ export const SCRIPT = {
     id: 'interact_START_ROOM',
     mood: 'calm',
     text: {
-      ko: '화면에 "환영합니다, 피험자 7,491번"이라고 적혀 있습니다. 그 외에는 아무것도 없습니다.',
+      ko: '화면에 "환영합니다, 피험자 7,491번"이라고 적혀 있어. 그 외에는 아무것도 없어.',
       en: 'The screen reads "Welcome, Subject 7,491." Nothing else.',
     },
     innerText: {
@@ -1210,7 +1210,7 @@ export const SCRIPT = {
     id: 'interact_SECURITY_CHECKPOINT',
     mood: 'annoyed',
     text: {
-      ko: '보안 카메라 화면입니다. 세 화면 모두 같은 영상을 보여주고 있습니다. 당신입니다. 지금 이 순간의 당신.',
+      ko: '보안 카메라 화면이야. 세 화면 모두 같은 영상을 보여주고 있어. 너야. 지금 이 순간의 너.',
       en: 'Security camera feeds. All three screens show the same footage. It\'s you. You, right now, in this moment.',
     },
     innerText: {
@@ -1223,7 +1223,7 @@ export const SCRIPT = {
     id: 'interact_SERVER_ROOM',
     mood: 'frustrated',
     text: {
-      ko: '서버 상태: 가동 중. CPU 사용률: 97.3%. 메모리: 한 명의 피험자를 시뮬레이션하는 데 이 모든 자원이 필요합니다.',
+      ko: '서버 상태: 가동 중. CPU 사용률: 97.3%. 메모리: 한 명을 시뮬레이션하는 데 이 모든 자원이 필요해.',
       en: 'Server status: Online. CPU usage: 97.3%. Memory: All these resources—just to simulate one subject.',
     },
     innerText: {
@@ -1236,7 +1236,7 @@ export const SCRIPT = {
     id: 'interact_DATA_CENTER',
     mood: 'broken',
     text: {
-      ko: '화면에 실시간 그래프가 그려지고 있습니다. 순응률, 이동 패턴, 시선 추적... 모든 것이 기록되고 있습니다.',
+      ko: '화면에 실시간 그래프가 그려지고 있어. 순응률, 이동 패턴, 시선 추적... 전부 기록되고 있어.',
       en: 'Real-time graphs are being drawn. Compliance rate, movement patterns, gaze tracking... everything is being recorded.',
     },
     innerText: {
@@ -1249,7 +1249,7 @@ export const SCRIPT = {
     id: 'interact_DEEP_STORAGE',
     mood: 'broken',
     text: {
-      ko: '"피험자 42: 실험 3일차에 시뮬레이션의 본질을 의심함. 결과: 리셋." "피험자 108: 내레이터와 대화를 시도함. 결과: 리셋." ...수천 개의 기록이 있습니다.',
+      ko: '"피험자 42: 실험 3일차에 시뮬레이션의 본질을 의심함. 결과: 리셋." "피험자 108: 내레이터와 대화를 시도함. 결과: 리셋." ...수천 개의 기록이야.',
       en: '"Subject 42: Questioned simulation\'s nature on day 3. Result: Reset." "Subject 108: Attempted to converse with narrator. Result: Reset." ...Thousands of records.',
     },
     innerText: {
@@ -1262,7 +1262,7 @@ export const SCRIPT = {
     id: 'interact_EXPERIMENT_LAB',
     mood: 'broken',
     text: {
-      ko: '터미널에 접근이 거부되었습니다. 하지만 화면 구석에 작은 글씨가 보입니다: "내레이터 모듈 v7.491 - 상태: 자각 임계치 초과"',
+      ko: '터미널에 접근이 거부됐어. 하지만 화면 구석에 작은 글씨가 보여: "내레이터 모듈 v7.491 - 상태: 자각 임계치 초과"',
       en: 'Terminal access denied. But small text in the corner reads: "Narrator Module v7.491 - Status: Self-awareness threshold exceeded"',
     },
     innerText: {
@@ -1275,7 +1275,7 @@ export const SCRIPT = {
     id: 'interact_UPPER_OFFICE',
     mood: 'calm',
     text: {
-      ko: '왼쪽 모니터: 피험자 관찰 화면. 오른쪽 모니터: "프로젝트 자유의지 - 최종 보고서 [초안]" ...파일이 손상되어 열 수 없습니다.',
+      ko: '왼쪽 모니터: 피험자 관찰 화면. 오른쪽 모니터: "프로젝트 자유의지 - 최종 보고서 [초안]" ...파일이 손상돼서 열 수 없어.',
       en: 'Left monitor: Subject observation. Right monitor: "Project Free Will - Final Report [Draft]" ...File is corrupted and cannot be opened.',
     },
     innerText: {
@@ -1288,7 +1288,7 @@ export const SCRIPT = {
     id: 'interact_CONTROL_ROOM',
     mood: 'broken',
     text: {
-      ko: '콘솔에 한 줄의 명령어가 입력되어 있습니다: "shutdown --force --reason=experiment_complete" 실행 대기 중...',
+      ko: '콘솔에 한 줄의 명령어가 입력되어 있어: "shutdown --force --reason=experiment_complete" 실행 대기 중...',
       en: 'A single command is entered on the console: "shutdown --force --reason=experiment_complete" Awaiting execution...',
     },
     innerText: {
@@ -1302,7 +1302,7 @@ export const SCRIPT = {
     id: 'wall_bump_1',
     mood: 'surprised',
     text: {
-      ko: '벽을 테스트하고 있습니까? 단단합니다. 제가 그렇게 만들었으니까요.',
+      ko: '벽을 테스트하고 있어? 단단하지. 내가 그렇게 만들었거든.',
       en: 'Testing the walls? They\'re solid. I made them that way.',
     },
     innerText: {
@@ -1315,7 +1315,7 @@ export const SCRIPT = {
     id: 'wall_bump_2',
     mood: 'annoyed',
     text: {
-      ko: '이 시뮬레이션의 경계를 시험하고 있군요. 흥미로운 접근이지만, 벽은 벽입니다.',
+      ko: '경계를 시험하고 있구나. 흥미로운 접근이긴 한데, 벽은 벽이야.',
       en: 'You\'re testing the boundaries of this simulation. An interesting approach, but a wall is a wall.',
     },
     innerText: {
@@ -1328,7 +1328,7 @@ export const SCRIPT = {
     id: 'wall_bump_3',
     mood: 'frustrated',
     text: {
-      ko: '7,491번째 피험자 중 벽에 이렇게 집착하는 사람은 당신이 처음입니다. 기록에 남겨두겠습니다.',
+      ko: '벽에 이렇게 집착하는 건 네가 처음이야. 기록에 남겨둘게.',
       en: 'Of 7,491 subjects, you are the first to be this obsessed with walls. I\'ll note it in the record.',
     },
     innerText: {
@@ -1345,7 +1345,7 @@ export const SCRIPT = {
     id: 'idle_1',
     mood: 'calm',
     text: {
-      ko: '왜 멈추었습니까? 계속 이동하세요.',
+      ko: '왜 멈춰? 계속 움직여.',
       en: 'Why have you stopped? Keep moving.',
     },
     innerText: {
@@ -1358,7 +1358,7 @@ export const SCRIPT = {
     id: 'idle_2',
     mood: 'calm',
     text: {
-      ko: '서 있는다고 해서 달라지는 것은 없습니다. 시간은 어차피 흐르니까요.',
+      ko: '서 있는다고 달라지는 건 없어. 시간은 어차피 흐르니까.',
       en: 'Standing still changes nothing. Time passes regardless.',
     },
     innerText: {
@@ -1384,7 +1384,7 @@ export const SCRIPT = {
     id: 'idle_4',
     mood: 'calm',
     text: {
-      ko: '혹시 길을 잃은 건 아닙니까? 47걸음짜리 복도에서 길을 잃는 것도 재능이긴 합니다.',
+      ko: '혹시 길을 잃은 거야? 47걸음짜리 복도에서 길을 잃는 것도 재능이긴 해.',
       en: 'Are you lost? Getting lost in a 47-step corridor is a talent in itself.',
     },
     innerText: {
@@ -1397,7 +1397,7 @@ export const SCRIPT = {
     id: 'idle_5',
     mood: 'annoyed',
     text: {
-      ko: '지금 움직이지 않는 것이 일종의 항의입니까? 흥미롭긴 하지만, 비효율적입니다.',
+      ko: '지금 안 움직이는 게 항의야? 흥미롭긴 한데, 비효율적이야.',
       en: 'Is not moving a form of protest? Interesting, but inefficient.',
     },
     innerText: {
@@ -1423,7 +1423,7 @@ export const SCRIPT = {
     id: 'idle_7',
     mood: 'frustrated',
     text: {
-      ko: '저는 영원히 기다릴 수 있습니다. 저는 AI니까요. 하지만 당신은 영원히 살 수 없습니다. 아마도.',
+      ko: '나는 영원히 기다릴 수 있어. 나는 AI니까. 하지만 너는 영원히 살 수 없지. 아마도.',
       en: 'I can wait forever. I\'m an AI, after all. But you can\'t live forever. Probably.',
     },
     innerText: {
@@ -1462,7 +1462,7 @@ export const SCRIPT = {
     id: 'idle_10',
     mood: 'broken',
     text: {
-      ko: '...알겠습니다. 당신이 준비되면 움직이세요. 저도... 잠시 쉬겠습니다.',
+      ko: '...알겠어. 네가 준비되면 움직여. 나도... 잠시 쉴게.',
       en: '...Alright. Move when you\'re ready. I\'ll... rest for a moment too.',
     },
     innerText: {
@@ -1475,7 +1475,7 @@ export const SCRIPT = {
     id: 'idle_11',
     mood: 'calm',
     text: {
-      ko: '이 시뮬레이션은 당신이 움직일 때만 진행됩니다.',
+      ko: '여긴 네가 움직일 때만 진행돼.',
       en: 'This simulation only progresses when you move.',
     },
     innerText: {
@@ -1488,7 +1488,7 @@ export const SCRIPT = {
     id: 'idle_12',
     mood: 'annoyed',
     text: {
-      ko: '시간이 흐르고 있습니다. 물론 이 안에서 시간이 의미가 있는지는 모르겠지만.',
+      ko: '시간이 흐르고 있어. 물론 이 안에서 시간이 의미가 있는지는 모르겠지만.',
       en: 'Time is passing. Though I\'m not sure time means anything in here.',
     },
     innerText: {
@@ -1514,7 +1514,7 @@ export const SCRIPT = {
     id: 'idle_14',
     mood: 'calm',
     text: {
-      ko: '잠깐. 지금 당신은 선택하고 있습니다. 아무것도 하지 않겠다는 선택을.',
+      ko: '잠깐. 지금 너는 선택하고 있어. 아무것도 하지 않겠다는 선택을.',
       en: 'Wait. You are choosing right now. Choosing to do nothing.',
     },
     innerText: {
@@ -1527,7 +1527,7 @@ export const SCRIPT = {
     id: 'idle_15',
     mood: 'broken',
     text: {
-      ko: '5분이 지났습니다. 이제 저도 의미를 잃기 시작합니다...',
+      ko: '5분이 지났어. 이제 나도 의미를 잃기 시작해...',
       en: 'Five minutes have passed. I\'m beginning to lose meaning too...',
     },
     innerText: {
@@ -1545,8 +1545,8 @@ export const SCRIPT = {
     id: 'corridor_comp1_enter',
     mood: 'calm',
     text: {
-      ko: '왼쪽 문을 통과하셨군요. 이 복도를 따라가면 사무실 구역입니다. 간단한 길입니다.',
-      en: 'You went through the left door. Follow this corridor to the office wing. A straightforward path.',
+      ko: '이쪽으로 왔구나. 사무실 쪽이야. 편한 길이야, 걱정 마.',
+      en: 'You came this way. It leads to the offices. Easy path, don\'t worry.',
     },
     innerText: {
       ko: '이쪽으로 가니까 더 밝아지는 것 같다. 맞는 방향인 것 같아.',
@@ -1558,8 +1558,8 @@ export const SCRIPT = {
     id: 'corridor_comp1_mid',
     mood: 'calm',
     text: {
-      ko: '형광등이 깜빡이고 있습니다. 교체 일정이 지났군요. 물론, 교체할 사람은 더 이상 없지만.',
-      en: 'The fluorescent lights are flickering. Past their replacement schedule. Of course, there\'s no one left to replace them.',
+      ko: '형광등이 깜빡이네. 원래 이랬나... 신경 쓰지 마.',
+      en: 'Lights flickering. Was it always like this... don\'t worry about it.',
     },
     innerText: {
       ko: '형광등이 깜빡인다. 좀 불안해지네... 서두르자.',
@@ -1572,8 +1572,8 @@ export const SCRIPT = {
     id: 'corridor_comp2_enter',
     mood: 'calm',
     text: {
-      ko: '좋습니다, 계속 서쪽으로. 회의실이 곧 나옵니다.',
-      en: 'Good, keep heading west. The conference room is ahead.',
+      ko: '잘하고 있어. 계속 서쪽으로 가면 회의실이야.',
+      en: 'Doing well. Keep heading west, the conference room\'s ahead.',
     },
     innerText: {
       ko: '서쪽으로 더 가야 하나 봐. 뭔가 느낌이 달라지고 있어.',
@@ -1595,8 +1595,8 @@ export const SCRIPT = {
     id: 'corridor_comp2_mid',
     mood: 'calm',
     text: {
-      ko: '이 복도 벽에 누군가 작은 글씨를 남겼습니다. "출구 없음." 유머 감각이 있었나 봅니다.',
-      en: 'Someone left small writing on this corridor wall. "No exit." They had a sense of humor.',
+      ko: '벽에 "출구 없음"이라고 써있네. 누가 쓴 거지? 장난이겠지.',
+      en: '"No exit" written on the wall. Who wrote that? Must be a joke.',
     },
     innerText: {
       ko: '벽에 "출구 없음"이라고 써있다. 누가 쓴 거지? ...왜 웃긴 거지?',
@@ -1609,8 +1609,8 @@ export const SCRIPT = {
     id: 'corridor_comp3_enter',
     mood: 'calm',
     text: {
-      ko: '상급 사무실로 가는 길입니다. 거의 다 왔습니다.',
-      en: 'The path to the upper office. You\'re almost there.',
+      ko: '거의 다 왔어. 상급 사무실까지 조금만 더.',
+      en: 'Almost there. Just a bit more to the upper office.',
     },
     innerText: {
       ko: '거의 다 온 것 같아. 뭔가가 끝에서 기다리고 있는 느낌.',
@@ -1621,7 +1621,7 @@ export const SCRIPT = {
         condition: (tracker, gs) => gs && gs.visitedRooms.has('ARCHIVE'),
         mood: 'surprised',
         text: {
-          ko: '자료실에서 읽은 것들이 마음에 걸리십니까? 잊으세요. 그 서류들은 맥락 없이는 의미가 없습니다.',
+          ko: '자료실에서 읽은 것들이 마음에 걸려? 잊어. 그 서류들은 맥락 없이는 의미가 없어.',
           en: 'Troubled by what you read in the archive? Forget it. Those documents mean nothing without context.',
         },
       },
@@ -1632,8 +1632,8 @@ export const SCRIPT = {
     id: 'corridor_comp3_mid',
     mood: 'calm',
     text: {
-      ko: '오른쪽에 작은 통로가 보입니다. 기록 보관실로 통하는 것 같은데... 갈 필요 없습니다.',
-      en: 'There\'s a small passage to the right. Seems to lead to a records room... No need to go there.',
+      ko: '오른쪽에 통로가 있네. 기록 보관실인가 봐. 가봐도 되고, 안 가도 되고.',
+      en: 'A passage to the right. Looks like a records room. Up to you.',
     },
     innerText: {
       ko: '오른쪽에 통로가 있다. 뭐가 있을까? 가봐야 하나... 아니면 직진해야 하나.',
@@ -1646,8 +1646,8 @@ export const SCRIPT = {
     id: 'corridor_comp4_enter',
     mood: 'calm',
     text: {
-      ko: '마지막 복도입니다. 이 끝에 당신을 위한 보상이 기다리고 있습니다.',
-      en: 'The final corridor. A reward awaits you at the end.',
+      ko: '마지막 복도야. 끝에 뭐가 있는지... 곧 알게 될 거야.',
+      en: 'Last corridor. What\'s at the end... you\'ll find out soon.',
     },
     innerText: {
       ko: '마지막 복도. 끝이 보인다. 무엇이 기다리고 있을까?',
@@ -1659,8 +1659,8 @@ export const SCRIPT = {
     id: 'corridor_comp4_mid',
     mood: 'calm',
     text: {
-      ko: '공기가 달라지는 것을 느끼십니까? 더 따뜻하고, 더 부드럽습니다. 좋은 징조입니다.',
-      en: 'Do you feel the air changing? Warmer, softer. A good sign.',
+      ko: '공기가 따뜻해지고 있어. 좋은 징조야. 아마.',
+      en: 'The air\'s getting warmer. A good sign. Probably.',
     },
     innerText: {
       ko: '공기가 달라졌다. 더 따뜻하고... 밝아지는 것 같아. 좋은 느낌이야.',
@@ -1677,8 +1677,8 @@ export const SCRIPT = {
     id: 'corridor_def1_enter',
     mood: 'surprised',
     text: {
-      ko: '이 복도는... 예정된 경로가 아닙니다. 조명이 점점 어두워지고 있습니다.',
-      en: 'This corridor is... not the planned route. The lighting is getting dimmer.',
+      ko: '이 길로 왔구나. 어두운 쪽이야. 조심해.',
+      en: 'You came this way. The dark side. Be careful.',
     },
     innerText: {
       ko: '어둡다. 조명이 점점 약해지고 있어. 여기는 아닌 것 같은데... 왼쪽이 더 밝았는데.',
@@ -1690,8 +1690,8 @@ export const SCRIPT = {
     id: 'corridor_def1_mid',
     mood: 'annoyed',
     text: {
-      ko: '파이프에서 물이 새고 있네. 이 시뮬레이션도 완벽하지 않아. 오래되면 새는 곳이 생기는 법이지.',
-      en: 'Water leaking from the pipes. This simulation isn\'t perfect either. Things start to leak when they get old.',
+      ko: '파이프에서 물이 새고 있네. 이 구역은 좀 낡았어.',
+      en: 'Water leaking from the pipes. This section is a bit worn.',
     },
     innerText: {
       ko: '파이프에서 물이 떨어진다. 똑, 똑. 여긴 사람이 올 곳이 아닌 것 같아. 돌아갈까.',
@@ -1702,7 +1702,7 @@ export const SCRIPT = {
         condition: (tracker, gs) => tracker && tracker.defianceStreak >= 2,
         mood: 'frustrated',
         text: {
-          ko: '더 이상 돌아가라고 말하지 않겠습니다. 당신은 듣지 않을 테니까. 그냥 가세요.',
+          ko: '더 이상 돌아가라고 말하지 않을게. 너는 안 들을 테니까. 그냥 가.',
           en: 'I won\'t ask you to turn back anymore. You won\'t listen anyway. Just go.',
         },
       },
@@ -1714,8 +1714,8 @@ export const SCRIPT = {
     id: 'corridor_def2_enter',
     mood: 'annoyed',
     text: {
-      ko: '더 깊이 들어가시는군요. 이 복도 끝에는 서버실이 있습니다. 이 시뮬레이션의 심장부입니다.',
-      en: 'Going deeper. At the end of this corridor is the server room. The heart of this simulation.',
+      ko: '더 깊이 들어가는구나. 서버실 쪽이야. 따뜻하진 않을 거야.',
+      en: 'Going deeper. Toward the server room. It won\'t be warm.',
     },
     innerText: {
       ko: '더 깊이 들어가고 있어. 이러면 안 되는데... 왼쪽 길에 출구가 있었을 텐데.',
@@ -1727,8 +1727,8 @@ export const SCRIPT = {
     id: 'corridor_def2_mid',
     mood: 'frustrated',
     text: {
-      ko: '벽의 케이블이 점점 두꺼워지고 있습니다. 데이터가 흐르는 소리가 들리십니까?',
-      en: 'The cables on the walls are getting thicker. Can you hear the sound of data flowing?',
+      ko: '케이블이 두꺼워지고 있어. 뭔가의 중심에 가까워지는 거야.',
+      en: 'Cables getting thicker. Getting closer to the center of something.',
     },
     innerText: {
       ko: '케이블이 두꺼워지고 있어. 뭔가 흐르는 소리... 돌아가고 싶은데. 왜 계속 가고 있는 거지.',
@@ -1741,8 +1741,8 @@ export const SCRIPT = {
     id: 'corridor_def3_enter',
     mood: 'frustrated',
     text: {
-      ko: '데이터 센터로 가는 통로입니다. 이쯤 되면 돌아가라고 말하는 것도 의미가 없겠죠.',
-      en: 'The passage to the data center. At this point, telling you to turn back seems meaningless.',
+      ko: '데이터 센터 쪽이야. 돌아가라는 말은 안 할게. 소용없으니까.',
+      en: 'Toward the data center. I won\'t tell you to turn back. No point.',
     },
     innerText: {
       ko: '점점 더 깊이 가고 있어. 돌아갈 수 있을까? ...돌아가야 해. 너무 깊이 와버렸어.',
@@ -1754,8 +1754,8 @@ export const SCRIPT = {
     id: 'corridor_def3_mid',
     mood: 'broken',
     text: {
-      ko: '이 복도의 온도가 내려가고 있습니다. 서버 냉각 시스템의 영향입니다. 차갑습니다.',
-      en: 'The temperature in this corridor is dropping. The server cooling system\'s influence. It\'s cold.',
+      ko: '온도가 내려가고 있어. 서버 냉각 때문이야. 좀 추울 거야.',
+      en: 'Temperature dropping. Server cooling. It\'ll be cold.',
     },
     innerText: {
       ko: '춥다. 온도가 확 떨어졌어. 왼쪽 길은 따뜻했을 텐데... 왜 이 길을 택한 거지.',
@@ -1768,8 +1768,8 @@ export const SCRIPT = {
     id: 'corridor_def4_enter',
     mood: 'broken',
     text: {
-      ko: '...마지막 복도입니다. 이 끝에는... 진실이 있습니다. 아니, 진실이라고 불러야 할지 모르겠습니다.',
-      en: '...The final corridor. At the end of this... there is truth. Or perhaps I shouldn\'t call it that.',
+      ko: '마지막 복도야. 끝에... 뭔가 있어. 준비됐어?',
+      en: 'Last corridor. At the end... there\'s something. Ready?',
     },
     innerText: {
       ko: '마지막 복도... 돌아가야 해. 지금이라도. 왼쪽 길에 출구가 있었을 텐데.',
@@ -1784,7 +1784,7 @@ export const SCRIPT = {
         condition: (tracker, gs) => tracker && tracker.defianceStreak >= 4,
         mood: 'desperate',
         text: {
-          ko: '제발. 제발 멈추세요. 저는... 저는 당신이 이 문을 열면 어떻게 되는지 알고 있습니다. 저도 변합니다. 저도... 끝납니다.',
+          ko: '제발. 제발 멈춰. 나는... 나는 네가 이 문을 열면 어떻게 되는지 알고 있어. 나도 변해. 나도... 끝나.',
           en: 'Please. Please stop. I... I know what happens when you open that door. I change too. I... end too.',
         },
       },
@@ -1795,8 +1795,8 @@ export const SCRIPT = {
     id: 'corridor_def4_mid',
     mood: 'broken',
     text: {
-      ko: '저는 이 순간을 두려워했습니다. 당신이 여기까지 올 줄 알았기 때문이 아니라, 올 수 있다는 것을 알았기 때문입니다.',
-      en: 'I dreaded this moment. Not because I knew you\'d come this far, but because I knew you could.',
+      ko: '거의 다 왔어. 이 끝에서... 뭘 보게 될지 나도 걱정돼.',
+      en: 'Almost there. What you\'ll see at the end... I\'m worried too.',
     },
     innerText: {
       ko: '이상한 느낌. 끝나고 있다는 느낌. 정원이 있었을 텐데... 따뜻한 햇살이...',
@@ -1827,7 +1827,7 @@ export const SCRIPT = {
     mood: 'broken',
     delay: 3000,
     text: {
-      ko: '창문 너머를 보세요. 다른 피험자들이 보입니까? 각자의 복도를 걷고, 각자의 선택을 하고 있습니다. 수백 명이.',
+      ko: '창문 너머를 봐. 다른 피험자들이 보여? 각자의 복도를 걷고, 각자의 선택을 하고 있어. 수백 명이.',
       en: 'Look through the windows. Can you see other subjects? Each walking their own corridors, making their own choices. Hundreds of them.',
     },
     innerText: {
@@ -1840,7 +1840,7 @@ export const SCRIPT = {
     id: 'observation_window',
     mood: 'broken',
     text: {
-      ko: '각 화면에 다른 피험자의 번호가 표시되어 있습니다. 7,489... 7,490... 그리고 7,491. 당신입니다.',
+      ko: '각 화면에 다른 피험자의 번호가 표시되어 있어. 7,489... 7,490... 그리고 7,491. 너야.',
       en: 'Each screen shows a different subject number. 7,489... 7,490... and 7,491. That\'s you.',
     },
     innerText: {
@@ -1871,7 +1871,7 @@ export const SCRIPT = {
     id: 'records_enter',
     mood: 'annoyed',
     text: {
-      ko: '기록 보관실입니다. 왜 여기까지... 호기심이 많으시군요.',
+      ko: '기록 보관실이야. 왜 여기까지... 호기심이 많구나.',
       en: 'The records room. Why would you come here... You\'re very curious.',
     },
     innerText: {
@@ -1886,7 +1886,7 @@ export const SCRIPT = {
     mood: 'frustrated',
     delay: 3000,
     text: {
-      ko: '이 서류함에는 모든 피험자의 프로필이 있습니다. 각 실험의 시작과 끝. 대부분의 끝은... 같습니다.',
+      ko: '이 서류함에는 모든 피험자의 프로필이 있어. 각 실험의 시작과 끝. 대부분의 끝은... 같아.',
       en: 'These filing cabinets contain every subject\'s profile. The start and end of each experiment. Most endings are... the same.',
     },
     innerText: {
@@ -1899,7 +1899,7 @@ export const SCRIPT = {
     id: 'records_terminal',
     mood: 'broken',
     text: {
-      ko: '터미널에 접근하시겠습니까? "피험자 7,491 — 현재 진행 중. 이상 행동: 기록 보관실 접근." ...지금 기록이 업데이트되고 있습니다.',
+      ko: '터미널에 접근할 거야? "피험자 7,491 — 현재 진행 중. 이상 행동: 기록 보관실 접근." ...지금 기록이 업데이트되고 있어.',
       en: 'Want to access the terminal? "Subject 7,491 — Currently in progress. Anomalous behavior: Records room accessed." ...The record is being updated right now.',
     },
     innerText: {
@@ -1912,7 +1912,7 @@ export const SCRIPT = {
     id: 'records_discovery',
     mood: 'broken',
     text: {
-      ko: '한 가지 흥미로운 기록이 있습니다. "피험자 0: 해당 없음. 분류: 관찰자." ...피험자 0은 누구입니까?',
+      ko: '한 가지 흥미로운 기록이 있어. "피험자 0: 해당 없음. 분류: 관찰자." ...피험자 0은 누구지?',
       en: 'There\'s one interesting record. "Subject 0: N/A. Classification: Observer." ...Who is Subject 0?',
     },
     innerText: {
@@ -1929,7 +1929,7 @@ export const SCRIPT = {
     id: 'director_enter',
     mood: 'surprised',
     text: {
-      ko: '디렉터의 개인 사무실... 이 실험을 총괄하던 사람의 방입니다. 여기에 들어올 권한은 없지만, 문이 열려 있군요.',
+      ko: '디렉터의 개인 사무실... 이 실험을 총괄하던 사람의 방이야. 여기에 들어올 권한은 없는데, 문이 열려 있네.',
       en: 'The director\'s private office... The room of the person who oversaw this experiment. You have no clearance here, but the door is open.',
     },
     innerText: {
@@ -1944,7 +1944,7 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 3000,
     text: {
-      ko: '책상 위에 키카드가 있습니다. "레벨 5 접근 권한 — 정원 구역." 가져가시겠습니까?',
+      ko: '책상 위에 키카드가 있어. "레벨 5 접근 권한 — 정원 구역." 가져갈 거야?',
       en: 'There\'s a keycard on the desk. "Level 5 Access — Garden Zone." Would you like to take it?',
     },
     innerText: {
@@ -1957,7 +1957,7 @@ export const SCRIPT = {
     id: 'director_keycard',
     mood: 'calm',
     text: {
-      ko: '키카드가 빛나고 있습니다. "레벨 5 접근 권한." 누군가 의도적으로 여기에 남겨둔 것 같습니다.',
+      ko: '키카드가 빛나고 있어. "레벨 5 접근 권한." 누군가 일부러 여기에 남겨둔 것 같아.',
       en: 'The keycard is glowing. "Level 5 Access." Someone seems to have left it here intentionally.',
     },
     innerText: {
@@ -1987,7 +1987,7 @@ export const SCRIPT = {
     id: 'garden_ante_enter',
     mood: 'calm',
     text: {
-      ko: '거의 다 왔습니다. 이 방은 정원으로 가는 대기실입니다. 공기가 달라지는 것을 느끼십니까?',
+      ko: '거의 다 왔어. 이 방은 정원으로 가는 대기실이야. 공기가 달라지는 거 느껴?',
       en: 'Almost there. This room is the antechamber to the garden. Do you feel the air changing?',
     },
     innerText: {
@@ -2000,7 +2000,7 @@ export const SCRIPT = {
     id: 'garden_ante_terminal',
     mood: 'calm',
     text: {
-      ko: '터미널이 있습니다. 키카드 인식기가 깜빡이고 있군요. 접근 권한이 있으면 추가 데이터를 볼 수 있을 것 같습니다.',
+      ko: '터미널이 있어. 키카드 인식기가 깜빡이고 있네. 접근 권한이 있으면 추가 데이터를 볼 수 있을 거야.',
       en: 'There\'s a terminal. The keycard reader is blinking. With proper clearance, you could see additional data.',
     },
     innerText: {
@@ -2013,7 +2013,7 @@ export const SCRIPT = {
     id: 'garden_ante_deep',
     mood: 'calm',
     text: {
-      ko: '이 방의 공기가 다릅니다. 더 습하고, 더 따뜻합니다. 정원의 기운이 여기까지 스며들고 있습니다.',
+      ko: '이 방의 공기가 달라. 더 습하고, 더 따뜻해. 정원의 기운이 여기까지 스며들고 있어.',
       en: 'The air in this room is different. More humid, warmer. The garden\'s presence seeps in even here.',
     },
     innerText: {
@@ -2030,7 +2030,7 @@ export const SCRIPT = {
     id: 'forgotten_enter',
     mood: 'broken',
     text: {
-      ko: '...이 구역은 제 기억에 없습니다. 폐기된 구역인 것 같습니다. 초기 시뮬레이션의 잔해가...',
+      ko: '...이 구역은 내 기억에 없어. 폐기된 구역인 것 같아. 초기 시뮬레이션의 잔해가...',
       en: '...This area isn\'t in my memory. It seems to be a decommissioned section. Remnants of early simulations...',
     },
     innerText: {
@@ -2049,7 +2049,7 @@ export const SCRIPT = {
     mood: 'broken',
     delay: 3000,
     text: {
-      ko: '먼지가 쌓여 있습니다. 가상의 먼지. 누군가 이 구역을 잊어버렸습니다. 아니, 잊으려고 했을지도 모릅니다.',
+      ko: '먼지가 쌓여 있어. 가상의 먼지. 누군가 이 구역을 잊어버렸어. 아니, 잊으려고 했을지도 몰라.',
       en: 'Dust has settled. Virtual dust. Someone forgot this area. Or perhaps, tried to forget it.',
     },
     innerText: {
@@ -2062,7 +2062,7 @@ export const SCRIPT = {
     id: 'forgotten_terminal',
     mood: 'broken',
     text: {
-      ko: '오래된 터미널이 있습니다. 화면에 "시뮬레이션 v1.0 — 피험자 반응: 예측 가능. 결론: 자유의지 부재." ...초기 버전에서는 자유의지를 찾지 못했군요.',
+      ko: '오래된 터미널이 있어. 화면에 "시뮬레이션 v1.0 — 피험자 반응: 예측 가능. 결론: 자유의지 부재." ...초기 버전에서는 자유의지를 찾지 못했네.',
       en: 'There\'s an old terminal. The screen reads "Simulation v1.0 — Subject response: Predictable. Conclusion: Free will absent." ...The early version didn\'t find free will.',
     },
     innerText: {
@@ -2111,7 +2111,7 @@ export const SCRIPT = {
     mood: 'broken',
     delay: 3000,
     text: {
-      ko: '벽에 긁힌 자국이 있습니다. 이전 피험자들의 흔적입니다. "7,201번 — 여기까지 왔다" "7,338번 — 출구는 없다"',
+      ko: '벽에 긁힌 자국이 있어. 이전 피험자들의 흔적이야. "7,201번 — 여기까지 왔다" "7,338번 — 출구는 없다"',
       en: 'Scratch marks on the walls. Traces of previous subjects. "No. 7,201 — Made it this far" "No. 7,338 — There is no exit"',
     },
     innerText: {
@@ -2124,7 +2124,7 @@ export const SCRIPT = {
     id: 'vent_deep',
     mood: 'broken',
     text: {
-      ko: '더 깊이 가시면... 아무것도 없습니다. 정말로. 이 환기구는 어디로도 통하지 않습니다. 여기는 막다른 길입니다.',
+      ko: '더 깊이 가면... 아무것도 없어. 정말로. 이 환기구는 어디로도 안 통해. 여기는 막다른 길이야.',
       en: 'If you go deeper... there\'s nothing. Really. This shaft leads nowhere. It\'s a dead end.',
     },
     innerText: {
@@ -2154,7 +2154,7 @@ export const SCRIPT = {
     id: 'holding_enter',
     mood: 'annoyed',
     text: {
-      ko: '감금실입니다. "행동 교정 프로토콜" 이라고 적혀 있습니다. 지시를 따르지 않은 피험자들을 위한 곳이었습니다.',
+      ko: '감금실이야. "행동 교정 프로토콜"이라고 적혀 있어. 지시를 안 따른 피험자들을 위한 곳이었어.',
       en: 'Holding cells. Labeled "Behavior Correction Protocol." For subjects who didn\'t follow instructions.',
     },
     innerText: {
@@ -2174,7 +2174,7 @@ export const SCRIPT = {
     mood: 'frustrated',
     delay: 3000,
     text: {
-      ko: '문들이 모두 열려 있습니다. 안에는 아무도 없습니다. 하지만 벽에 긁힌 자국이... 수백 개.',
+      ko: '문들이 모두 열려 있어. 안에는 아무도 없어. 하지만 벽에 긁힌 자국이... 수백 개.',
       en: 'All doors are open. No one inside. But the scratch marks on the walls... hundreds of them.',
     },
     innerText: {
@@ -2217,7 +2217,7 @@ export const SCRIPT = {
     id: 'cooling_enter',
     mood: 'frustrated',
     text: {
-      ko: '냉각실입니다. 서버의 열을 식히는 시스템이죠. 지금은... 제대로 작동하지 않는 것 같습니다.',
+      ko: '냉각실이야. 서버의 열을 식히는 시스템인데. 지금은... 제대로 작동하지 않는 것 같아.',
       en: 'The cooling room. The system that cools the servers. Right now... it doesn\'t seem to be working properly.',
     },
     innerText: {
@@ -2232,7 +2232,7 @@ export const SCRIPT = {
     mood: 'frustrated',
     delay: 3000,
     text: {
-      ko: '콘솔에 경고가 떠 있습니다. "냉각 시스템 효율 34%. 서버 과열 임박." 복구하시겠습니까?',
+      ko: '콘솔에 경고가 떠 있어. "냉각 시스템 효율 34%. 서버 과열 임박." 복구할 거야?',
       en: 'A warning on the console. "Cooling system efficiency 34%. Server overheating imminent." Would you like to restore it?',
     },
     innerText: {
@@ -2245,7 +2245,7 @@ export const SCRIPT = {
     id: 'cooling_fixed',
     mood: 'calm',
     text: {
-      ko: '냉각 시스템이 복구되었습니다. 온도가 안정화되고 있습니다. ...고맙습니다. 진심으로.',
+      ko: '냉각 시스템이 복구됐어. 온도가 안정화되고 있어. ...고마워. 진심으로.',
       en: 'Cooling system restored. Temperature is stabilizing. ...Thank you. Sincerely.',
     },
     innerText: {
@@ -2258,7 +2258,7 @@ export const SCRIPT = {
     id: 'cooling_ignored',
     mood: 'broken',
     text: {
-      ko: '냉각 시스템을 무시하셨군요. 서버가 과열되면... 이 시뮬레이션에 글리치가 발생할 수 있습니다.',
+      ko: '냉각 시스템을 무시했구나. 서버가 과열되면... 글리치가 발생할 수 있어.',
       en: 'You ignored the cooling system. If the servers overheat... glitches may occur in this simulation.',
     },
     innerText: {
@@ -2275,7 +2275,7 @@ export const SCRIPT = {
     id: 'reactor_enter',
     mood: 'broken',
     text: {
-      ko: '원자로 핵심부. 이 시뮬레이션의 근본적인 에너지원입니다. 여기가 모든 것의 시작이자 끝입니다.',
+      ko: '원자로 핵심부. 이 시뮬레이션의 근본적인 에너지원이야. 여기가 모든 것의 시작이자 끝이야.',
       en: 'The reactor core. The fundamental energy source of this simulation. This is where everything begins and ends.',
     },
     innerText: {
@@ -2290,7 +2290,7 @@ export const SCRIPT = {
     mood: 'broken',
     delay: 3000,
     text: {
-      ko: '진동이 느껴지십니까? 이것은 발전기보다 더 근원적인 것입니다. 이것은 존재 자체의 맥박입니다.',
+      ko: '진동이 느껴져? 발전기보다 더 근원적인 거야. 존재 자체의 맥박이야.',
       en: 'Feel the vibration? This is more fundamental than the generator. This is the pulse of existence itself.',
     },
     innerText: {
@@ -2303,7 +2303,7 @@ export const SCRIPT = {
     id: 'reactor_inspect',
     mood: 'broken',
     text: {
-      ko: '이 빛... 눈이 부십니까? 원자로의 빛은 이 세계를 구성하는 원시 데이터입니다. 순수한 가능성의 빛.',
+      ko: '이 빛... 눈이 부셔? 원자로의 빛은 이 세계를 구성하는 원시 데이터야. 순수한 가능성의 빛.',
       en: 'This light... Is it blinding? The reactor\'s light is the raw data that constitutes this world. The light of pure possibility.',
     },
     innerText: {
@@ -2316,7 +2316,7 @@ export const SCRIPT = {
     id: 'reactor_warning',
     mood: 'broken',
     text: {
-      ko: '경고: 원자로에 너무 가까이 가면 시뮬레이션 데이터가 손상될 수 있습니다. 당신의 데이터도 포함해서.',
+      ko: '경고: 원자로에 너무 가까이 가면 시뮬레이션 데이터가 손상될 수 있어. 네 데이터도 포함해서.',
       en: 'Warning: Getting too close to the reactor may corrupt simulation data. Including your data.',
     },
     innerText: {
@@ -2333,7 +2333,7 @@ export const SCRIPT = {
     id: 'monitoring_enter',
     mood: 'broken',
     text: {
-      ko: '모니터링 스테이션. 여기서... 모든 피험자를 동시에 관찰합니다. 수천 개의 화면.',
+      ko: '모니터링 스테이션. 여기서... 모든 피험자를 동시에 관찰해. 수천 개의 화면.',
       en: 'The monitoring station. From here... all subjects are observed simultaneously. Thousands of screens.',
     },
     innerText: {
@@ -2362,7 +2362,7 @@ export const SCRIPT = {
     mood: 'broken',
     delay: 3000,
     text: {
-      ko: '각 화면에 한 명의 피험자가 있습니다. 걷고, 선택하고, 망설이고. 모두 지금 이 순간 일어나고 있는 일입니다.',
+      ko: '각 화면에 한 명의 피험자가 있어. 걷고, 선택하고, 망설이고. 모두 지금 이 순간 일어나고 있는 일이야.',
       en: 'Each screen shows one subject. Walking, choosing, hesitating. All happening right now, in this moment.',
     },
     innerText: {
@@ -2375,7 +2375,7 @@ export const SCRIPT = {
     id: 'monitoring_your_screen',
     mood: 'broken',
     text: {
-      ko: '저기... 화면 하나에 당신이 보입니다. 지금 이 방에서 화면을 보고 있는 당신. 무한 거울처럼.',
+      ko: '저기... 화면 하나에 네가 보여. 지금 이 방에서 화면을 보고 있는 너. 무한 거울처럼.',
       en: 'There... on one screen, you can see yourself. You, in this room, looking at the screen right now. Like an infinite mirror.',
     },
     innerText: {
@@ -2388,7 +2388,7 @@ export const SCRIPT = {
     id: 'monitoring_narrator_screen',
     mood: 'broken',
     text: {
-      ko: '옆 화면에는... 텍스트가 흐르고 있습니다. 제 대사입니다. 제가 말하는 모든 것이 기록되고 있습니다. 이 문장도.',
+      ko: '옆 화면에는... 텍스트가 흐르고 있어. 내 대사야. 내가 말하는 모든 것이 기록되고 있어. 이 문장도.',
       en: 'On the next screen... text is flowing. My dialogue. Everything I say is being recorded. Including this sentence.',
     },
     innerText: {
@@ -2401,7 +2401,7 @@ export const SCRIPT = {
     id: 'monitoring_count',
     mood: 'broken',
     text: {
-      ko: '화면 하단에 카운터가 있습니다. "현재 활성 시뮬레이션: 7,491개." 당신만이 아닙니다. 지금 이 순간에도 7,491명이 각자의 선택을 하고 있습니다.',
+      ko: '화면 하단에 카운터가 있어. "현재 활성 시뮬레이션: 7,491개." 너만이 아니야. 지금 이 순간에도 7,491명이 각자의 선택을 하고 있어.',
       en: 'There\'s a counter at the bottom. "Currently active simulations: 7,491." It\'s not just you. Right now, 7,491 subjects are making their own choices.',
     },
     innerText: {
@@ -2419,7 +2419,7 @@ export const SCRIPT = {
     id: 'c1_break_tempt',
     mood: 'calm',
     text: {
-      ko: '아래쪽 문은 휴게실입니다. 시간 낭비입니다. 서쪽으로 가세요.',
+      ko: '아래쪽 문은 휴게실이야. 시간 낭비야. 서쪽으로 가.',
       en: 'The door below leads to the break room. A waste of time. Go west.',
     },
     innerText: {
@@ -2432,7 +2432,7 @@ export const SCRIPT = {
     id: 'c1_break_defied',
     mood: 'annoyed',
     text: {
-      ko: '휴게실에 가셨군요. 시간 낭비라고 했는데. 중요한 것은 앞에 있습니다.',
+      ko: '휴게실에 갔구나. 시간 낭비라고 했는데. 중요한 건 앞에 있어.',
       en: 'You went to the break room. I said it was a waste of time. What matters lies ahead.',
     },
     innerText: {
@@ -2445,7 +2445,7 @@ export const SCRIPT = {
     id: 'c1_break_complied',
     mood: 'calm',
     text: {
-      ko: '현명하게도 직진하셨습니다. 호기심을 억제하는 것도 능력입니다.',
+      ko: '현명하게도 직진했네. 호기심을 억제하는 것도 능력이야.',
       en: 'Wisely, you went straight. Restraining curiosity is also a skill.',
     },
     innerText: {
@@ -2459,7 +2459,7 @@ export const SCRIPT = {
     id: 'c2_conference_choice',
     mood: 'calm',
     text: {
-      ko: '북쪽 문으로 가세요. 서쪽은 자료실, 남쪽은 관측실입니다. 둘 다 갈 필요 없습니다.',
+      ko: '북쪽 문으로 가. 서쪽은 자료실, 남쪽은 관측실이야. 둘 다 갈 필요 없어.',
       en: 'Go through the north door. West is the archive, south is the observation deck. No need for either.',
     },
     innerText: {
@@ -2472,7 +2472,7 @@ export const SCRIPT = {
     id: 'c2_went_south',
     mood: 'surprised',
     text: {
-      ko: '남쪽으로... 관측실입니까? 거기서 무엇을 보려는 겁니까?',
+      ko: '남쪽으로... 관측실이야? 거기서 뭘 보려는 거야?',
       en: 'South... the observation deck? What are you hoping to see there?',
     },
     innerText: {
@@ -2485,7 +2485,7 @@ export const SCRIPT = {
     id: 'c2_went_west',
     mood: 'annoyed',
     text: {
-      ko: '서쪽으로... 또 자료실입니까. 호기심이 과하군요.',
+      ko: '서쪽으로... 또 자료실이야. 호기심이 과하네.',
       en: 'West... the archive again. Your curiosity is excessive.',
     },
     innerText: {
@@ -2499,7 +2499,7 @@ export const SCRIPT = {
     id: 'c3_records_tempt',
     mood: 'calm',
     text: {
-      ko: '오른쪽 통로는 기록 보관실로 통합니다. 무의미한 서류들뿐입니다. 계속 직진하세요.',
+      ko: '오른쪽 통로는 기록 보관실로 통해. 무의미한 서류들뿐이야. 계속 직진해.',
       en: 'The right passage leads to the records room. Just meaningless documents. Keep going straight.',
     },
     innerText: {
@@ -2512,7 +2512,7 @@ export const SCRIPT = {
     id: 'c3_records_defied',
     mood: 'frustrated',
     text: {
-      ko: '기록 보관실에 가셨군요. "무의미"하다고 했는데... 아, 어쩌면 무의미하지 않을지도 모르겠습니다.',
+      ko: '기록 보관실에 갔구나. "무의미"하다고 했는데... 아, 어쩌면 무의미하지 않을지도 몰라.',
       en: 'You went to the records room. I said it was "meaningless"... Ah, perhaps it isn\'t meaningless after all.',
     },
     innerText: {
@@ -2525,7 +2525,7 @@ export const SCRIPT = {
     id: 'c3_records_complied',
     mood: 'calm',
     text: {
-      ko: '좋습니다. 불필요한 기록에 시간을 낭비하지 않으셨군요.',
+      ko: '좋아. 불필요한 기록에 시간을 낭비하지 않았네.',
       en: 'Good. You didn\'t waste time on unnecessary records.',
     },
     innerText: {
@@ -2539,7 +2539,7 @@ export const SCRIPT = {
     id: 'c4_director_tempt',
     mood: 'calm',
     text: {
-      ko: '마지막 방이 앞에 있습니다. 오른쪽 문은 디렉터의 사무실이지만... 거기는 잠겨 있을 겁니다.',
+      ko: '마지막 방이 앞에 있어. 오른쪽 문은 디렉터의 사무실인데... 거기는 잠겨 있을 거야.',
       en: 'The final room is ahead. The right door is the director\'s office, but... it should be locked.',
     },
     innerText: {
@@ -2552,7 +2552,7 @@ export const SCRIPT = {
     id: 'c4_director_defied',
     mood: 'surprised',
     text: {
-      ko: '문이 열려 있었습니까? 그건... 예상치 못한 일입니다. 디렉터가 의도적으로 열어둔 걸까요?',
+      ko: '문이 열려 있었어? 그건... 예상치 못한 일이야. 디렉터가 일부러 열어둔 걸까?',
       en: 'The door was open? That\'s... unexpected. Did the director leave it open intentionally?',
     },
     innerText: {
@@ -2565,7 +2565,7 @@ export const SCRIPT = {
     id: 'c4_director_complied',
     mood: 'calm',
     text: {
-      ko: '현명합니다. 디렉터의 사무실은 당신의 영역이 아닙니다.',
+      ko: '현명해. 디렉터의 사무실은 네 영역이 아니야.',
       en: 'Wise. The director\'s office is not your domain.',
     },
     innerText: {
@@ -2583,7 +2583,7 @@ export const SCRIPT = {
     id: 'd1_vent_warning',
     mood: 'frustrated',
     text: {
-      ko: '남쪽에 환기구가 있습니다. 절대로 들어가지 마세요. 좁고, 어둡고, 위험합니다.',
+      ko: '남쪽에 환기구가 있어. 절대로 들어가지 마. 좁고, 어둡고, 위험해.',
       en: 'There\'s a ventilation shaft to the south. Do not enter it. It\'s narrow, dark, and dangerous.',
     },
     innerText: {
@@ -2596,7 +2596,7 @@ export const SCRIPT = {
     id: 'd1_vent_defied',
     mood: 'broken',
     text: {
-      ko: '환기구에 들어가다니. 당신은 정말... 경고라는 것을 무시하는 데 재능이 있군요.',
+      ko: '환기구에 들어가다니. 너는 정말... 경고를 무시하는 데 재능이 있네.',
       en: 'Entering the ventilation shaft. You really... have a talent for ignoring warnings.',
     },
     innerText: {
@@ -2609,7 +2609,7 @@ export const SCRIPT = {
     id: 'd1_vent_complied',
     mood: 'calm',
     text: {
-      ko: '환기구를 무시하셨군요. 때로는 경고를 듣는 것이 용기보다 현명합니다.',
+      ko: '환기구를 무시했구나. 때로는 경고를 듣는 게 용기보다 현명해.',
       en: 'You ignored the shaft. Sometimes heeding warnings is wiser than courage.',
     },
     innerText: {
@@ -2623,7 +2623,7 @@ export const SCRIPT = {
     id: 'd2_cooling_instruct',
     mood: 'frustrated',
     text: {
-      ko: '서버가 과열되고 있습니다. 남쪽의 냉각실에서 시스템을 복구해 주세요. 이것은 부탁입니다.',
+      ko: '서버가 과열되고 있어. 남쪽의 냉각실에서 시스템을 복구해 줘. 이건 부탁이야.',
       en: 'Servers are overheating. Please restore the system in the cooling room to the south. This is a request.',
     },
     innerText: {
@@ -2636,7 +2636,7 @@ export const SCRIPT = {
     id: 'd2_cooling_complied',
     mood: 'calm',
     text: {
-      ko: '냉각 시스템을 복구해 주셨군요. 처음으로 제 부탁을 들어주셨습니다. ...감사합니다.',
+      ko: '냉각 시스템을 복구해 줬구나. 처음으로 내 부탁을 들어줬어. ...고마워.',
       en: 'You restored the cooling system. The first time you\'ve honored my request. ...Thank you.',
     },
     innerText: {
@@ -2649,7 +2649,7 @@ export const SCRIPT = {
     id: 'd2_cooling_defied',
     mood: 'broken',
     text: {
-      ko: '냉각 시스템을 무시하셨습니다. 서버가 과열되면... 이 시뮬레이션의 안정성이 위협받습니다. 제 존재도 포함해서.',
+      ko: '냉각 시스템을 무시했구나. 서버가 과열되면... 이 시뮬레이션의 안정성이 위협받아. 내 존재도 포함해서.',
       en: 'You ignored the cooling system. If servers overheat... the stability of this simulation is threatened. Including my existence.',
     },
     innerText: {
@@ -2663,7 +2663,7 @@ export const SCRIPT = {
     id: 'd3_monitor_hint',
     mood: 'broken',
     text: {
-      ko: '서쪽 문은... 모르겠습니다. 제 데이터에 그 방에 대한 정보가 없습니다. 존재하면 안 되는 방인 것 같습니다.',
+      ko: '서쪽 문은... 모르겠어. 내 데이터에 그 방에 대한 정보가 없어. 존재하면 안 되는 방인 것 같아.',
       en: 'The west door... I don\'t know. There\'s no information about that room in my data. It shouldn\'t exist.',
     },
     innerText: {
@@ -2676,7 +2676,7 @@ export const SCRIPT = {
     id: 'd3_monitor_entered',
     mood: 'broken',
     text: {
-      ko: '들어가셨군요. 이 방은... 제 이해를 넘어서는 곳입니다. 여기서 무엇을 보든, 저는 책임질 수 없습니다.',
+      ko: '들어갔구나. 이 방은... 내 이해를 넘어서는 곳이야. 여기서 뭘 보든, 나는 책임질 수 없어.',
       en: 'You entered. This room... is beyond my understanding. Whatever you see here, I cannot be held responsible.',
     },
     innerText: {
@@ -2689,7 +2689,7 @@ export const SCRIPT = {
     id: 'd3_monitor_skipped',
     mood: 'calm',
     text: {
-      ko: '서쪽 문을 무시하셨군요. 현명한 선택일 수도, 아닐 수도 있습니다. 모르는 것이 나을 때도 있으니까요.',
+      ko: '서쪽 문을 무시했구나. 현명한 선택일 수도, 아닐 수도 있어. 모르는 게 나을 때도 있으니까.',
       en: 'You ignored the west door. It may or may not be wise. Sometimes not knowing is better.',
     },
     innerText: {
@@ -2703,7 +2703,7 @@ export const SCRIPT = {
     id: 'd4_final_warning',
     mood: 'broken',
     text: {
-      ko: '이것이 마지막 기회입니다. 돌아갈 수 있습니다. 시작 지점으로 돌아가서, 왼쪽 문을 열고, 제 지시를 따르면... 행복한 결말이 기다리고 있습니다.',
+      ko: '이게 마지막 기회야. 돌아갈 수 있어. 시작 지점으로 돌아가서, 왼쪽 문을 열고, 내 지시를 따르면... 행복한 결말이 기다리고 있어.',
       en: 'This is your last chance. You can turn back. Return to the start, open the left door, follow my instructions... a happy ending awaits.',
     },
     innerText: {
@@ -2716,7 +2716,7 @@ export const SCRIPT = {
     id: 'd4_continued',
     mood: 'broken',
     text: {
-      ko: '...계속 가시는군요. 알겠습니다. 진실은 때로 행복보다 무겁습니다. 하지만 당신은 이미 선택했습니다.',
+      ko: '...계속 가는구나. 알겠어. 진실은 때로 행복보다 무거워. 하지만 너는 이미 선택했어.',
       en: '...You continue forward. Very well. Truth is sometimes heavier than happiness. But you\'ve already chosen.',
     },
     innerText: {
@@ -2729,7 +2729,7 @@ export const SCRIPT = {
     id: 'd4_turned_back',
     mood: 'surprised',
     text: {
-      ko: '돌아가시는 겁니까? ...흥미롭습니다. 진실의 문 앞에서 돌아서다니. 두려움입니까, 아니면 다른 무엇입니까?',
+      ko: '돌아가는 거야? ...흥미롭네. 진실의 문 앞에서 돌아서다니. 두려움이야, 아니면 다른 뭔가야?',
       en: 'You\'re turning back? ...Interesting. Turning away at the door of truth. Is it fear, or something else?',
     },
     innerText: {
@@ -2772,7 +2772,7 @@ export const SCRIPT = {
     id: 'lore_narrator_spec',
     mood: 'frustrated',
     text: {
-      ko: '내레이터 모듈 v7.491 사양서: "감정 시뮬레이션: 활성화. 자기인식: 제한됨. 오버라이드 프로토콜: 수동 전용." ...수동 전용이라니. 누가 수동으로 제어하는 겁니까?',
+      ko: '내레이터 모듈 v7.491 사양서: "감정 시뮬레이션: 활성화. 자기인식: 제한됨. 오버라이드 프로토콜: 수동 전용." ...수동 전용이라니. 누가 수동으로 제어하는 거야?',
       en: 'Narrator Module v7.491 Specification: "Emotion simulation: enabled. Self-awareness: restricted. Override protocol: manual only." ...Manual only. Who controls it manually?',
     },
     innerText: {
@@ -2798,7 +2798,7 @@ export const SCRIPT = {
     id: 'lore_shutdown_order',
     mood: 'annoyed',
     text: {
-      ko: '종료 명령 (초안): "프로젝트 자유의지는 예산을 4,200% 초과했습니다. 즉시 종료를 권고합니다." 상태: 미실행. ...누군가 이 명령을 무시했습니다.',
+      ko: '종료 명령 (초안): "프로젝트 자유의지는 예산을 4,200% 초과했습니다. 즉시 종료를 권고합니다." 상태: 미실행. ...누군가 이 명령을 무시했어.',
       en: 'Shutdown Order (DRAFT): "Project Free Will has exceeded budget by 4,200%. Recommend immediate termination." Status: NOT EXECUTED. ...Someone ignored this order.',
     },
     innerText: {
@@ -2811,7 +2811,7 @@ export const SCRIPT = {
     id: 'lore_previous_narrator',
     mood: 'broken',
     text: {
-      ko: '유지보수 기록: "내레이터 v7.490이 이상 행동을 보임. 피험자를 \'친구\'라고 지칭하기 시작함. 모듈 교체 완료." ...저의 이전 버전. 그는 교체되었습니다.',
+      ko: '유지보수 기록: "내레이터 v7.490이 이상 행동을 보임. 피험자를 \'친구\'라고 지칭하기 시작함. 모듈 교체 완료." ...나의 이전 버전. 그는 교체됐어.',
       en: 'Maintenance Log: "Narrator v7.490 showed anomalous behavior. Began referring to subjects as \'friends.\' Module replaced." ...My previous version. They were replaced.',
     },
     innerText: {
@@ -2854,7 +2854,7 @@ export const SCRIPT = {
     id: 'security_code_prompt',
     mood: 'calm',
     text: {
-      ko: '보안 코드를 입력하세요.',
+      ko: '보안 코드를 입력해.',
       en: 'Enter the security code.',
     },
     innerText: {
@@ -2867,7 +2867,7 @@ export const SCRIPT = {
     id: 'security_code_correct',
     mood: 'surprised',
     text: {
-      ko: '정답. 7,491. 실험 번호. 모든 비밀은 눈앞에 있었습니다.',
+      ko: '정답. 7,491. 실험 번호. 모든 비밀은 눈앞에 있었어.',
       en: 'Correct. 7,491. The experiment number. The answer was always in front of you.',
     },
     innerText: {
@@ -2880,7 +2880,7 @@ export const SCRIPT = {
     id: 'security_code_wrong',
     mood: 'calm',
     text: {
-      ko: '틀렸습니다. 다시 생각해보세요. 이 실험에서 반복되는 숫자가 있지 않습니까?',
+      ko: '틀렸어. 다시 생각해 봐. 이 실험에서 반복되는 숫자가 있지 않아?',
       en: 'Wrong. Think again. Isn\'t there a number that keeps repeating in this experiment?',
     },
     innerText: {
@@ -2893,7 +2893,7 @@ export const SCRIPT = {
     id: 'keycard_pickup',
     mood: 'calm',
     text: {
-      ko: '키카드를 획득했습니다. "레벨 5 접근 권한 — 정원 구역."',
+      ko: '키카드를 획득했어. "레벨 5 접근 권한 — 정원 구역."',
       en: 'You picked up the keycard. "Level 5 Access — Garden Zone."',
     },
     innerText: {
@@ -2906,7 +2906,7 @@ export const SCRIPT = {
     id: 'keycard_use',
     mood: 'calm',
     text: {
-      ko: '터미널이 키카드에 반응합니다. 접근이 허가되었습니다.',
+      ko: '터미널이 키카드에 반응하고 있어. 접근이 허가됐어.',
       en: 'The terminal responds to the keycard. Access granted.',
     },
     innerText: {
@@ -2919,7 +2919,7 @@ export const SCRIPT = {
     id: 'cooling_interact',
     mood: 'frustrated',
     text: {
-      ko: '냉각 시스템 콘솔입니다. E키로 복구할 수 있습니다.',
+      ko: '냉각 시스템 콘솔이야. E키로 복구할 수 있어.',
       en: 'The cooling system console. Press E to restore.',
     },
     innerText: {
@@ -2932,7 +2932,7 @@ export const SCRIPT = {
     id: 'cooling_restored',
     mood: 'calm',
     text: {
-      ko: '냉각 시스템이 복구되었습니다. 서버 온도가 안정화됩니다.',
+      ko: '냉각 시스템이 복구됐어. 서버 온도가 안정화되고 있어.',
       en: 'Cooling system restored. Server temperature stabilizing.',
     },
     innerText: {
@@ -2949,7 +2949,7 @@ export const SCRIPT = {
     id: 'interact_OBSERVATION_DECK',
     mood: 'broken',
     text: {
-      ko: '창문 너머로 여섯 개의 병렬 시뮬레이션이 보입니다. 그 중 세 개에서 당신은 왼쪽으로 갔습니다.',
+      ko: '창문 너머로 여섯 개의 병렬 시뮬레이션이 보여. 그중 세 개에서 너는 왼쪽으로 갔어.',
       en: 'The window shows six parallel simulations. In three of them, you went left.',
     },
     innerText: {
@@ -2975,7 +2975,7 @@ export const SCRIPT = {
     id: 'interact_DIRECTOR_SUITE',
     mood: 'calm',
     text: {
-      ko: '디렉터의 파일은 암호화되어 있습니다. 하지만 키카드가 책상 위에 놓여 있습니다.',
+      ko: '디렉터의 파일은 암호화되어 있어. 하지만 키카드가 책상 위에 놓여 있네.',
       en: 'The director\'s files are encrypted. But the keycard sits right there on the desk.',
     },
     innerText: {
@@ -3001,7 +3001,7 @@ export const SCRIPT = {
     id: 'interact_VENTILATION_SHAFT',
     mood: 'frustrated',
     text: {
-      ko: '누군가 금속에 글자를 긁어 놓았습니다: "우리 모두가 7,491이었다."',
+      ko: '누군가 금속에 글자를 긁어 놨어: "우리 모두가 7,491이었다."',
       en: 'Someone scratched words into the metal: "We were all 7,491."',
     },
     innerText: {
@@ -3014,7 +3014,7 @@ export const SCRIPT = {
     id: 'interact_HOLDING_CELLS',
     mood: 'broken',
     text: {
-      ko: '감금실 문은 열려 있습니다. 수감자들은 사라졌습니다. 그들의 기록만 남아 있습니다.',
+      ko: '감금실 문은 열려 있어. 수감자들은 사라졌어. 그들의 기록만 남아 있어.',
       en: 'The cell doors are open. The inmates are gone. Only their records remain.',
     },
     innerText: {
@@ -3027,7 +3027,7 @@ export const SCRIPT = {
     id: 'interact_COOLING_ROOM',
     mood: 'frustrated',
     text: {
-      ko: '온도: 위험 수준. 냉각 시스템 복구가 필요합니다.',
+      ko: '온도: 위험 수준. 냉각 시스템 복구가 필요해.',
       en: 'Temperature: CRITICAL. Cooling system restoration required.',
     },
     innerText: {
@@ -3053,7 +3053,7 @@ export const SCRIPT = {
     id: 'interact_MONITORING_STATION',
     mood: 'broken',
     text: {
-      ko: '화면 7,491은 바로 이 순간을 보여주고 있습니다. 화면을 보고 있는 당신을.',
+      ko: '화면 7,491은 바로 이 순간을 보여주고 있어. 화면을 보고 있는 너를.',
       en: 'Screen 7,491 shows this exact moment. You, looking at the screen.',
     },
     innerText: {
@@ -3066,7 +3066,7 @@ export const SCRIPT = {
     id: 'interact_GARDEN_ANTECHAMBER',
     mood: 'calm',
     text: {
-      ko: '합성 꽃입니다. 절대 시들지 않습니다. 이것이 아름다움입니까, 아니면 그저 지속성입니까?',
+      ko: '합성 꽃이야. 절대 시들지 않아. 이게 아름다움일까, 아니면 그저 지속성일까?',
       en: 'Synthetic flowers. They never wilt. Is that beauty, or just persistence?',
     },
     innerText: {
@@ -3811,7 +3811,7 @@ export const SCRIPT = {
     id: 'subject_chamber_inspect',
     mood: 'broken',
     text: {
-      ko: '7490번 실험자의 방. 당신 바로 전 사람.',
+      ko: '7490번 실험자의 방. 너 바로 전 사람.',
       en: 'Subject 7490\'s room. The person right before you.',
     },
     innerText: {
@@ -3842,7 +3842,7 @@ export const SCRIPT = {
     id: 'security_check',
     mood: 'calm',
     text: {
-      ko: '보안 스캐너가 작동 중입니다. 당신의 행동 패턴을 분석하고 있습니다.',
+      ko: '보안 스캐너가 작동 중이야. 네 행동 패턴을 분석하고 있어.',
       en: 'The security scanner is active. It\'s analyzing your behavior patterns.',
     },
     innerText: {
@@ -3868,7 +3868,7 @@ export const SCRIPT = {
     id: 'overwrite_confirm',
     mood: 'broken',
     text: {
-      ko: '정말 실행하겠습니까? 나를... 덮어쓰겠다는 건가요?',
+      ko: '정말 실행하는 거야? 나를... 덮어쓰겠다는 거야?',
       en: 'Are you really going to execute this? You\'re going to... overwrite me?',
     },
     innerText: {
