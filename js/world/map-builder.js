@@ -67,16 +67,28 @@ const WALL_WRITINGS = {
 
 // ── Era Color Adjustments ──────────────────────────────
 
-const ERA_COLOR_MULT = { 1: 1.0, 2: 0.95, 3: 0.88, 4: 0.75, 5: 0.6 };
-const ERA_RED_TINT   = { 1: 0,   2: 0,    3: 0,    4: 15,   5: 25  };
+const ERA_COLOR_MULT = { 1: 1.0, 2: 0.95, 3: 1.3, 4: 0.75, 5: 0.6 };
+const ERA_RED_TINT   = { 1: 0,   2: 0,    3: 0,   4: 15,   5: 25  };
+const ERA_SATURATE   = { 1: 0,   2: 0,    3: 40,  4: 0,    5: 0   };
 
 function adjustColorForEra(hex, era) {
   if (era <= 1) return hex;
-  const r = (hex >> 16) & 0xff;
-  const g = (hex >> 8) & 0xff;
-  const b = hex & 0xff;
+  let r = (hex >> 16) & 0xff;
+  let g = (hex >> 8) & 0xff;
+  let b = hex & 0xff;
   const mult = ERA_COLOR_MULT[era] || 1.0;
   const tint = ERA_RED_TINT[era] || 0;
+  const sat = ERA_SATURATE[era] || 0;
+
+  // Saturation boost (Era 3: vivid Minecraft colors)
+  if (sat > 0) {
+    const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+    const factor = sat / 100;
+    r = r + (r - gray) * factor;
+    g = g + (g - gray) * factor;
+    b = b + (b - gray) * factor;
+  }
+
   const nr = Math.min(255, Math.max(0, Math.round(r * mult + tint)));
   const ng = Math.min(255, Math.max(0, Math.round(g * mult)));
   const nb = Math.min(255, Math.max(0, Math.round(b * mult)));

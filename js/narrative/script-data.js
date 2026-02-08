@@ -1690,8 +1690,8 @@ export const SCRIPT = {
     id: 'corridor_def1_mid',
     mood: 'annoyed',
     text: {
-      ko: '파이프에서 물이 새고 있습니다. 이 시뮬레이션의 유지보수가 필요한 부분이죠. 제가 처리할 일이지, 당신이 아닙니다.',
-      en: 'Water leaking from the pipes. This part of the simulation needs maintenance. My job to handle, not yours.',
+      ko: '파이프에서 물이 새고 있네. 이 시뮬레이션도 완벽하지 않아. 오래되면 새는 곳이 생기는 법이지.',
+      en: 'Water leaking from the pipes. This simulation isn\'t perfect either. Things start to leak when they get old.',
     },
     innerText: {
       ko: '파이프에서 물이 떨어진다. 똑, 똑. 여긴 사람이 올 곳이 아닌 것 같아. 돌아갈까.',

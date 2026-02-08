@@ -85,11 +85,15 @@ function applyEraAtmosphere(eraLevel) {
     renderer.setExposure(1.6);
     postfx.setNoise(0.02);
     postfx.setScanlines(0.04);
+    postfx.setColorShift(0.4);
     postfx.enabled = true;
   } else if (eraLevel >= 3) {
-    renderer.setFogColor(0x101018);
-    renderer.setFogNear(9);
-    renderer.setExposure(1.8);
+    renderer.setFogColor(0x88bbee);
+    renderer.setFogNear(15);
+    renderer.setFogFar(50);
+    renderer.setExposure(2.5);
+    postfx.setPixelSize(0.004);
+    postfx.enabled = true;
   }
   // Era 1-2: defaults are fine (fog 0x111118, exposure 2.0)
 }
@@ -1031,6 +1035,8 @@ function restartGame() {
   postfx.setGlitch(0);
   postfx.setNoise(0);
   postfx.setScanlines(0);
+  postfx.setPixelSize(0);
+  postfx.setColorShift(0);
   postfx.setBloom(false);
   postfx.enabled = false;
   renderer.setExposure(2.0);

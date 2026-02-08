@@ -12,6 +12,8 @@ const GlitchScanlineShader = {
     scanlineIntensity: { value: 0.05 },
     glitchIntensity: { value: 0.0 },
     noiseIntensity: { value: 0.0 },
+    pixelSize: { value: 0.0 },
+    colorShift: { value: 0.0 },
   },
   vertexShader: /* glsl */ `
     varying vec2 vUv;
@@ -26,6 +28,8 @@ const GlitchScanlineShader = {
     uniform float scanlineIntensity;
     uniform float glitchIntensity;
     uniform float noiseIntensity;
+    uniform float pixelSize;
+    uniform float colorShift;
     varying vec2 vUv;
 
     float random(vec2 st) {
@@ -34,6 +38,11 @@ const GlitchScanlineShader = {
 
     void main() {
       vec2 uv = vUv;
+
+      // Pixelation (Era 3: Minecraft style)
+      if (pixelSize > 0.0) {
+        uv = floor(uv / pixelSize) * pixelSize + pixelSize * 0.5;
+      }
 
       // Glitch offset
       if (glitchIntensity > 0.0) {
@@ -58,6 +67,12 @@ const GlitchScanlineShader = {
       if (noiseIntensity > 0.0) {
         float noise = random(uv + time) * noiseIntensity;
         gl_FragColor.rgb += noise - noiseIntensity * 0.5;
+      }
+
+      // Color channel rotation (Era 4: distortion)
+      if (colorShift > 0.0) {
+        vec3 c = gl_FragColor.rgb;
+        gl_FragColor.rgb = mix(c, vec3(c.g, c.b, c.r), colorShift);
       }
     }
   `,
@@ -98,6 +113,16 @@ export class PostFX {
 
   setNoise(intensity) {
     this.glitchPass.uniforms.noiseIntensity.value = intensity;
+  }
+
+  setPixelSize(size) {
+    this.glitchPass.uniforms.pixelSize.value = size;
+    if (size > 0) this.enabled = true;
+  }
+
+  setColorShift(amount) {
+    this.glitchPass.uniforms.colorShift.value = amount;
+    if (amount > 0) this.enabled = true;
   }
 
   update(time) {
