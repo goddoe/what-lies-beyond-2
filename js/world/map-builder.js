@@ -67,8 +67,8 @@ const WALL_WRITINGS = {
 
 // ── Era Color Adjustments ──────────────────────────────
 
-const ERA_COLOR_MULT = { 1: 1.0, 2: 0.95, 3: 1.3, 4: 0.75, 5: 0.6 };
-const ERA_RED_TINT   = { 1: 0,   2: 0,    3: 0,   4: 15,   5: 25  };
+const ERA_COLOR_MULT = { 1: 1.0, 2: 0.95, 3: 1.3, 4: 0.88, 5: 0.78 };
+const ERA_RED_TINT   = { 1: 0,   2: 0,    3: 0,   4: 10,   5: 18  };
 const ERA_SATURATE   = { 1: 0,   2: 0,    3: 40,  4: 0,    5: 0   };
 
 function adjustColorForEra(hex, era) {

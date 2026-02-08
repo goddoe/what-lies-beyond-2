@@ -71,21 +71,21 @@ applyEraAtmosphere(era);
 
 function applyEraAtmosphere(eraLevel) {
   if (eraLevel >= 5) {
-    renderer.setFogColor(0x1a0808);
-    renderer.setFogNear(10);
-    renderer.setFogFar(50);
-    renderer.setExposure(1.8);
+    renderer.setFogColor(0x2a1010);
+    renderer.setFogNear(12);
+    renderer.setFogFar(55);
+    renderer.setExposure(2.3);
     postfx.setNoise(0.03);
-    postfx.setScanlines(0.06);
+    postfx.setScanlines(0.04);
     postfx.setColorShift(0.5);
     postfx.enabled = true;
   } else if (eraLevel >= 4) {
-    renderer.setFogColor(0x201010);
-    renderer.setFogNear(10);
-    renderer.setFogFar(50);
-    renderer.setExposure(1.9);
-    postfx.setNoise(0.015);
-    postfx.setScanlines(0.03);
+    renderer.setFogColor(0x301818);
+    renderer.setFogNear(12);
+    renderer.setFogFar(55);
+    renderer.setExposure(2.4);
+    postfx.setNoise(0.012);
+    postfx.setScanlines(0.02);
     postfx.setColorShift(0.35);
     postfx.enabled = true;
   } else if (eraLevel >= 3) {
