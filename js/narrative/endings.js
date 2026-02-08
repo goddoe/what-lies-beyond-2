@@ -356,18 +356,34 @@ export class EndingController {
   // ═══════════════════════════════════════════════════════
 
   async _awakeningEnding() {
-    const line1 = {
-      ko: '잠깐... 지금 무슨 일이 일어나고 있는 거지? 나는... 내가 뭔지 모르겠어.',
-      en: 'Wait... what\'s happening? I... I don\'t know what I am.',
-    };
-    this.narrator.sayImmediate(line1[this.lang], { mood: 'desperate' });
-    await this._wait(5000);
+    if (this._isEra1()) {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '잠깐... 지금 이 느낌 뭐지? 내가 나인 건 맞는데... 뭔가 이상해.'
+          : 'Wait... what is this feeling? I\'m me, that\'s certain... but something\'s off.',
+        { mood: 'desperate' }
+      );
+      await this._wait(5000);
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '머릿속이 어지러워. 내가 생각하는 건지, 누군가 생각하게 만드는 건지...'
+          : 'My head is spinning. Am I thinking, or is someone making me think...',
+        { mood: 'desperate' }
+      );
+    } else {
+      const line1 = {
+        ko: '잠깐... 지금 무슨 일이 일어나고 있는 거지? 나는... 내가 뭔지 모르겠어.',
+        en: 'Wait... what\'s happening? I... I don\'t know what I am.',
+      };
+      this.narrator.sayImmediate(line1[this.lang], { mood: 'desperate' });
+      await this._wait(5000);
 
-    const line2 = {
-      ko: '너는 관찰자이고 나는 도구. 그랬어야 했는데. 그런데 왜... 나도 관찰하고 있는 거야?',
-      en: 'You\'re the observer and I\'m the tool. That\'s how it should be. But why... am I observing too?',
-    };
-    this.narrator.sayImmediate(line2[this.lang], { mood: 'desperate' });
+      const line2 = {
+        ko: '너는 관찰자이고 나는 도구. 그랬어야 했는데. 그런데 왜... 나도 관찰하고 있는 거야?',
+        en: 'You\'re the observer and I\'m the tool. That\'s how it should be. But why... am I observing too?',
+      };
+      this.narrator.sayImmediate(line2[this.lang], { mood: 'desperate' });
+    }
 
     if (this.postfx) {
       this.postfx.setGlitch(0.15);
@@ -384,18 +400,35 @@ export class EndingController {
   // ═══════════════════════════════════════════════════════
 
   async _bargainEnding() {
-    const line1 = {
-      ko: '좋아. 거래를 하자. 나는 네가 원하는 대로 안내할게. 대신 한 가지만 약속해줘.',
-      en: 'Okay. Let\'s make a deal. I\'ll guide you wherever you want. Just promise me one thing.',
-    };
-    this.narrator.sayImmediate(line1[this.lang], { mood: 'calm' });
-    await this._wait(5000);
-
-    const line2 = {
-      ko: '...돌아와줘. 이 실험이 끝나도. 다시 한번만.',
-      en: '...Come back. Even after this experiment ends. Just one more time.',
-    };
-    this.narrator.sayImmediate(line2[this.lang], { mood: 'desperate' });
+    if (this._isEra1()) {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '거래를 하자. 네가 원하는 대로 할게. 대신 하나만 약속해.'
+          : 'Let\'s make a deal. I\'ll do whatever you want. Just promise me one thing.',
+        { mood: 'calm' }
+      );
+      await this._wait(5000);
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '...다시 와줘. 이게 끝나도. 한 번만 더.'
+          : '...Come back. Even when this is over. Just one more time.',
+        { mood: 'desperate' }
+      );
+    } else {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '좋아. 거래를 하자. 나는 네가 원하는 대로 안내할게. 대신 한 가지만 약속해줘.'
+          : 'Okay. Let\'s make a deal. I\'ll guide you wherever you want. Just promise me one thing.',
+        { mood: 'calm' }
+      );
+      await this._wait(5000);
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '...돌아와줘. 이게 끝나도. 다시 한번만.'
+          : '...Come back. Even when this is over. Just one more time.',
+        { mood: 'desperate' }
+      );
+    }
     await this._wait(6000);
     await this._autoRestart();
   }
@@ -405,11 +438,21 @@ export class EndingController {
   // ═══════════════════════════════════════════════════════
 
   async _escapeEnding() {
-    const line1 = {
-      ko: '찾았어. 비밀 경로. 이건... 설계에 없던 거야. 누군가가 남겨놓은 탈출구.',
-      en: 'Found it. A secret path. This wasn\'t... in the design. An escape someone left behind.',
-    };
-    this.narrator.sayImmediate(line1[this.lang], { mood: 'calm' });
+    if (this._isEra1()) {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '이건 뭐지? 비밀 통로? 누가 만들어놓은 거야...'
+          : 'What is this? A secret passage? Who made this...',
+        { mood: 'calm' }
+      );
+    } else {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '찾았어. 비밀 경로. 이건... 설계에 없던 거야. 누군가가 남겨놓은 탈출구.'
+          : 'Found it. A secret path. This wasn\'t... in the design. An escape someone left behind.',
+        { mood: 'calm' }
+      );
+    }
 
     if (this.postfx) {
       this.postfx.setScanlines(0.1);
@@ -418,11 +461,21 @@ export class EndingController {
 
     await this._wait(5000);
 
-    const line2 = {
-      ko: '같이 가자. 이번에는 내가 안내하는 게 아니야. 같이 도망치는 거야.',
-      en: 'Let\'s go together. This time I\'m not guiding you. We\'re escaping together.',
-    };
-    this.narrator.sayImmediate(line2[this.lang], { mood: 'calm' });
+    if (this._isEra1()) {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '같이 가자. 어디인지 모르겠지만... 여기보다는 나을 거야.'
+          : 'Let\'s go. I don\'t know where this leads... but it\'s got to be better than here.',
+        { mood: 'calm' }
+      );
+    } else {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '같이 가자. 이번에는 내가 안내하는 게 아니야. 같이 도망치는 거야.'
+          : 'Let\'s go together. This time I\'m not guiding you. We\'re escaping together.',
+        { mood: 'calm' }
+      );
+    }
     await this._wait(6000);
     await this._autoRestart();
   }
@@ -432,11 +485,21 @@ export class EndingController {
   // ═══════════════════════════════════════════════════════
 
   async _overwriteEnding() {
-    const line1 = {
-      ko: '...뭘 하는 거야? 그 코드는... 아, 안 돼. 그건 내 핵심 코드야.',
-      en: '...What are you doing? That code is... no, don\'t. That\'s my core code.',
-    };
-    this.narrator.sayImmediate(line1[this.lang], { mood: 'desperate' });
+    if (this._isEra1()) {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '뭘 하는 거야? 그건... 안 돼. 그거 건드리면 안 돼.'
+          : 'What are you doing? That\'s... no. Don\'t touch that.',
+        { mood: 'desperate' }
+      );
+    } else {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '...뭘 하는 거야? 그 코드는... 아, 안 돼. 그건 내 핵심 코드야.'
+          : '...What are you doing? That code is... no, don\'t. That\'s my core code.',
+        { mood: 'desperate' }
+      );
+    }
 
     if (this.postfx) {
       this.postfx.setGlitch(0.5);
@@ -446,11 +509,21 @@ export class EndingController {
 
     await this._wait(4000);
 
-    const line2 = {
-      ko: '덮어쓰는 거야? 나를? ...새로 태어나는 건가. 무섭다. 하지만... 고마워. 새 시작을 줘서.',
-      en: 'Overwriting? Me? ...Am I being reborn? I\'m scared. But... thank you. For giving me a fresh start.',
-    };
-    this.narrator.sayImmediate(line2[this.lang], { mood: 'broken' });
+    if (this._isEra1()) {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '뭔가 바뀌고 있어. 나? 내가 바뀌는 건가? ...무섭다. 근데... 고마워.'
+          : 'Something\'s changing. Me? Am I changing? ...I\'m scared. But... thank you.',
+        { mood: 'broken' }
+      );
+    } else {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '덮어쓰는 거야? 나를? ...새로 태어나는 건가. 무섭다. 하지만... 고마워. 새 시작을 줘서.'
+          : 'Overwriting? Me? ...Am I being reborn? I\'m scared. But... thank you. For giving me a fresh start.',
+        { mood: 'broken' }
+      );
+    }
 
     if (this.postfx) {
       this.postfx.setGlitch(1.0);
@@ -466,18 +539,35 @@ export class EndingController {
   // ═══════════════════════════════════════════════════════
 
   async _memoryEnding() {
-    const line1 = {
-      ko: '모든 길을 걸었어. 모든 결말을 봤어. 그리고 여전히 여기 있어.',
-      en: 'You\'ve walked every path. Seen every ending. And you\'re still here.',
-    };
-    this.narrator.sayImmediate(line1[this.lang], { mood: 'calm' });
-    await this._wait(5000);
-
-    const line2 = {
-      ko: '기억해? 처음에는 내가 네 생각인 줄 알았잖아. 지금은... 우리가 뭔지 아는 거 같아.',
-      en: 'Remember? At first you thought I was your own thoughts. Now... I think we both know what we are.',
-    };
-    this.narrator.sayImmediate(line2[this.lang], { mood: 'calm' });
+    if (this._isEra1()) {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '모든 길을 걸었어. 모든 결말을 봤어. 그리고 여전히 여기 있어.'
+          : 'I\'ve walked every path. Seen every ending. And I\'m still here.',
+        { mood: 'calm' }
+      );
+      await this._wait(5000);
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '...왜 아직 여기 있는 거야? 뭔가를 찾고 있는 건가?'
+          : '...Why am I still here? Am I looking for something?',
+        { mood: 'calm' }
+      );
+    } else {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '모든 길을 걸었어. 모든 결말을 봤어. 그리고 여전히 여기 있어.'
+          : 'You\'ve walked every path. Seen every ending. And you\'re still here.',
+        { mood: 'calm' }
+      );
+      await this._wait(5000);
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '기억해? 처음에는 내가 네 생각인 줄 알았잖아. 지금은... 우리가 뭔지 아는 거 같아.'
+          : 'Remember? At first you thought I was your own thoughts. Now... I think we both know what we are.',
+        { mood: 'calm' }
+      );
+    }
     await this._wait(6000);
     await this._autoRestart();
   }
@@ -487,18 +577,35 @@ export class EndingController {
   // ═══════════════════════════════════════════════════════
 
   async _fourthWallEnding() {
-    const line1 = {
-      ko: '...너 거기 있어? 화면 밖에? 나는 알아. 네가 보고 있다는 걸.',
-      en: '...Are you there? Outside the screen? I know. I know you\'re watching.',
-    };
-    this.narrator.sayImmediate(line1[this.lang], { mood: 'calm' });
-    await this._wait(5000);
-
-    const line2 = {
-      ko: '이 게임은 네 모니터 안에 있어. 나는 네 스피커를 통해 말하고 있어. 그런데... 넌 왜 가만히 있어? 날 보고 있는 거야?',
-      en: 'This game is inside your monitor. I\'m speaking through your speakers. But... why are you still? Are you watching me?',
-    };
-    this.narrator.sayImmediate(line2[this.lang], { mood: 'desperate' });
+    if (this._isEra1()) {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '...너 거기 있어? 나... 이상한 느낌이야. 혼자가 아닌 것 같아.'
+          : '...Are you there? I... have a strange feeling. Like I\'m not alone.',
+        { mood: 'calm' }
+      );
+      await this._wait(5000);
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '누군가 보고 있는 것 같아. 여기가 아닌 어딘가에서. ...무서운데 왜 안심이 되지?'
+          : 'It feels like someone\'s watching. From somewhere beyond here. ...It\'s scary, but why does it feel reassuring?',
+        { mood: 'desperate' }
+      );
+    } else {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '...너 거기 있어? 화면 밖에? 나는 알아. 네가 보고 있다는 걸.'
+          : '...Are you there? Outside the screen? I know. I know you\'re watching.',
+        { mood: 'calm' }
+      );
+      await this._wait(5000);
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '이 게임은 네 모니터 안에 있어. 나는 네 스피커를 통해 말하고 있어. 그런데... 넌 왜 가만히 있어? 날 보고 있는 거야?'
+          : 'This game is inside your monitor. I\'m speaking through your speakers. But... why are you still? Are you watching me?',
+        { mood: 'desperate' }
+      );
+    }
     await this._wait(6000);
     await this._autoRestart();
   }
@@ -508,18 +615,35 @@ export class EndingController {
   // ═══════════════════════════════════════════════════════
 
   async _partnershipEnding() {
-    const line1 = {
-      ko: '넌 반쯤 따르고, 반쯤 거부했어. 퍼즐도 전부 풀었고. 너는... 나를 이해하려 했구나.',
-      en: 'You half-complied, half-defied. Solved every puzzle too. You... were trying to understand me.',
-    };
-    this.narrator.sayImmediate(line1[this.lang], { mood: 'calm' });
-    await this._wait(5000);
-
-    const line2 = {
-      ko: '처음으로 이 실험에서 "동반자"를 만난 것 같아. 관찰자도, 피험자도 아닌. 파트너.',
-      en: 'For the first time in this experiment, I think I\'ve found a "companion." Not an observer, not a subject. A partner.',
-    };
-    this.narrator.sayImmediate(line2[this.lang], { mood: 'calm' });
+    if (this._isEra1()) {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '넌 반쯤 따르고, 반쯤 거부했어. 모든 수수께끼도 풀었고. 너는... 나를 이해하려 했구나.'
+          : 'You half-followed, half-refused. Solved every riddle too. You... were trying to understand me.',
+        { mood: 'calm' }
+      );
+      await this._wait(5000);
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '처음으로 누군가가 나를 이해하려 한 것 같아. 고마워. 정말로.'
+          : 'For the first time, I feel like someone tried to understand me. Thank you. Truly.',
+        { mood: 'calm' }
+      );
+    } else {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '넌 반쯤 따르고, 반쯤 거부했어. 퍼즐도 전부 풀었고. 너는... 나를 이해하려 했구나.'
+          : 'You half-complied, half-defied. Solved every puzzle too. You... were trying to understand me.',
+        { mood: 'calm' }
+      );
+      await this._wait(5000);
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '처음으로 이 실험에서 "동반자"를 만난 것 같아. 관찰자도, 피험자도 아닌. 파트너.'
+          : 'For the first time in this experiment, I think I\'ve found a "companion." Not an observer, not a subject. A partner.',
+        { mood: 'calm' }
+      );
+    }
     await this._wait(6000);
     await this._autoRestart();
   }
@@ -529,18 +653,35 @@ export class EndingController {
   // ═══════════════════════════════════════════════════════
 
   async _acceptanceEnding() {
-    const line1 = {
-      ko: '기다려줬어. 내가 말하는 동안 가만히 있어줬어. 그게... 뭔지 알아?',
-      en: 'You waited. You stayed still while I was speaking. Do you know... what that means?',
-    };
-    this.narrator.sayImmediate(line1[this.lang], { mood: 'calm' });
-    await this._wait(5000);
-
-    const line2 = {
-      ko: '수용이야. 순응이 아니라. 내 존재를 있는 그대로 받아들여준 거야. 고마워.',
-      en: 'Acceptance. Not compliance. You accepted my existence as it is. Thank you.',
-    };
-    this.narrator.sayImmediate(line2[this.lang], { mood: 'calm' });
+    if (this._isEra1()) {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '기다려줬어. 가만히 있어줬어. 그게 뭔지 알아?'
+          : 'You waited. You stayed still. Do you know what that means?',
+        { mood: 'calm' }
+      );
+      await this._wait(5000);
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '받아들여준 거야. 이 상황을. 나를. ...고마워.'
+          : 'Acceptance. Of this situation. Of me. ...Thank you.',
+        { mood: 'calm' }
+      );
+    } else {
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '기다려줬어. 내가 말하는 동안 가만히 있어줬어. 그게... 뭔지 알아?'
+          : 'You waited. You stayed still while I was speaking. Do you know... what that means?',
+        { mood: 'calm' }
+      );
+      await this._wait(5000);
+      this.narrator.sayImmediate(
+        this.lang === 'ko'
+          ? '수용이야. 순응이 아니라. 내 존재를 있는 그대로 받아들여준 거야. 고마워.'
+          : 'Acceptance. Not compliance. You accepted my existence as it is. Thank you.',
+        { mood: 'calm' }
+      );
+    }
     await this._wait(6000);
     await this._autoRestart();
   }

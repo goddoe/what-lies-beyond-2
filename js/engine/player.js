@@ -45,8 +45,8 @@ export class Player {
 
     // Head bob
     this.bobTime = 0;
-    this.bobAmplitude = 0.03;
-    this.bobFrequency = 8;
+    this.bobAmplitude = 0.012;
+    this.bobFrequency = 7;
 
     // Callbacks
     this.onLock = null;

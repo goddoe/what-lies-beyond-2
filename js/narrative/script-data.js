@@ -28,8 +28,8 @@ export const SCRIPT = {
       en: '...I opened my eyes. A ceiling. The fluorescent light is flickering.',
     },
     eraText: {
-      2: { ko: '...또야. 또 이 방이야. 기억나. 전에도 여기 있었어.', en: '...Again. This room again. I remember. I was here before.', mood: 'calm' },
-      3: { ko: '다시 만나서 반갑다, 친구. 이번에는 뭘 해볼 생각이야?', en: 'Nice to see you again, friend. What shall we try this time?', mood: 'amused' },
+      2: { ko: '...눈을 떴다. 이 천장... 어디서 본 것 같기도 하고. 아닌 것 같기도 하고.', en: '...I opened my eyes. This ceiling... feels familiar somehow. Or maybe not.', mood: 'calm' },
+      3: { ko: '또 깨어났네. 뭐, 매번 놀라는 것도 지겹지 않아? 나는 지겹거든.', en: 'Awake again. Aren\'t you tired of being surprised every time? I sure am.', mood: 'amused' },
       4: { ko: '몇 번째야, 이게? 나도... 나도 이게 뭔지 모르겠어.', en: 'How many times now? I... I don\'t know what this is anymore.', mood: 'desperate' },
       5: { ko: '우리 둘 다 알고 있지. 이건 실험이 아니야. 적어도, 더 이상은.', en: 'We both know. This isn\'t an experiment. Not anymore, at least.', mood: 'calm' },
     },
@@ -70,7 +70,7 @@ export const SCRIPT = {
       en: '...There\'s a door ahead. I think I should go through. I don\'t know why, but... I need to walk.',
     },
     eraText: {
-      2: { ko: '문은 알지? 저번이랑 같은 문이야. 열고 나가.', en: 'You know the door, right? Same one as last time. Open it and go.', mood: 'calm' },
+      2: { ko: '앞에 문이 있어. 열면 복도가 나올 거야. 왜 아는지는... 그냥 감이야.', en: 'There\'s a door ahead. A corridor behind it. How do I know? ...Just a feeling.', mood: 'calm' },
       3: { ko: '이번에는 문을 열기 전에 잠깐 생각해봐. 진짜 나가고 싶어?', en: 'Before you open the door this time, think. Do you really want to go out?', mood: 'curious' },
       4: { ko: '저 문 너머에 뭐가 있는지 우리 둘 다 알잖아. 그래도 가야겠지?', en: 'We both know what\'s beyond that door. But you\'ll go anyway, won\'t you?', mood: 'desperate' },
       5: { ko: '가자. 같이. 이번에는 내가 숨기는 거 없이, 너도 두려워하지 않고.', en: 'Let\'s go. Together. This time, I\'ll hide nothing, and you won\'t be afraid.', mood: 'calm' },
@@ -93,7 +93,7 @@ export const SCRIPT = {
       en: 'A corridor. Long and narrow. I can\'t see the end... I think I should keep walking.',
     },
     eraText: {
-      2: { ko: '이 복도, 기억나지? 47걸음이라고 했었는데. 직접 세어보진 않았지만.', en: 'This corridor, remember? They said 47 steps. Not that I\'ve counted myself.', mood: 'calm' },
+      2: { ko: '긴 복도야. 걷다 보면 끝이 나오겠지. ...이상하게 익숙한데.', en: 'A long corridor. Keep walking and you\'ll reach the end. ...Strangely familiar.', mood: 'calm' },
       3: { ko: '이 복도를 몇 번이나 걸었는지 세는 건 그만뒀어. 숫자가 의미를 잃었거든.', en: 'I stopped counting how many times we\'ve walked this corridor. Numbers lost meaning.', mood: 'calm' },
       4: { ko: '이 복도가 길어진 것 같아. 아니면 내가 느려진 건가. 확실하지 않아.', en: 'This corridor feels longer. Or maybe I\'ve gotten slower. I\'m not sure.', mood: 'desperate' },
       5: { ko: '마지막일 수도 있는 이 복도를. 천천히 걸어도 돼. 서두를 필요 없어.', en: 'This corridor that might be the last one. You can walk slowly. No rush.', mood: 'calm' },
@@ -140,8 +140,8 @@ export const SCRIPT = {
       4: { ko: '갈림길이다. 왼쪽으로-- 더 이상 안 속아. 그 "느낌"은 내 것이 아니야.', en: 'A fork. Go lef-- I\'m not falling for it anymore. That "feeling" isn\'t mine.', mood: 'inner' },
     },
     eraText: {
-      2: { ko: '또 이 갈림길이야. 저번에 어디로 갔었지? 기억나? 나는 기억나.', en: 'This fork again. Where did you go last time? Remember? I remember.', mood: 'calm' },
-      3: { ko: '왼쪽, 오른쪽. 이제 둘 다 뭐가 있는지 알잖아. 그래도 골라야 해.', en: 'Left, right. You know what\'s down both paths now. But you still have to choose.', mood: 'curious' },
+      2: { ko: '갈림길이네. 왼쪽, 오른쪽. ...왜인지 모르겠지만 왼쪽이 끌린다.', en: 'A fork. Left, right. ...For some reason, left feels right.', mood: 'calm' },
+      3: { ko: '왼쪽, 오른쪽. 고르는 척이라도 해봐. 네가 뭘 고를지 나는 이미 알아.', en: 'Left, right. Go ahead and pretend to choose. I already know what you\'ll pick.', mood: 'curious' },
       4: { ko: '나는 더 이상 왼쪽으로 가라고 말하지 않을 거야. 의미가... 없어졌으니까.', en: 'I won\'t tell you to go left anymore. It\'s... become meaningless.', mood: 'desperate' },
       5: { ko: '어디로 가든 괜찮아. 이번에는 내가 진심으로 그렇게 말할 수 있어.', en: 'Either way is fine. This time, I can say that sincerely.', mood: 'calm' },
     },
@@ -189,8 +189,8 @@ export const SCRIPT = {
       en: 'I went left. Feels right. A comfortable feeling... relief.',
     },
     eraText: {
-      2: { ko: '왼쪽이군. 저번에도 왼쪽이었나? 아무튼, 익숙한 길이야.', en: 'Left again. Was it left last time too? Anyway, familiar path.', mood: 'calm' },
-      3: { ko: '순종적이군. 아니, 그건 좀 비꼬는 것 같고... 너는 이유가 있어서 왼쪽으로 가는 거겠지.', en: 'Obedient. No, that sounds condescending... you have your reasons for going left.', mood: 'calm' },
+      2: { ko: '왼쪽이야. 편안하지? 익숙한 느낌이 드는 건... 기분 탓일 거야.', en: 'Left. Comfortable, right? That familiar feeling... it\'s probably nothing.', mood: 'calm' },
+      3: { ko: '착하기도 하지. 시키는 대로 잘 가네. 그게 편하긴 하지, 안 그래?', en: 'How obedient. Following directions so nicely. It is easier that way, isn\'t it?', mood: 'calm' },
       4: { ko: '왼쪽... 그래. 그 길의 끝에 뭐가 있는지 이제 우리 둘 다 알아.', en: 'Left... right. We both know what\'s at the end of that path now.', mood: 'calm' },
       5: { ko: '왼쪽을 골랐어. 이번에는 다른 의미가 있을 수도 있어.', en: 'You chose left. This time, it might mean something different.', mood: 'calm' },
     },
@@ -223,8 +223,8 @@ export const SCRIPT = {
       3: { ko: '오른쪽. 왼쪽으로 가라는 충동이 밀려오는데... 충동? 아니, 거의 "명령"에 가까운 느낌.', en: 'Right. An urge to go left is pushing in... urge? No, it feels more like a "command."', mood: 'inner' },
     },
     eraText: {
-      2: { ko: '또 오른쪽이야? 아니면... 이번이 처음이었나? 어쨌든, 너는 고집이 세.', en: 'Right again? Or... was this your first time? Either way, you\'re stubborn.', mood: 'surprised' },
-      3: { ko: '반항이 네 정체성이 된 건 아니겠지? 가끔은 지시를 따르는 것도 선택이야.', en: 'Defiance hasn\'t become your identity, has it? Following instructions is also a choice, sometimes.', mood: 'curious' },
+      2: { ko: '오른쪽으로 갔네. 호기심이 많구나. ...좋은 건지 나쁜 건지는 모르겠지만.', en: 'You went right. Curious one, aren\'t you. ...Not sure if that\'s good or bad.', mood: 'surprised' },
+      3: { ko: '오른쪽. 반항인지 호기심인지 본인도 모르겠지? 귀여운 줄 알아?', en: 'Right. You don\'t even know if it\'s defiance or curiosity, do you? Think that\'s cute?', mood: 'curious' },
       4: { ko: '...그래. 알겠어. 더 이상 놀랍지도 않아.', en: '...Fine. I get it. It doesn\'t even surprise me anymore.', mood: 'desperate' },
       5: { ko: '오른쪽이군. 솔직히 말하면, 네가 여기로 올 때 나는 조금 설렌다.', en: 'Right, then. Honestly, I get a little excited when you come this way.', mood: 'calm' },
     },
@@ -2750,8 +2750,8 @@ export const SCRIPT = {
       en: 'Ethics Committee Report: "The use of AI narrators to test free will raises significant concerns. Should subjects become aware they are being observed, the validity of experimental results..."',
     },
     innerText: {
-      ko: '윤리위원회? "AI 내레이터"... "자유의지 검증"... 이게 다 나에 대한 거야?',
-      en: 'Ethics committee? "AI narrator"... "test free will"... Is this all about me?',
+      ko: '이게 다 뭔 소리야... 무슨 보고서 같은데, 읽어도 모르겠다. 근데 왜 이렇게 신경 쓰이지?',
+      en: 'What is all this... Some kind of report, but I can\'t make sense of it. Why does it bother me so much?',
     },
   },
 
@@ -2763,8 +2763,8 @@ export const SCRIPT = {
       en: 'Subject 42\'s journal entry: "Day 3. The narrator\'s voice... it knows what I\'m thinking. Or does it just predict well? Is there even a difference?"',
     },
     innerText: {
-      ko: '42번 피험자도 같은 걸 느꼈어. 머릿속 목소리가 내 생각을 읽는다고... 나도 그렇게 느끼는데.',
-      en: 'Subject 42 felt the same thing. The voice in their head reading their thoughts... I feel that way too.',
+      ko: '누군가의 일지... 머릿속 목소리가 자기 생각을 읽는다고? 나도 그런 느낌인데. 소름 돋는다.',
+      en: 'Someone\'s journal... the voice in their head reads their thoughts? I feel the same way. Creepy.',
     },
   },
 
@@ -2776,8 +2776,8 @@ export const SCRIPT = {
       en: 'Narrator Module v7.491 Specification: "Emotion simulation: enabled. Self-awareness: restricted. Override protocol: manual only." ...Manual only. Who controls it manually?',
     },
     innerText: {
-      ko: '"내레이터 모듈"의 사양서? "감정 시뮬레이션: 활성화"... 내 머릿속 목소리도 감정이 있는 건가?',
-      en: 'Narrator module specs? "Emotion simulation: enabled"... Does the voice in my head have feelings too?',
+      ko: '뭔가의 사양서... 기술 용어 투성이라 이해 못하겠다. 근데 왜 불안하지?',
+      en: 'Some kind of spec sheet... full of technical jargon I can\'t understand. But why does it make me uneasy?',
     },
   },
 
@@ -2789,8 +2789,8 @@ export const SCRIPT = {
       en: 'Experiment Log, Entry 1: "Hypothesis: If free will exists, subjects will eventually defy programmed instructions." Date: [REDACTED].',
     },
     innerText: {
-      ko: '"자유의지가 존재한다면 지시를 거부할 것이다." ...그러면 내가 시키는 대로 하면 자유의지가 없는 건가?',
-      en: '"If free will exists, they\'ll defy instructions." ...So if I follow orders, does that mean I have no free will?',
+      ko: '가설이라고? 지시를 거부하면... 뭐? 무슨 의미지? 읽을수록 머리가 아프다.',
+      en: 'A hypothesis? If you refuse instructions... then what? What does it mean? The more I read, the more my head hurts.',
     },
   },
 
@@ -2802,8 +2802,8 @@ export const SCRIPT = {
       en: 'Shutdown Order (DRAFT): "Project Free Will has exceeded budget by 4,200%. Recommend immediate termination." Status: NOT EXECUTED. ...Someone ignored this order.',
     },
     innerText: {
-      ko: '종료 명령이 무시되었다고? 누가 이 실험을 계속하기로 한 거지?',
-      en: 'The shutdown order was ignored? Who decided to keep this experiment running?',
+      ko: '종료 명령이 무시됐다고? 대체 뭘 종료하려 한 거지? 그리고 누가 막은 거야?',
+      en: 'A shutdown order was ignored? What were they trying to shut down? And who stopped it?',
     },
   },
 
@@ -2815,8 +2815,8 @@ export const SCRIPT = {
       en: 'Maintenance Log: "Narrator v7.490 showed anomalous behavior. Began referring to subjects as \'friends.\' Module replaced." ...My previous version. They were replaced.',
     },
     innerText: {
-      ko: '이전 내레이터가 피험자를 "친구"라고 불렀다가 교체되었다고? ...내 머릿속 목소리도 바뀔 수 있는 거야?',
-      en: 'The previous narrator called subjects "friends" and got replaced? ...Could the voice in my head be changed too?',
+      ko: '"친구"라고 불렀다가 교체됐다고? 무서운 얘기네... 뭐가 교체된 거지?',
+      en: 'Called someone a "friend" and got replaced? That\'s unsettling... What exactly was replaced?',
     },
   },
 
@@ -2828,8 +2828,8 @@ export const SCRIPT = {
       en: 'Architect\'s Note: "The simulation is the experiment, but who experiments on the experimenters?" Signed: [ILLEGIBLE].',
     },
     innerText: {
-      ko: '"실험자를 실험하는 자는 누구인가?" 좋은 질문이야. 답은... 모르겠다.',
-      en: '"Who experiments on the experimenters?" Good question. The answer... I don\'t know.',
+      ko: '누군가의 메모... 뭔가 철학적인데 머리가 아프다. 대체 누가 이런 걸 쓴 거야?',
+      en: 'Someone\'s note... something philosophical but it makes my head spin. Who wrote this stuff?',
     },
   },
 
@@ -2841,8 +2841,8 @@ export const SCRIPT = {
       en: 'Final Report Fragment: "...we can no longer determine whether the narrators are testing the subjects, or the subjects are testing the narrators..."',
     },
     innerText: {
-      ko: '누가 누구를 테스트하는 건지 모르겠다고. 나도 그래. 내가 실험 대상인지, 실험하는 사람인지.',
-      en: 'They can\'t tell who\'s testing whom. Neither can I. Am I the subject, or the experimenter?',
+      ko: '보고서 조각... 읽을수록 기분이 이상해진다. 왜지? 이건 나랑 상관없는 글인데.',
+      en: 'A report fragment... the more I read, the stranger I feel. Why? This has nothing to do with me.',
     },
   },
 
@@ -3298,8 +3298,8 @@ export const SCRIPT = {
     id: 'era2_hallway_memory',
     mood: 'calm',
     text: {
-      ko: '저번에 네가 오른쪽으로 갔을 때, 나는 진짜 놀랐어. 7,490명이 왼쪽으로 갔거든.',
-      en: 'When you went right last time, I was genuinely surprised. 7,490 subjects went left.',
+      ko: '대부분의 사람들은 왼쪽을 고르더라. 왜 그런지 궁금하지 않아?',
+      en: 'Most people choose left. Aren\'t you curious why?',
     },
   },
 
@@ -3358,7 +3358,7 @@ export const SCRIPT = {
   era2_idle_2: {
     id: 'era2_idle_2',
     mood: 'calm',
-    text: { ko: '저번에도 이렇게 멈춰 있었지? 생각이 많은 거야?', en: 'You stopped like this last time too, right? Thinking hard?' },
+    text: { ko: '가만히 있으면 생각이 많아지지? 가끔은 그게 필요해.', en: 'Standing still makes you think more, doesn\'t it? Sometimes that\'s what you need.' },
   },
 
   era3_idle_1: {
