@@ -158,6 +158,27 @@ body {
   color: rgba(200, 210, 230, 0.85);
 }
 
+.narrator-line.mode-inner_uneasy {
+  font-style: italic;
+  opacity: 0.85;
+  padding-left: 1em;
+  color: rgba(190, 200, 225, 0.88);
+  text-shadow: 0 0 8px rgba(100, 120, 180, 0.15);
+}
+
+.narrator-line.mode-questioning {
+  font-style: italic;
+  opacity: 0.9;
+  padding-left: 0.8em;
+  color: rgba(180, 195, 230, 0.92);
+  animation: lineAppear 0.4s ease-out, questionPulse 4s ease-in-out infinite;
+}
+
+@keyframes questionPulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.78; }
+}
+
 .narrator-line.mode-cracking {
   animation: lineAppear 0.4s ease-out, crackingShake 3s ease-in-out infinite;
 }

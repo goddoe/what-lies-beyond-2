@@ -250,8 +250,10 @@ export class MapBuilder {
     // Floor
     this._addPlane(ox, oy, oz, w, d, floorColor, 'floor');
 
-    // Ceiling
-    this._addPlane(ox, oy + h, oz, w, d, ceilingColor, 'ceiling');
+    // Ceiling — skip if noCeiling flag is set (outdoor rooms)
+    if (!room.noCeiling) {
+      this._addPlane(ox, oy + h, oz, w, d, ceilingColor, 'ceiling');
+    }
 
     // Walls - build with door cutouts (store adjusted color in room temporarily)
     const origWallColor = room.wallColor;

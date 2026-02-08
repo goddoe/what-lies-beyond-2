@@ -328,8 +328,8 @@ export const ROOMS = [
       { type: 'chair', position: [0, 0, 2], size: [0.5, 0.5, 0.5], color: 0x333333 },
       { type: 'chair', position: [1, 0, 2], size: [0.5, 0.5, 0.5], color: 0x333333 },
       { type: 'chair', position: [2, 0, 2], size: [0.5, 0.5, 0.5], color: 0x333333 },
-      // Projector screen on north wall
-      { type: 'screen', position: [0, 1.2, -4.8], size: [3.5, 1.8, 0.05], color: 0xdddddd },
+      // Projector screen on north wall (offset left so north door stays visible)
+      { type: 'screen', position: [-3, 1.2, -4.8], size: [2.5, 1.8, 0.05], color: 0xdddddd },
       // Projector on ceiling
       { type: 'projector', position: [0, 2.7, 0], size: [0.3, 0.2, 0.4], color: 0x444444 },
     ],
@@ -722,12 +722,15 @@ export const ROOMS = [
   room('FALSE_ENDING_ROOM', {
     origin: [-49, 0, -72],
     size: [12, 4, 12],
-    wallColor: 0x8a9a8a,
-    floorColor: 0x4a6a4a,
-    ceilingColor: 0x7a9a7a,
+    noCeiling: true,               // outdoor — no ceiling
+    wallColor: 0xaab8aa,           // bright grey-green (exterior wall feel)
+    floorColor: 0x5a8a4a,          // bright grass green
+    ceilingColor: 0x88bbee,        // unused (noCeiling)
     lightColor: 0xfff8e0,
-    lightIntensity: 1.5,
-    fogColor: 0x2a3a2a,
+    lightIntensity: 2.0,           // brighter (outdoor)
+    fogColor: 0x88aacc,            // bright sky-blue fog (outdoor feel)
+    fogNear: 12,                   // distant fog (openness)
+    fogFar: 35,
     doors: [
       { wall: 'south', offset: 0, width: 2, height: 2.5 },
     ],
@@ -736,24 +739,22 @@ export const ROOMS = [
       { id: 'false_ending', position: [0, 1, -1], size: [6, 4, 4] },
     ],
     props: [
-      // "Garden" room - bright and deceptively pleasant
-      { type: 'pedestal', position: [0, 0, -3], size: [0.8, 1.2, 0.8], color: 0xcccccc },
-      { type: 'monitor', position: [0, 1.2, -3], size: [0.8, 0.6, 0.05], color: 0x222222 },
-      // Fake trees (tall green boxes)
+      // EXIT sign (above entrance, bright LED)
+      { type: 'led', position: [0, 3.2, 5.5], size: [1.5, 0.4, 0.1], color: 0x44ff44 },
+      // Trees (outdoor park)
       { type: 'tree', position: [-4, 0, -4], size: [0.8, 2.5, 0.8], color: 0x3a7a3a },
       { type: 'tree', position: [4, 0, -4], size: [0.8, 2.5, 0.8], color: 0x3a7a3a },
-      { type: 'tree', position: [-4, 0, 4], size: [0.8, 2.5, 0.8], color: 0x3a7a3a },
-      { type: 'tree', position: [4, 0, 4], size: [0.8, 2.5, 0.8], color: 0x3a7a3a },
-      { type: 'tree', position: [-2, 0, 0], size: [0.6, 2, 0.6], color: 0x3a8a3a },
-      { type: 'tree', position: [2, 0, 0], size: [0.6, 2, 0.6], color: 0x3a8a3a },
-      // Fountain base
-      { type: 'fountain', position: [0, 0, 2], size: [1.5, 0.5, 1.5], color: 0xaaaaaa },
-      // Benches
-      { type: 'bench', position: [-3, 0, 0], size: [0.5, 0.4, 1.5], color: 0x6a5a3a },
-      { type: 'bench', position: [3, 0, 0], size: [0.5, 0.4, 1.5], color: 0x6a5a3a },
-      // Grass patches (green floor accents)
-      { type: 'grass', position: [-2, 0.01, 3], size: [3, 0.02, 3], color: 0x4a8a4a },
-      { type: 'grass', position: [2, 0.01, -1], size: [3, 0.02, 3], color: 0x4a8a4a },
+      { type: 'tree', position: [-4, 0, 2], size: [0.8, 2.5, 0.8], color: 0x3a8a3a },
+      { type: 'tree', position: [4, 0, 2], size: [0.8, 2.5, 0.8], color: 0x3a8a3a },
+      // Grass (wide single patch)
+      { type: 'grass', position: [0, 0.01, 0], size: [10, 0.02, 10], color: 0x4a8a4a },
+      // Benches (park)
+      { type: 'bench', position: [-3, 0, -1], size: [0.5, 0.4, 1.5], color: 0x6a5a3a },
+      { type: 'bench', position: [3, 0, -1], size: [0.5, 0.4, 1.5], color: 0x6a5a3a },
+      // Fountain
+      { type: 'fountain', position: [0, 0, -2], size: [1.5, 0.5, 1.5], color: 0xaaaaaa },
+      // "Sky" — bright LED panel high above (simulates sky when looking up)
+      { type: 'led', position: [0, 5, 0], size: [12, 0.1, 12], color: 0x99ccee },
     ],
   }),
 

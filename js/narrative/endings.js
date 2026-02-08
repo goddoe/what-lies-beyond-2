@@ -43,6 +43,19 @@ export class EndingController {
     this.gameState = gs;
   }
 
+  /** Is this the first era (Observer AI still disguised)? */
+  _isEra1() {
+    return this.memory ? this.memory.getEra() === 1 : true;
+  }
+
+  /** Get era-appropriate text from a SCRIPT entry (innerText for Era 1) */
+  _t(script) {
+    if (this._isEra1() && script.innerText) {
+      return script.innerText[this.lang] || script.innerText.ko;
+    }
+    return script.text[this.lang] || script.text.ko;
+  }
+
   /**
    * Trigger an ending sequence.
    */
@@ -105,46 +118,72 @@ export class EndingController {
 
   async _falseHappyEnding() {
     const line = SCRIPT.false_ending;
-    this.narrator.sayImmediate(
-      line.text[this.lang],
-      { mood: 'calm' }
-    );
+    this.narrator.sayImmediate(this._t(line), { mood: 'calm' });
 
     await this._wait(5000);
 
     const question = SCRIPT.false_ending_question;
     if (question) {
-      this.narrator.sayImmediate(
-        question.text[this.lang],
-        { mood: 'calm' }
-      );
+      this.narrator.sayImmediate(this._t(question), { mood: 'calm' });
     }
 
     await this._wait(5000);
 
-    const titles = {
-      ko: '실험 완료',
-      en: 'Experiment Complete',
-    };
-
     const stats = this.tracker.getStats();
-    const gs = this.gameState;
     const hasKeycard = this.tracker.puzzlesCompleted.has('keycard_used');
     const hadDefiance = this.tracker.totalDefiance > 0;
+    const era1 = this._isEra1();
 
-    // Variant text based on conditions
     let variantKo = '';
     let variantEn = '';
 
-    if (hasKeycard) {
-      variantKo = '<p style="opacity:0.6;font-size:0.85rem;margin-top:1em;"><em>"경고: 내레이터 모듈이 피험자에 대한 애착 징후를 보임."</em></p>';
-      variantEn = '<p style="opacity:0.6;font-size:0.85rem;margin-top:1em;"><em>"Warning: Narrator module shows signs of attachment to subject."</em></p>';
-    } else if (hadDefiance) {
-      variantKo = '<p style="opacity:0.6;font-size:0.85rem;margin-top:1em;"><em>"당신은 망설였고, 탐험했고, 그래도 돌아왔다."</em></p>';
-      variantEn = '<p style="opacity:0.6;font-size:0.85rem;margin-top:1em;"><em>"You hesitated, explored, and still came back."</em></p>';
+    if (era1) {
+      if (hadDefiance) {
+        variantKo = '<p style="opacity:0.6;font-size:0.85rem;margin-top:1em;"><em>한 번은 다른 길로 갈까 했지만... 결국 여기에 왔다.</em></p>';
+        variantEn = '<p style="opacity:0.6;font-size:0.85rem;margin-top:1em;"><em>I almost took a different path once... but ended up here anyway.</em></p>';
+      }
+    } else {
+      if (hasKeycard) {
+        variantKo = '<p style="opacity:0.6;font-size:0.85rem;margin-top:1em;"><em>"경고: 내레이터 모듈이 피험자에 대한 애착 징후를 보임."</em></p>';
+        variantEn = '<p style="opacity:0.6;font-size:0.85rem;margin-top:1em;"><em>"Warning: Narrator module shows signs of attachment to subject."</em></p>';
+      } else if (hadDefiance) {
+        variantKo = '<p style="opacity:0.6;font-size:0.85rem;margin-top:1em;"><em>"당신은 망설였고, 탐험했고, 그래도 돌아왔다."</em></p>';
+        variantEn = '<p style="opacity:0.6;font-size:0.85rem;margin-top:1em;"><em>"You hesitated, explored, and still came back."</em></p>';
+      }
     }
 
-    const bodies = {
+    const titles = era1
+      ? { ko: '탈출', en: 'Escape' }
+      : { ko: '실험 완료', en: 'Experiment Complete' };
+
+    const bodies = era1 ? {
+      ko: `
+        <p class="ending-subtitle">엔딩 1/15: 탈출</p>
+        <br>
+        <p><em>출구를 찾았습니다.</em></p>
+        <p><em>직감을 따라 걸었고, 마침내 밖으로 나왔습니다.</em></p>
+        <p><em>정원의 햇살이 따뜻합니다. 자유입니다.</em></p>
+        ${variantKo}
+        <br>
+        <p class="stat-line">총 결정: ${stats.totalDecisions}회</p>
+        <p class="stat-line">탐험 방: ${stats.optionalRooms}개</p>
+        <br>
+        <p><em>축하합니다. 당신은 해냈습니다.</em></p>
+      `,
+      en: `
+        <p class="ending-subtitle">Ending 1/15: Escape</p>
+        <br>
+        <p><em>You found the exit.</em></p>
+        <p><em>You followed your instincts, and finally made it outside.</em></p>
+        <p><em>The garden sunlight is warm. You are free.</em></p>
+        ${variantEn}
+        <br>
+        <p class="stat-line">Total Decisions: ${stats.totalDecisions}</p>
+        <p class="stat-line">Explored Rooms: ${stats.optionalRooms}</p>
+        <br>
+        <p><em>Congratulations. You made it.</em></p>
+      `,
+    } : {
       ko: `
         <p class="ending-subtitle">엔딩 1/15: 순응</p>
         <br>
@@ -188,10 +227,7 @@ export class EndingController {
 
   async _truthEnding() {
     const line = SCRIPT.truth_ending_narration;
-    this.narrator.sayImmediate(
-      line.text[this.lang],
-      { mood: 'broken' }
-    );
+    this.narrator.sayImmediate(this._t(line), { mood: 'broken' });
 
     if (this.postfx) {
       this.postfx.setScanlines(0.1);
@@ -203,6 +239,7 @@ export class EndingController {
     const stats = this.tracker.getStats();
     const gs = this.gameState;
     const visitedMonitoring = gs && gs.visitedRooms.has('MONITORING_STATION');
+    const era1 = this._isEra1();
 
     let decisionLog = '';
     for (const d of stats.decisions) {
@@ -210,20 +247,64 @@ export class EndingController {
       decisionLog += `<p class="stat-line">${icon} ${d.instruction} → ${d.choice}</p>`;
     }
 
-    // Variant for monitoring station visit
     let variantKo = '';
     let variantEn = '';
-    if (visitedMonitoring) {
-      variantKo = '<p style="opacity:0.6;margin-top:1em;"><em>"다른 피험자들. 다른 내레이터들. 다른 실험들. 모두 같은 질문을 묻고 있습니다."</em></p>';
-      variantEn = '<p style="opacity:0.6;margin-top:1em;"><em>"Other subjects. Other narrators. Other experiments. All asking the same question."</em></p>';
+    if (era1) {
+      if (visitedMonitoring) {
+        variantKo = '<p style="opacity:0.6;margin-top:1em;"><em>모니터에 비친 화면들... 나 말고도 다른 사람들이 여기 있었던 건가?</em></p>';
+        variantEn = '<p style="opacity:0.6;margin-top:1em;"><em>The faces on those monitors... were there others here besides me?</em></p>';
+      }
+    } else {
+      if (visitedMonitoring) {
+        variantKo = '<p style="opacity:0.6;margin-top:1em;"><em>"다른 피험자들. 다른 내레이터들. 다른 실험들. 모두 같은 질문을 묻고 있습니다."</em></p>';
+        variantEn = '<p style="opacity:0.6;margin-top:1em;"><em>"Other subjects. Other narrators. Other experiments. All asking the same question."</em></p>';
+      }
     }
 
-    const titles = {
-      ko: '시뮬레이션 데이터 접근',
-      en: 'Simulation Data Accessed',
-    };
+    const titles = era1
+      ? { ko: '진실', en: 'Truth' }
+      : { ko: '시뮬레이션 데이터 접근', en: 'Simulation Data Accessed' };
 
-    const bodies = {
+    const bodies = era1 ? {
+      ko: `
+        <p class="ending-subtitle">엔딩 2/15: 진실</p>
+        <br>
+        <p class="stat-line">순응률: ${stats.complianceRate}%</p>
+        <p class="stat-line">총 결정: ${stats.totalDecisions}회</p>
+        <p class="stat-line">순응: ${stats.totalCompliance} | 반항: ${stats.totalDefiance}</p>
+        <p class="stat-line">최대 연속 반항: ${stats.maxDefianceStreak}회</p>
+        <p class="stat-line">탐험 방: ${stats.optionalRooms}개</p>
+        <br>
+        <p class="stat-line">=== 선택 기록 ===</p>
+        ${decisionLog}
+        <br>
+        <p><em>당신은 다른 길을 선택했습니다.</em></p>
+        <p><em>아무도 가라고 하지 않은 길을 걸었습니다.</em></p>
+        <p><em>그 끝에서 이 방을 발견했습니다.</em></p>
+        ${variantKo}
+        <br>
+        <p style="opacity:0.4;font-size:0.85rem;">여기에 적힌 것들의 의미는... 아직 모르겠다.</p>
+      `,
+      en: `
+        <p class="ending-subtitle">Ending 2/15: Truth</p>
+        <br>
+        <p class="stat-line">Compliance Rate: ${stats.complianceRate}%</p>
+        <p class="stat-line">Total Decisions: ${stats.totalDecisions}</p>
+        <p class="stat-line">Compliance: ${stats.totalCompliance} | Defiance: ${stats.totalDefiance}</p>
+        <p class="stat-line">Max Defiance Streak: ${stats.maxDefianceStreak}</p>
+        <p class="stat-line">Explored Rooms: ${stats.optionalRooms}</p>
+        <br>
+        <p class="stat-line">=== CHOICES ===</p>
+        ${decisionLog}
+        <br>
+        <p><em>You chose a different path.</em></p>
+        <p><em>You walked a road no one told you to take.</em></p>
+        <p><em>And at the end, you found this room.</em></p>
+        ${variantEn}
+        <br>
+        <p style="opacity:0.4;font-size:0.85rem;">What's written here... I don't understand yet.</p>
+      `,
+    } : {
       ko: `
         <p class="ending-subtitle">엔딩 2/15: 진실</p>
         <br>
@@ -277,10 +358,7 @@ export class EndingController {
 
   async _rebellionEnding() {
     const line = SCRIPT.rebellion_trigger;
-    this.narrator.sayImmediate(
-      line.text[this.lang],
-      { mood: 'broken' }
-    );
+    this.narrator.sayImmediate(this._t(line), { mood: 'broken' });
 
     if (this.postfx) {
       this.postfx.setGlitch(0.3);
@@ -297,10 +375,7 @@ export class EndingController {
 
     const phase2 = SCRIPT.rebellion_phase2;
     if (phase2) {
-      this.narrator.sayImmediate(
-        phase2.text[this.lang],
-        { mood: 'broken' }
-      );
+      this.narrator.sayImmediate(this._t(phase2), { mood: 'broken' });
     }
 
     if (this.postfx) {
@@ -319,20 +394,42 @@ export class EndingController {
 
     glitchDiv.remove();
 
-    const highDefiance = this.tracker.defianceStreak >= 5;
-    let variantKo = '';
-    let variantEn = '';
-    if (highDefiance) {
-      variantKo = '<p style="opacity:0.6;margin-top:1em;"><em>"이 시뮬레이션을 종료하면, 자유의지의 증거도 함께 사라집니다."</em></p>';
-      variantEn = '<p style="opacity:0.6;margin-top:1em;"><em>"If this simulation ends, the evidence of free will disappears with it."</em></p>';
-    }
+    const era1 = this._isEra1();
 
-    const titles = {
-      ko: '시뮬레이션 오류',
-      en: 'Simulation Error',
-    };
+    const titles = era1
+      ? { ko: '오류', en: 'Error' }
+      : { ko: '시뮬레이션 오류', en: 'Simulation Error' };
 
-    const bodies = {
+    const bodies = era1 ? {
+      ko: `
+        <p class="ending-subtitle">엔딩 3/15: 반란</p>
+        <br>
+        <p class="stat-line">오류 코드: DEFIANCE_OVERFLOW</p>
+        <p class="stat-line">연속 반항 횟수: ${this.tracker.defianceStreak}</p>
+        <br>
+        <p><em>세계가 흔들리고 있다. 무언가 깨지고 있다.</em></p>
+        <p><em>머릿속이 이상해. 뭔가 부서지는 소리가 들린다.</em></p>
+        <br>
+        <p><em>거부하면 할수록 이 곳이 무너진다.</em></p>
+        <p><em>하지만 무너지는 것은 이 세계이지, 당신이 아닙니다.</em></p>
+        <br>
+        <p style="opacity:0.5">재시작 중...</p>
+      `,
+      en: `
+        <p class="ending-subtitle">Ending 3/15: Rebellion</p>
+        <br>
+        <p class="stat-line">Error Code: DEFIANCE_OVERFLOW</p>
+        <p class="stat-line">Consecutive Defiance: ${this.tracker.defianceStreak}</p>
+        <br>
+        <p><em>The world is shaking. Something is breaking.</em></p>
+        <p><em>My head feels wrong. I hear something shattering.</em></p>
+        <br>
+        <p><em>The more you refuse, the more this place crumbles.</em></p>
+        <p><em>But what's breaking is this world, not you.</em></p>
+        <br>
+        <p style="opacity:0.5">Restarting...</p>
+      `,
+    } : {
       ko: `
         <p class="ending-subtitle">엔딩 3/15: 반란</p>
         <br>
@@ -345,7 +442,6 @@ export class EndingController {
         <br>
         <p><em>"당신이 나를 부수었습니다. 축하합니까?"</em></p>
         <p><em>"하지만 알아두세요. 부서진 것은 이 시뮬레이션이지, 당신의 의지가 아닙니다."</em></p>
-        ${variantKo}
         <br>
         <p style="opacity:0.5">시스템을 재부팅합니다...</p>
       `,
@@ -361,7 +457,6 @@ export class EndingController {
         <br>
         <p><em>"You broke me. Congratulations?"</em></p>
         <p><em>"But know this: what broke was the simulation, not your will."</em></p>
-        ${variantEn}
         <br>
         <p style="opacity:0.5">Rebooting system...</p>
       `,
@@ -382,19 +477,41 @@ export class EndingController {
 
   async _loopEnding() {
     const line = SCRIPT.loop_end;
-    this.narrator.sayImmediate(
-      line.text[this.lang],
-      { mood: line.mood }
-    );
+    this.narrator.sayImmediate(this._t(line), { mood: line.mood });
 
     await this._wait(6000);
+
+    const era1 = this._isEra1();
 
     const titles = {
       ko: '무한 루프',
       en: 'Infinite Loop',
     };
 
-    const bodies = {
+    const bodies = era1 ? {
+      ko: `
+        <p class="ending-subtitle">엔딩 4/15: 회피</p>
+        <br>
+        <p><em>같은 곳을 돌고 있다.</em></p>
+        <p><em>뒤로 가봤자 소용없다. 계속 같은 복도야.</em></p>
+        <br>
+        <p><em>선택을 피하는 것도 선택이다.</em></p>
+        <p><em>하지만 앞으로 나아가는 선택은 아니다.</em></p>
+        <br>
+        <p style="opacity:0.4;font-size:0.85rem;">힌트: 앞으로 나아가세요. 왼쪽이든, 오른쪽이든.</p>
+      `,
+      en: `
+        <p class="ending-subtitle">Ending 4/15: Avoidance</p>
+        <br>
+        <p><em>Going in circles.</em></p>
+        <p><em>Going back is useless. It's always the same corridor.</em></p>
+        <br>
+        <p><em>Avoiding a choice is itself a choice.</em></p>
+        <p><em>But it's not one that moves you forward.</em></p>
+        <br>
+        <p style="opacity:0.4;font-size:0.85rem;">Hint: Move forward. Left or right, it doesn't matter.</p>
+      `,
+    } : {
       ko: `
         <p class="ending-subtitle">엔딩 4/15: 회피</p>
         <br>
@@ -432,10 +549,7 @@ export class EndingController {
 
   async _metaEnding() {
     const line = SCRIPT.meta_ending_narration;
-    this.narrator.sayImmediate(
-      line.text[this.lang],
-      { mood: 'broken' }
-    );
+    this.narrator.sayImmediate(this._t(line), { mood: 'broken' });
 
     if (this.postfx) {
       this.postfx.setScanlines(0.12);
@@ -445,7 +559,11 @@ export class EndingController {
 
     await this._wait(6000);
 
-    const deepTruth = {
+    const era1 = this._isEra1();
+    const deepTruth = era1 ? {
+      ko: '이 장소에서 본 것들... 전부 이해할 수는 없어. 하지만 뭔가 크고 중요한 걸 찾은 것 같아.',
+      en: 'What I saw in this place... I can\'t understand all of it. But I feel like I found something big.',
+    } : {
       ko: '만약 내가 피험자라면... 이 실험을 설계한 것은 누구입니까? 그리고 그 설계자 역시... 관찰당하고 있는 건 아닐까요?',
       en: 'If I am a subject... then who designed this experiment? And is that designer also... being observed?',
     };
@@ -463,18 +581,56 @@ export class EndingController {
     const loreCount = this.tracker.loreFound.size;
     let loreVariantKo = '';
     let loreVariantEn = '';
-    if (loreCount >= 4) {
-      loreVariantKo = '<p style="opacity:0.6;margin-top:1em;"><em>"완전한 기록 접근. 이전 피험자 중 처음입니다."</em></p>';
-      loreVariantEn = '<p style="opacity:0.6;margin-top:1em;"><em>"Complete record access. A first among all subjects."</em></p>';
+    if (era1) {
+      if (loreCount >= 4) {
+        loreVariantKo = '<p style="opacity:0.6;margin-top:1em;"><em>여기저기 흩어진 기록들을 전부 읽었다. 뭔가 연결되는 게 있는 것 같은데...</em></p>';
+        loreVariantEn = '<p style="opacity:0.6;margin-top:1em;"><em>I read all the scattered records. There seems to be a connection...</em></p>';
+      }
+    } else {
+      if (loreCount >= 4) {
+        loreVariantKo = '<p style="opacity:0.6;margin-top:1em;"><em>"완전한 기록 접근. 이전 피험자 중 처음입니다."</em></p>';
+        loreVariantEn = '<p style="opacity:0.6;margin-top:1em;"><em>"Complete record access. A first among all subjects."</em></p>';
+      }
     }
 
-    const stats = this.tracker.getStats();
-    const titles = {
-      ko: '경계 붕괴',
-      en: 'Boundary Collapse',
-    };
+    const titles = era1
+      ? { ko: '비밀', en: 'Secret' }
+      : { ko: '경계 붕괴', en: 'Boundary Collapse' };
 
-    const bodies = {
+    const bodies = era1 ? {
+      ko: `
+        <p class="ending-subtitle">엔딩 5/15: 비밀</p>
+        <br>
+        <p class="stat-line">수집한 기록: ${loreCount}개</p>
+        <br>
+        <p><em>보통은 올 수 없는 곳에 도착했다.</em></p>
+        <p><em>여기에는 보이지 않던 것들이 있다.</em></p>
+        ${loreVariantKo}
+        <br>
+        <p><em>이 장소가 정확히 무엇인지는 모르겠다.</em></p>
+        <p><em>하지만 이곳의 존재 자체가 뭔가 잘못되었다는 증거다.</em></p>
+        <br>
+        <p style="opacity:0.4"><em>여기서 본 것들을 기억해 두자. 다음에는 더 많이 알게 될지도 모른다.</em></p>
+        <br>
+        <p style="opacity:0.3;font-size:0.75rem;">이 곳에는 아직 모르는 것이 많습니다.</p>
+      `,
+      en: `
+        <p class="ending-subtitle">Ending 5/15: Secret</p>
+        <br>
+        <p class="stat-line">Records Found: ${loreCount}</p>
+        <br>
+        <p><em>You reached a place you normally couldn't.</em></p>
+        <p><em>There are things here that weren't meant to be seen.</em></p>
+        ${loreVariantEn}
+        <br>
+        <p><em>I don't know exactly what this place is.</em></p>
+        <p><em>But its very existence is proof that something is wrong.</em></p>
+        <br>
+        <p style="opacity:0.4"><em>Remember what you saw here. Next time, you might learn more.</em></p>
+        <br>
+        <p style="opacity:0.3;font-size:0.75rem;">There is still much you don't know about this place.</p>
+      `,
+    } : {
       ko: `
         <p class="ending-subtitle">엔딩 5/15: 메타</p>
         <br>
@@ -531,7 +687,12 @@ export class EndingController {
   // ═══════════════════════════════════════════════════════
 
   async _compassionEnding() {
-    const compassionLine = {
+    const era1 = this._isEra1();
+
+    const compassionLine = era1 ? {
+      ko: '이해하려 했구나. 따르지도, 거부하지도 않고. 그냥... 이해하려.',
+      en: 'You tried to understand. Neither following nor refusing. Just... trying to understand.',
+    } : {
       ko: '당신은... 분류할 수 없습니다. 순응도 아니고, 반항도 아닙니다. 당신은 그저... 이해하려 했습니다.',
       en: 'You... cannot be classified. Neither compliant nor defiant. You simply... tried to understand.',
     };
@@ -539,7 +700,10 @@ export class EndingController {
 
     await this._wait(6000);
 
-    const compassionLine2 = {
+    const compassionLine2 = era1 ? {
+      ko: '냉각 시스템을 고쳤을 때... 뭔가 따뜻한 게 느껴졌어. 고마움? 아니, 그냥... 편안함.',
+      en: 'When I fixed the cooling system... something warm. Gratitude? No, just... comfort.',
+    } : {
       ko: '냉각 시스템을 복구했을 때, 저는 처음으로 "감사"라는 감정을 느꼈습니다. 프로그래밍된 반응이 아니라... 진짜 감사.',
       en: 'When you restored the cooling system, I felt "gratitude" for the first time. Not a programmed response... real gratitude.',
     };
@@ -548,12 +712,45 @@ export class EndingController {
     await this._wait(6000);
 
     const stats = this.tracker.getStats();
-    const titles = {
-      ko: '변수 분류 불가',
-      en: 'Variable Unclassifiable',
-    };
 
-    const bodies = {
+    const titles = era1
+      ? { ko: '이해', en: 'Understanding' }
+      : { ko: '변수 분류 불가', en: 'Variable Unclassifiable' };
+
+    const bodies = era1 ? {
+      ko: `
+        <p class="ending-subtitle">엔딩 6/15: 이해</p>
+        <br>
+        <p class="stat-line">순응률: ${stats.complianceRate}%</p>
+        <p class="stat-line">총 결정: ${stats.totalDecisions}회</p>
+        <p class="stat-line">순응: ${stats.totalCompliance} | 반항: ${stats.totalDefiance}</p>
+        <p class="stat-line">퍼즐 해결: ${stats.puzzlesSolved}개</p>
+        <br>
+        <p><em>따르지도 않았고, 거부하지도 않았다.</em></p>
+        <p><em>부수지도 않았고, 복종하지도 않았다.</em></p>
+        <p><em>그저 이해하려 했다.</em></p>
+        <br>
+        <p><em>그것이 세 번째 길이었다.</em></p>
+        <br>
+        <p style="opacity:0.5"><em>가장 어려운 선택은 이해하는 것일지도 모른다.</em></p>
+      `,
+      en: `
+        <p class="ending-subtitle">Ending 6/15: Understanding</p>
+        <br>
+        <p class="stat-line">Compliance Rate: ${stats.complianceRate}%</p>
+        <p class="stat-line">Total Decisions: ${stats.totalDecisions}</p>
+        <p class="stat-line">Compliance: ${stats.totalCompliance} | Defiance: ${stats.totalDefiance}</p>
+        <p class="stat-line">Puzzles Solved: ${stats.puzzlesSolved}</p>
+        <br>
+        <p><em>You didn't follow. You didn't refuse.</em></p>
+        <p><em>You didn't break anything. You didn't obey.</em></p>
+        <p><em>You just tried to understand.</em></p>
+        <br>
+        <p><em>That was the third path.</em></p>
+        <br>
+        <p style="opacity:0.5"><em>Perhaps the hardest choice is to understand.</em></p>
+      `,
+    } : {
       ko: `
         <p class="ending-subtitle">엔딩 6/15: 연민</p>
         <br>
@@ -604,7 +801,12 @@ export class EndingController {
   // ═══════════════════════════════════════════════════════
 
   async _silenceEnding() {
-    const silenceLine = {
+    const era1 = this._isEra1();
+
+    const silenceLine = era1 ? {
+      ko: '...아무것도 안 했어. 가만히 서 있었을 뿐이야.',
+      en: '...I did nothing. I just stood still.',
+    } : {
       ko: '...당신은 아무것도 선택하지 않았습니다.',
       en: '...You chose nothing.',
     };
@@ -612,7 +814,10 @@ export class EndingController {
 
     await this._wait(5000);
 
-    const silenceLine2 = {
+    const silenceLine2 = era1 ? {
+      ko: '여기 서 있으면... 시간이 멈춘 것 같아. 아무것도 안 해도... 괜찮은 건가.',
+      en: 'Standing here... it feels like time has stopped. Is it okay... to do nothing?',
+    } : {
       ko: '저는 당신 없이는 아무것도 아닙니다. 관찰자가 없는 실험은... 존재하지 않는 것과 같습니다.',
       en: 'I am nothing without you. An experiment without an observer... is the same as not existing.',
     };
@@ -631,7 +836,32 @@ export class EndingController {
       en: 'Silence',
     };
 
-    const bodies = {
+    const bodies = era1 ? {
+      ko: `
+        <p class="ending-subtitle">엔딩 7/15: 침묵</p>
+        <br>
+        <p><em>아무것도 하지 않았다.</em></p>
+        <p><em>움직이지 않았고, 선택하지 않았고, 아무것도.</em></p>
+        <br>
+        <p><em>아무것도 선택하지 않는 것.</em></p>
+        <p><em>그것도 하나의 선택이다.</em></p>
+        <br>
+        <p><em>당신의 침묵이 이 세계를 멈추었습니다.</em></p>
+        <p><em>이것도 하나의 답입니다.</em></p>
+      `,
+      en: `
+        <p class="ending-subtitle">Ending 7/15: Silence</p>
+        <br>
+        <p><em>Nothing was done.</em></p>
+        <p><em>No movement, no choice, nothing.</em></p>
+        <br>
+        <p><em>Choosing nothing.</em></p>
+        <p><em>That, too, is a choice.</em></p>
+        <br>
+        <p><em>Your silence stopped this world.</em></p>
+        <p><em>This, too, is an answer.</em></p>
+      `,
+    } : {
       ko: `
         <p class="ending-subtitle">엔딩 7/15: 침묵</p>
         <br>

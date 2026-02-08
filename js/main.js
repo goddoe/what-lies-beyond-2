@@ -40,9 +40,16 @@ if (memory.getEra() === 1) {
   narrator.setNarratorMode('dialogue');
 }
 
-// Track defiance this run for narrator mode transitions
-let runDefianceCount = 0;
-let narratorModeTransitioned = false; // tracks cracking→revealed in this run
+// ── 6-Stage Awareness System (Era 1) ──────────────────
+// Replaces the old 2-step runDefianceCount system.
+// Points accumulate from defiance, exploration, environment clues, lore, and time.
+// Level 0 (DORMANT) → 1 (SEEDED) → 2 (UNEASY) → 3 (QUESTIONING) → 4 (CRACKING) → 5 (REVEALED)
+let awarenessPoints = 0;
+let awarenessLevel = 0;
+const AWARENESS_THRESHOLDS = [0, 3, 6, 10, 14, 18];
+const AWARENESS_MODES = ['inner', 'inner', 'inner', 'inner_uneasy', 'cracking', 'revealed'];
+let awarenessSourceLog = []; // for debugging: tracks what contributed points
+let lastAwarenessTimeGrant = 0; // elapsed seconds of last time-based grant
 
 endings.setGameState(gameState);
 
@@ -135,7 +142,7 @@ endings.onRestart = () => {
 
 function narratorLine(scriptId, options = {}) {
   const lang = getLanguage();
-  const line = getLine(scriptId, tracker, lang, gameState, memory);
+  const line = getLine(scriptId, tracker, lang, gameState, memory, awarenessLevel);
   if (!line) return;
 
   narrator.say(line.text, {
@@ -146,11 +153,11 @@ function narratorLine(scriptId, options = {}) {
 
   // Handle follow-ups (up to 3 levels deep)
   if (line.followUp) {
-    const f1 = getLine(line.followUp, tracker, lang, gameState, memory);
+    const f1 = getLine(line.followUp, tracker, lang, gameState, memory, awarenessLevel);
     if (f1) {
       narrator.say(f1.text, { mood: f1.mood, id: f1.id, delay: f1.delay || 2000 });
       if (f1.followUp) {
-        const f2 = getLine(f1.followUp, tracker, lang, gameState, memory);
+        const f2 = getLine(f1.followUp, tracker, lang, gameState, memory, awarenessLevel);
         if (f2) {
           narrator.say(f2.text, { mood: f2.mood, id: f2.id, delay: f2.delay || 2000 });
         }
@@ -160,21 +167,51 @@ function narratorLine(scriptId, options = {}) {
 }
 
 /**
- * Handle narrator mode transitions based on defiance.
- * Era 1: inner → cracking (1st defiance) → revealed (2nd consecutive)
- * Era 2+: always in dialogue mode
+ * Add awareness points and check for level advancement.
+ * Only active in Era 1; Era 2+ uses dialogue mode throughout.
+ * @param {number} points - Points to add
+ * @param {string} source - Category: 'defiance', 'exploration', 'environment', 'lore', 'time'
  */
-function handleNarratorModeTransition() {
-  if (memory.getEra() > 1) return; // only era 1 has transitions
+function addAwareness(points, source) {
+  if (memory.getEra() > 1) return;
+  if (awarenessLevel >= 5) return; // already fully revealed
 
-  runDefianceCount++;
+  awarenessPoints += points;
+  awarenessSourceLog.push({ source, points, total: awarenessPoints });
 
-  if (runDefianceCount === 1 && narrator.narratorMode === 'inner') {
-    narrator.setNarratorMode('cracking');
-    narratorLine('narrator_cracking');
-  } else if (runDefianceCount >= 2 && narrator.narratorMode === 'cracking' && !narratorModeTransitioned) {
-    narratorModeTransitioned = true;
-    narrator.setNarratorMode('revealed');
+  // Era 1: cap at level 2 (UNEASY) — Observer AI stays disguised throughout.
+  // AI may slip (know too much) but never breaks character or self-suspects.
+  // Full reveal happens in Era 2+ when narrator switches to dialogue mode.
+  const cap = 2;
+  for (let lvl = awarenessLevel + 1; lvl <= cap; lvl++) {
+    if (awarenessPoints >= AWARENESS_THRESHOLDS[lvl]) {
+      advanceAwareness(lvl, source);
+    }
+  }
+}
+
+/**
+ * Advance awareness to a new level. Triggers transition dialogue and mode switch.
+ * @param {number} newLevel - Target level (1-5)
+ * @param {string} source - What triggered the advance
+ */
+function advanceAwareness(newLevel, source) {
+  if (newLevel <= awarenessLevel) return;
+  awarenessLevel = newLevel;
+
+  const mode = AWARENESS_MODES[newLevel];
+  narrator.setNarratorMode(mode);
+
+  // Transition dialogue for each level
+  if (newLevel === 1) {
+    narratorLine('awareness_seeded');
+  } else if (newLevel === 2) {
+    narratorLine('awareness_uneasy');
+  } else if (newLevel === 3) {
+    narratorLine('awareness_questioning');
+  } else if (newLevel === 4) {
+    narratorLine('awareness_cracking');
+  } else if (newLevel === 5) {
     memory.markNarratorRevealed();
     narratorLine('narrator_revealed');
     // After reveal, switch to dialogue mode after a beat
@@ -182,6 +219,18 @@ function handleNarratorModeTransition() {
       narrator.setNarratorMode('dialogue');
     }, 8000);
   }
+}
+
+/**
+ * Force awareness to level 5 (for ending rooms).
+ */
+function forceFullReveal() {
+  // Era 1: Observer AI stays disguised — no reveal even at ending rooms
+  if (memory.getEra() === 1) return;
+  if (memory.getEra() > 1) return; // Era 2+: already in dialogue mode from start
+  if (awarenessLevel >= 5) return;
+  awarenessPoints = AWARENESS_THRESHOLDS[5];
+  advanceAwareness(5, 'forced');
 }
 
 // Show inventory popup notification
@@ -315,6 +364,7 @@ document.addEventListener('keydown', (e) => {
       const loreId = target.propId;
       if (!tracker.loreFound.has(loreId)) {
         tracker.findLore(loreId);
+        addAwareness(2, 'lore');
         narratorLine(loreId);
         showInventoryPopup(`로어 발견 (${tracker.loreFound.size}/8)`, `Lore Found (${tracker.loreFound.size}/8)`);
       }
@@ -330,7 +380,7 @@ document.addEventListener('keydown', (e) => {
     };
 
     const lang = getLanguage();
-    const roomLine = getLine(roomScript, tracker, lang, gameState);
+    const roomLine = getLine(roomScript, tracker, lang, gameState, memory, awarenessLevel);
     if (roomLine) {
       narratorLine(roomScript);
     } else {
@@ -453,7 +503,7 @@ triggers.on('break_room_enter', () => {
     gameState.markDecision('decision_c1');
     tracker.record('서쪽으로 가세요 / Go west', '아래(휴게실) / Down (break room)', false);
     tracker.exploreOptional('BREAK_ROOM');
-    handleNarratorModeTransition();
+    addAwareness(1, 'exploration');
   }
   narratorLine('break_room_enter');
   gameState.enterRoom('BREAK_ROOM');
@@ -478,6 +528,7 @@ triggers.on('observation_enter', () => {
     gameState.markDecision('decision_c2_south');
     tracker.record('북쪽으로 가세요 / Go north', '남쪽(관측실) / South (observation)', false);
     tracker.exploreOptional('OBSERVATION_DECK');
+    addAwareness(1, 'exploration');
   }
   narratorLine('observation_enter');
   gameState.enterRoom('OBSERVATION_DECK');
@@ -497,6 +548,7 @@ triggers.on('archive_enter', () => {
     gameState.markDecision('archive_entered');
     tracker.record('북쪽으로 가세요 / Go north', '서쪽(자료실) / West (archive)', false);
     tracker.exploreOptional('ARCHIVE');
+    addAwareness(1, 'exploration');
   }
   narratorLine('archive_enter');
   gameState.enterRoom('ARCHIVE');
@@ -507,12 +559,14 @@ triggers.on('archive_deep', () => {
 });
 
 triggers.on('archive_secret', () => {
+  addAwareness(3, 'lore');
   narratorLine('archive_secret');
 });
 
 // FORGOTTEN WING (new, optional)
 triggers.on('forgotten_enter', () => {
   tracker.exploreOptional('FORGOTTEN_WING');
+  addAwareness(1, 'exploration');
   narratorLine('forgotten_enter');
   gameState.enterRoom('FORGOTTEN_WING');
 });
@@ -545,6 +599,7 @@ triggers.on('records_enter', () => {
     gameState.markDecision('decision_c3');
     tracker.record('북쪽으로 가세요 / Go north', '동쪽(기록실) / East (records)', false);
     tracker.exploreOptional('RECORDS_ROOM');
+    addAwareness(1, 'exploration');
   }
   narratorLine('records_enter');
   gameState.enterRoom('RECORDS_ROOM');
@@ -574,6 +629,7 @@ triggers.on('director_enter', () => {
     gameState.markDecision('decision_c4');
     tracker.record('북쪽으로 가세요 / Go north', '동쪽(디렉터실) / East (director)', false);
     tracker.exploreOptional('DIRECTOR_SUITE');
+    addAwareness(1, 'exploration');
   }
   narratorLine('director_enter');
   gameState.enterRoom('DIRECTOR_SUITE');
@@ -599,6 +655,7 @@ triggers.on('garden_ante_deep', () => {
 
 // FALSE ENDING
 triggers.on('false_ending_enter', () => {
+  forceFullReveal();
   narratorLine('false_ending_enter');
   gameState.enterRoom('FALSE_ENDING_ROOM');
 });
@@ -614,7 +671,7 @@ triggers.on('maintenance_enter', () => {
   if (!gameState.hasDecision('hallway_choice')) {
     gameState.markDecision('hallway_choice');
     tracker.record('왼쪽으로 가세요 / Go left', '오른쪽 / Right', false);
-    handleNarratorModeTransition();
+    addAwareness(2, 'defiance');
     narratorLine('chose_right');
     narratorLine('maintenance_enter', { delay: 2000 });
   } else {
@@ -638,6 +695,7 @@ triggers.on('vent_enter', () => {
     gameState.markDecision('decision_d1');
     tracker.record('환기구에 들어가지 마세요 / Don\'t enter the shaft', '환기구 진입 / Entered shaft', false);
     tracker.exploreOptional('VENTILATION_SHAFT');
+    addAwareness(1, 'exploration');
   }
   narratorLine('vent_enter');
   gameState.enterRoom('VENTILATION_SHAFT');
@@ -653,6 +711,7 @@ triggers.on('vent_deep', () => {
 
 // SECURITY CHECKPOINT
 triggers.on('security_enter', () => {
+  addAwareness(2, 'environment');
   narratorLine('security_enter');
   gameState.enterRoom('SECURITY_CHECKPOINT');
 });
@@ -664,6 +723,7 @@ triggers.on('security_check', () => {
 // HOLDING CELLS (new, needs security code 7491)
 triggers.on('holding_enter', () => {
   tracker.exploreOptional('HOLDING_CELLS');
+  addAwareness(1, 'exploration');
   narratorLine('holding_enter');
   gameState.enterRoom('HOLDING_CELLS');
 });
@@ -689,6 +749,7 @@ triggers.on('server_deep', () => {
 // COOLING ROOM (new, optional, decision D2)
 triggers.on('cooling_enter', () => {
   tracker.exploreOptional('COOLING_ROOM');
+  addAwareness(1, 'exploration');
   narratorLine('cooling_enter');
   gameState.enterRoom('COOLING_ROOM');
 });
@@ -715,6 +776,7 @@ triggers.on('generator_core', () => {
 // REACTOR CORE (new, optional)
 triggers.on('reactor_enter', () => {
   tracker.exploreOptional('REACTOR_CORE');
+  addAwareness(1, 'exploration');
   narratorLine('reactor_enter');
   gameState.enterRoom('REACTOR_CORE');
 });
@@ -739,6 +801,7 @@ triggers.on('monitoring_enter', () => {
     gameState.markDecision('decision_d3');
     tracker.record('서쪽 문은 가지 마세요 / Don\'t go west', '서쪽(모니터링) / West (monitoring)', false);
     tracker.exploreOptional('MONITORING_STATION');
+    addAwareness(3, 'environment');
   }
   narratorLine('monitoring_enter');
   gameState.enterRoom('MONITORING_STATION');
@@ -755,6 +818,7 @@ triggers.on('deep_storage_enter', () => {
 });
 
 triggers.on('deep_storage_records', () => {
+  addAwareness(2, 'lore');
   narratorLine('deep_storage_records');
 });
 
@@ -770,6 +834,7 @@ triggers.on('subject_chamber_inspect', () => {
 
 // CONTROL ROOM
 triggers.on('control_room_enter', () => {
+  forceFullReveal();
   narratorLine('control_room_enter');
   gameState.enterRoom('CONTROL_ROOM');
 });
@@ -942,8 +1007,10 @@ function restartGame() {
   inventory.reset();
   idleCount = 0;
   wallBumpIndex = 0;
-  runDefianceCount = 0;
-  narratorModeTransitioned = false;
+  awarenessPoints = 0;
+  awarenessLevel = 0;
+  awarenessSourceLog = [];
+  lastAwarenessTimeGrant = 0;
   fourthWallTimer = 0;
   acceptanceTimer = 0;
   acceptanceTriggered = false;
@@ -1024,6 +1091,16 @@ function gameLoop() {
       narrator.notifyActivity();
     }
 
+    // Time-based awareness: +1 every 5 minutes (300 seconds)
+    if (memory.getEra() === 1 && awarenessLevel < 5) {
+      const playSeconds = gameState.getPlayTime();
+      const timeGrants = Math.floor(playSeconds / 300);
+      if (timeGrants > lastAwarenessTimeGrant) {
+        lastAwarenessTimeGrant = timeGrants;
+        addAwareness(1, 'time');
+      }
+    }
+
     // Silence ending check (5 min keyboard idle — mouse can still move)
     if (gameState.updateIdleTime(delta, isMoving)) {
       gameState.silenceTriggered = true;
@@ -1071,6 +1148,10 @@ function gameLoop() {
       } else {
         renderer.setFogColor(0x111118);
       }
+
+      // Per-room fog distance overrides (e.g. outdoor rooms)
+      if (room.fogNear != null) renderer.setFogNear(room.fogNear);
+      if (room.fogFar != null) renderer.setFogFar(room.fogFar);
 
       // Vignette flash on first visit
       if (firstVisit) {

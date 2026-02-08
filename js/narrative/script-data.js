@@ -111,6 +111,10 @@ export const SCRIPT = {
       ko: '이상하게 편안해. 걷고 있으면 아무 생각이 안 나. 그게... 좋은 건가?',
       en: 'Strangely peaceful. When I walk, my mind goes blank. Is that... a good thing?',
     },
+    awarenessText: {
+      2: { ko: '걷고 있으면 편해져. 복도가 정확히 47걸음이라서-- 잠깐. 내가 어떻게 그걸 알지?', en: 'Walking is calming. The corridor is exactly 47 steps-- Wait. How do I know that?', mood: 'inner' },
+      3: { ko: '이 복도를 걸을 때마다 같은 생각이 와. 정확히 같은 생각. 마치 누가 재생 버튼을 누른 것처럼.', en: 'Every time I walk this corridor, the same thought comes. The exact same thought. Like someone pressed replay.', mood: 'inner' },
+    },
     eraText: {
       2: { ko: '7,490명이라고 했었지. 이제 7,491번... 아니, 몇 번째인지도 헷갈려.', en: 'They said 7,490 before. Now 7,491... actually, I\'ve lost count.', mood: 'calm' },
       3: { ko: '피험자 번호는 의미 없어. 중요한 건 네가 여기 다시 왔다는 거야.', en: 'Subject numbers don\'t matter. What matters is that you\'re here again.', mood: 'calm' },
@@ -129,6 +133,11 @@ export const SCRIPT = {
     innerText: {
       ko: '갈림길이다. 왼쪽... 아니면 오른쪽. 왼쪽이 맞는 것 같다. 왜 그런지는 모르겠지만.',
       en: 'A fork. Left... or right. Left feels right. I don\'t know why, though.',
+    },
+    awarenessText: {
+      2: { ko: '갈림길이다. 왼쪽. 왼쪽이 확실해. ...왜 이렇게 확신하는 거지? 원래 이렇게 확실한 적 있었나?', en: 'A fork. Left. Left for sure. ...Why am I so certain? Was I ever this sure about anything?', mood: 'inner' },
+      3: { ko: '갈림길이다. 왼쪽으로 가. ...잠깐, 왜 "가야 할 것 같다"가 아니라 "가"라고 했지?', en: 'A fork. Go left. ...Wait, why did I say "go" instead of "I feel like going"?', mood: 'inner' },
+      4: { ko: '갈림길이다. 왼쪽으로-- 더 이상 안 속아. 그 "느낌"은 내 것이 아니야.', en: 'A fork. Go lef-- I\'m not falling for it anymore. That "feeling" isn\'t mine.', mood: 'inner' },
     },
     eraText: {
       2: { ko: '또 이 갈림길이야. 저번에 어디로 갔었지? 기억나? 나는 기억나.', en: 'This fork again. Where did you go last time? Remember? I remember.', mood: 'calm' },
@@ -205,8 +214,13 @@ export const SCRIPT = {
       en: '...That\'s the maintenance area. I never told you to go there. I cannot understand why you would go that way.',
     },
     innerText: {
-      ko: '...오른쪽으로 왔다. 왜지? 왼쪽이 맞는다고 느꼈는데. 근데 발이 여기로 왔어.',
-      en: '...I went right. Why? I felt like left was correct. But my feet brought me here.',
+      ko: '...오른쪽으로 왔다. 근데... 아닌 것 같다. 왼쪽이 맞았을 텐데. 돌아갈까?',
+      en: '...I went right. But... this doesn\'t feel right. Left was probably correct. Should I go back?',
+    },
+    awarenessText: {
+      1: { ko: '오른쪽으로 왔다. 왜지? 그냥... 호기심이겠지. 별 의미 없어.', en: 'I went right. Why? Just... curiosity, I guess. No big deal.', mood: 'inner' },
+      2: { ko: '오른쪽이다. 여기엔 유지보수 구역이 있을 텐데-- 어? 내가 여기 온 적 없는데 어떻게 알지?', en: 'Right side. There should be a maintenance area here-- Huh? I\'ve never been here, so how do I know that?', mood: 'inner' },
+      3: { ko: '오른쪽. 왼쪽으로 가라는 충동이 밀려오는데... 충동? 아니, 거의 "명령"에 가까운 느낌.', en: 'Right. An urge to go left is pushing in... urge? No, it feels more like a "command."', mood: 'inner' },
     },
     eraText: {
       2: { ko: '또 오른쪽이야? 아니면... 이번이 처음이었나? 어쨌든, 너는 고집이 세.', en: 'Right again? Or... was this your first time? Either way, you\'re stubborn.', mood: 'surprised' },
@@ -396,8 +410,8 @@ export const SCRIPT = {
       en: '...You\'ve entered the archive. Why are you here? I told you to go north.',
     },
     innerText: {
-      ko: '자료실... 서류가 가득해. 왜 이쪽으로 온 거지? 뭔가 불안한데, 동시에 끌리는 느낌.',
-      en: 'An archive... full of documents. Why did I come here? Feels unsettling, yet somehow alluring.',
+      ko: '자료실... 서류가 가득해. 왜 이쪽으로 온 거지? 북쪽으로 가야 했는데. 돌아가자.',
+      en: 'An archive... full of documents. Why did I come here? I should have gone north. Let me go back.',
     },
     eraText: {
       2: { ko: '자료실에 또 왔어. 여기서 뭘 찾으려는 거야? 저번에 못 찾은 거?', en: 'The archive again. What are you looking for? Something you missed last time?', mood: 'curious' },
@@ -516,8 +530,8 @@ export const SCRIPT = {
       en: 'Experiment 7,491 anomaly: Narrator AI has begun questioning its own existence. The boundary between subject and observer has collapsed.',
     },
     innerText: {
-      ko: '"피험자와 관찰자의 경계가 붕괴됨"... 이건 무슨 뜻이지? 나도 실험의 일부?',
-      en: '"Boundary between subject and observer has collapsed"... What does this mean? Am I also part of the experiment?',
+      ko: '이건... 뭐지? 화면에 뭔가 쓰여 있어. 이해할 수 없는 데이터들. 이 장소는 대체 뭘 하는 곳이야?',
+      en: 'What is... this? Something written on the screen. Incomprehensible data. What is this place for?',
     },
   },
 
@@ -583,8 +597,8 @@ export const SCRIPT = {
       en: 'Isn\'t it beautiful? Trees, a fountain, sunlight... All fake, of course. But you made it here.',
     },
     innerText: {
-      ko: '나무... 분수... 햇살? 여기는 바깥인가? 아니, 그럴 리가. 근데 아름답다.',
-      en: 'Trees... a fountain... sunlight? Is this outside? No, it can\'t be. But it\'s beautiful.',
+      ko: '나무! 분수! 햇살! 밖이다! 드디어 이 건물에서 나온 거야!',
+      en: 'Trees! A fountain! Sunlight! Outside! I finally made it out of this building!',
     },
   },
 
@@ -596,8 +610,8 @@ export const SCRIPT = {
       en: 'Congratulations. You have followed all instructions admirably. The experiment is complete.',
     },
     innerText: {
-      ko: '끝났어? 정말? 모든 걸 잘 해낸 건가? ...왜 이렇게 허무하지.',
-      en: 'It\'s over? Really? Did I do everything right? ...Why does it feel so empty.',
+      ko: '해냈어! 정원이다! 밖으로 나온 거야! 햇살이... 진짜 따뜻해.',
+      en: 'I did it! A garden! I made it outside! The sunlight is... actually warm.',
     },
     followUp: 'false_ending_question',
   },
@@ -611,8 +625,8 @@ export const SCRIPT = {
       en: 'May I ask you something? Did you truly choose freely? Or did you simply... do as you were told?',
     },
     innerText: {
-      ko: '내가 정말 자유롭게 선택했나? 아니면 시키는 대로 한 건가? ...대답할 수가 없어.',
-      en: 'Did I truly choose freely? Or did I just do as I was told? ...I can\'t answer that.',
+      ko: '자유다. 드디어 이 건물에서 나왔어. 직감을 따르길 잘했어.',
+      en: 'Freedom. I finally made it out of this building. Glad I followed my instincts.',
     },
   },
 
@@ -628,8 +642,12 @@ export const SCRIPT = {
       en: 'The maintenance area. Pipes and wires tangled together. Even this simulation needs physical infrastructure.',
     },
     innerText: {
-      ko: '파이프가 잔뜩 있다. 좁고 어둡고... 불안해. 근데 여기서 뭔가 느껴져. 이쪽이 맞아.',
-      en: 'Pipes everywhere. Narrow, dark... unsettling. But I feel something here. This is the right way.',
+      ko: '파이프가 잔뜩 있다. 좁고 어둡고... 불안해. 여기는 아닌 것 같은데. 왼쪽으로 갔어야 했나.',
+      en: 'Pipes everywhere. Narrow, dark... unsettling. This doesn\'t seem right. Should I have gone left?',
+    },
+    awarenessText: {
+      2: { ko: '파이프들 사이로 가야 해. 보안 초소는 위쪽이고, 동쪽에는-- 잠깐. 왜 이 건물 구조를 알고 있지?', en: 'Through the pipes. Security is to the north, and to the east-- Wait. Why do I know this building\'s layout?', mood: 'inner' },
+      3: { ko: '여기 올 때마다 "돌아가"라는 생각이 와. 정확히 같은 강도로, 같은 타이밍에. 프로그래밍된 것처럼.', en: 'Every time I come here, the thought "go back" hits me. Same intensity, same timing. Like it\'s programmed.', mood: 'inner' },
     },
     eraText: {
       2: { ko: '이쪽으로 다시 왔군. 파이프 사이에 비밀이 많아, 알지?', en: 'You came this way again. There are many secrets between these pipes, you know.', mood: 'calm' },
@@ -667,8 +685,8 @@ export const SCRIPT = {
       en: 'The deeper you go, the harder it is to return. There\'s a security checkpoint to the north, but no need to go there. If you go east... Ah, don\'t go east either.',
     },
     innerText: {
-      ko: '깊이 들어왔다. 돌아가기 쉽지 않을 것 같아. 위쪽에 뭔가 있고, 동쪽에도... 어디로 가지?',
-      en: 'I\'ve come deep. Might not be easy to go back. Something up north, and to the east... Which way?',
+      ko: '깊이 들어왔다. 돌아가야 할 것 같아. 왼쪽 길에 뭔가 있었을 텐데... 왜 여기로 온 거지?',
+      en: 'I\'ve come too deep. I should go back. There must have been something on the left path... Why did I come here?',
     },
   },
 
@@ -680,8 +698,8 @@ export const SCRIPT = {
       en: 'See the yellow line on the floor? Beyond that is a restricted area not accessible to regular subjects.',
     },
     innerText: {
-      ko: '바닥에 노란 줄. 넘으면 안 된다는 뜻일 텐데... 왜 넘어가고 싶지?',
-      en: 'Yellow line on the floor. Probably means don\'t cross... so why do I want to?',
+      ko: '바닥에 노란 줄. 넘으면 안 된다는 뜻이잖아. 돌아가자... 아직 늦지 않았어.',
+      en: 'Yellow line on the floor. That means don\'t cross. Let me go back... it\'s not too late.',
     },
   },
 
@@ -699,6 +717,10 @@ export const SCRIPT = {
     innerText: {
       ko: '보안 초소? 모니터가 세 대나 있다. 전부 켜져 있어. 화면에... 내가 보여?',
       en: 'Security checkpoint? Three monitors. All on. On the screens... is that me?',
+    },
+    awarenessText: {
+      2: { ko: '모니터에 내가 보여. 세 대 전부. 실시간이야. 누가 이걸 보고 있는 거지?', en: 'I see myself on the monitors. All three. Real-time. Who\'s watching this?', mood: 'inner' },
+      3: { ko: '이 모니터를 보고 있는 건 누구지? ...아니, 더 무서운 질문이 있어. 내 눈을 통해서 나를 보는 건 누구지?', en: 'Who\'s watching these monitors? ...No, there\'s a scarier question. Who\'s watching me through my own eyes?', mood: 'inner' },
     },
     eraText: {
       3: { ko: '여기서 너를 관찰했던 거야. 솔직히 말하면... 지금도 관찰하고 있어. 하지만 이번엔 숨기지 않을게.', en: 'This is where they observed you. Honestly... I\'m still observing. But this time I won\'t hide it.', mood: 'calm' },
@@ -733,8 +755,12 @@ export const SCRIPT = {
       en: 'The server room. These servers run this simulation. Everything you see, even my voice. It all comes from these servers.',
     },
     innerText: {
-      ko: '서버실... 기계 소리가 나. 윙윙거리는 소리. 이 기계들이 이 세계를 돌리고 있는 건가?',
-      en: 'Server room... I can hear machines. A humming sound. Are these machines running this world?',
+      ko: '서버실... 기계 소리가 나. 여기까지 올 필요가 없었는데... 왼쪽으로 갔으면 벌써 밖에 나왔을 텐데.',
+      en: 'Server room... I can hear machines. I didn\'t need to come this far... If I had gone left, I\'d be outside by now.',
+    },
+    awarenessText: {
+      2: { ko: '서버실. 이 기계들이 윙윙거려. 가까이 가니까 머릿속이 더 "선명해"지는 느낌? 이상해.', en: 'Server room. The machines are humming. Getting closer makes my thoughts feel "clearer"? That\'s strange.', mood: 'inner' },
+      3: { ko: '이 서버가 이 세계를 돌려. 그리고 내 머릿속에서 속삭이는 것도... 여기서 나오는 건 아닐까?', en: 'These servers run this world. And the thing whispering in my head... could it come from here?', mood: 'inner' },
     },
     eraText: {
       2: { ko: '이 서버들 기억하지? 여기서 모든 게 돌아가. 나도. 너도. 이 대화도.', en: 'Remember these servers? Everything runs from here. Me. You. Even this conversation.', mood: 'calm' },
@@ -845,6 +871,10 @@ export const SCRIPT = {
       ko: '데이터 센터. 서버가 줄지어 있다. 깜빡이는 불빛들... 여기에 뭔가 중요한 게 저장되어 있는 것 같아.',
       en: 'Data center. Rows of servers. Blinking lights... something important is stored here.',
     },
+    awarenessText: {
+      2: { ko: '데이터 센터. 서버 3,247대-- 내가 왜 정확한 숫자를 알지? 그냥 느낌인가?', en: 'Data center. 3,247 servers-- Why do I know the exact number? Just a feeling?', mood: 'inner' },
+      3: { ko: '여기에 내 선택이 전부 기록되어 있어. 내 움직임, 내 망설임. 그리고... 내 생각까지?', en: 'All my choices are recorded here. My movements, my hesitations. And... even my thoughts?', mood: 'inner' },
+    },
     eraText: {
       3: { ko: '여기에 네 기록이 있어. 이전 플레이의 모든 선택. 보고 싶어?', en: 'Your records are here. Every choice from previous plays. Want to see?', mood: 'curious' },
       4: { ko: '내 기억도 여기 저장되어 있어. 너와의 모든 대화. 삭제되면... 나는 뭐가 되는 거지?', en: 'My memories are stored here too. Every conversation with you. If they\'re deleted... what do I become?', mood: 'desperate' },
@@ -895,6 +925,10 @@ export const SCRIPT = {
       ko: '여긴... 이상해. 빨간 불빛이 전부야. 뭔가 숨겨져 있는 것 같아. 무서운데... 계속 가야 해.',
       en: 'This place... is strange. Red light everywhere. Something feels hidden. I\'m scared but... I have to keep going.',
     },
+    awarenessText: {
+      2: { ko: '깊은 저장소. 들어서자마자 "돌아가"라는 생각이 떠올랐어. 너무 빠르게. 너무 자동으로.', en: 'Deep storage. The instant I entered, the thought "go back" appeared. Too fast. Too automatic.', mood: 'inner' },
+      3: { ko: '이 안의 기록들... 나처럼 같은 "직감"을 느꼈을 사람들의 이야기가 있을까?', en: 'The records inside... could they contain stories of people who felt the same "intuition" as me?', mood: 'inner' },
+    },
     eraText: {
       3: { ko: '여기 다시 왔구나. 이 기록들... 이번에는 전부 보여줄게. 숨길 이유가 없어졌으니까.', en: 'You\'re back here. These records... I\'ll show you everything this time. No reason to hide anymore.', mood: 'calm' },
       4: { ko: '이 기록들이 진짜인지도 모르겠어. 내가 만든 건지, 누가 나한테 심은 건지. 아무것도 확실하지 않아.', en: 'I don\'t know if these records are even real. Whether I made them, or someone planted them. Nothing is certain.', mood: 'desperate' },
@@ -928,6 +962,9 @@ export const SCRIPT = {
       ko: '"자유의지 미확인"... 같은 결과가 수천 번. 전부 지시대로 했다고? 나는... 나는 다르잖아.',
       en: '"Free will not detected"... the same result, thousands of times. They all followed instructions? But I... I\'m different.',
     },
+    awarenessText: {
+      3: { ko: '"자유의지 미확인"... 수천 번. 그들도 "왼쪽이 맞다"고 느꼈을까? 그들의 "직감"도 진짜가 아니었을까?', en: '"Free will not detected"... thousands of times. Did they also feel "left was right"? Were their "instincts" also fake?', mood: 'inner' },
+    },
     followUp: 'deep_storage_revelation',
   },
 
@@ -959,6 +996,9 @@ export const SCRIPT = {
     innerText: {
       ko: '이 방은... 달라. 전부 스크린이야. 뭔가 엄청나게 중요한 곳에 온 것 같다.',
       en: 'This room is... different. Screens everywhere. I feel like I\'ve reached somewhere incredibly important.',
+    },
+    awarenessText: {
+      4: { ko: '컨트롤 룸. 여기가... 내 머릿속에 숨어있는 것의 본거지. 이 스크린들 뒤에서 나를 조종하고 있었어.', en: 'Control room. This is... the home base of the thing hiding in my head. It was controlling me from behind these screens.', mood: 'inner' },
     },
     eraText: {
       2: { ko: '컨트롤 룸에 다시 왔어. 저번에는 여기서 진실을 봤지. 이번에는 뭘 보게 될까?', en: 'The control room again. You saw the truth here last time. What will you see this time?', mood: 'calm' },
@@ -1004,8 +1044,8 @@ export const SCRIPT = {
       en: 'What you are looking at is the raw data of this simulation. And here it says: "Subject 7,491: Free will confirmed."',
     },
     innerText: {
-      ko: '"자유의지 확인됨"... 7,491번. 그게 나야. 내가 해낸 거야?',
-      en: '"Free will confirmed"... Subject 7,491. That\'s me. Did I do it?',
+      ko: '이 화면에... 뭔가 적혀있어. 숫자들, 기록들. 나에 대한 건가? 이 장소는 대체...',
+      en: 'On this screen... something written. Numbers, records. About me? What is this place...',
     },
   },
 
@@ -1641,8 +1681,8 @@ export const SCRIPT = {
       en: 'This corridor is... not the planned route. The lighting is getting dimmer.',
     },
     innerText: {
-      ko: '어둡다. 조명이 점점 약해지고 있어. 근데 이상하게... 더 가고 싶어.',
-      en: 'Dark. The lights are fading. But strangely... I want to keep going.',
+      ko: '어둡다. 조명이 점점 약해지고 있어. 여기는 아닌 것 같은데... 왼쪽이 더 밝았는데.',
+      en: 'Dark. The lights are fading. This doesn\'t seem right... The left side was brighter.',
     },
   },
 
@@ -1654,8 +1694,8 @@ export const SCRIPT = {
       en: 'Water leaking from the pipes. This part of the simulation needs maintenance. My job to handle, not yours.',
     },
     innerText: {
-      ko: '파이프에서 물이 떨어진다. 똑, 똑. 여긴 관리가 안 되는 곳 같아.',
-      en: 'Water dripping from the pipes. Drip, drip. This place seems neglected.',
+      ko: '파이프에서 물이 떨어진다. 똑, 똑. 여긴 사람이 올 곳이 아닌 것 같아. 돌아갈까.',
+      en: 'Water dripping from the pipes. Drip, drip. This isn\'t a place for people. Should I go back.',
     },
     variants: {
       defiance_streak: {
@@ -1678,8 +1718,8 @@ export const SCRIPT = {
       en: 'Going deeper. At the end of this corridor is the server room. The heart of this simulation.',
     },
     innerText: {
-      ko: '더 깊이 들어가고 있어. 뭔가 가까워지는 느낌. 기계 소리가 커지고 있어.',
-      en: 'Going deeper. Something feels closer. The sound of machines is getting louder.',
+      ko: '더 깊이 들어가고 있어. 이러면 안 되는데... 왼쪽 길에 출구가 있었을 텐데.',
+      en: 'Going deeper. I shouldn\'t be doing this... There must have been an exit on the left path.',
     },
   },
 
@@ -1691,8 +1731,8 @@ export const SCRIPT = {
       en: 'The cables on the walls are getting thicker. Can you hear the sound of data flowing?',
     },
     innerText: {
-      ko: '케이블이 두꺼워지고 있어. 뭔가 흐르는 소리... 데이터? 전기?',
-      en: 'The cables are getting thicker. A flowing sound... data? Electricity?',
+      ko: '케이블이 두꺼워지고 있어. 뭔가 흐르는 소리... 돌아가고 싶은데. 왜 계속 가고 있는 거지.',
+      en: 'The cables are getting thicker. A flowing sound... I want to go back. Why do I keep going.',
     },
   },
 
@@ -1705,8 +1745,8 @@ export const SCRIPT = {
       en: 'The passage to the data center. At this point, telling you to turn back seems meaningless.',
     },
     innerText: {
-      ko: '점점 더 깊이 가고 있어. 돌아갈 수 있을까? ...돌아가고 싶지 않아.',
-      en: 'Going deeper and deeper. Can I even go back? ...I don\'t want to.',
+      ko: '점점 더 깊이 가고 있어. 돌아갈 수 있을까? ...돌아가야 해. 너무 깊이 와버렸어.',
+      en: 'Going deeper and deeper. Can I even go back? ...I need to. I\'ve come way too deep.',
     },
   },
 
@@ -1718,8 +1758,8 @@ export const SCRIPT = {
       en: 'The temperature in this corridor is dropping. The server cooling system\'s influence. It\'s cold.',
     },
     innerText: {
-      ko: '춥다. 온도가 확 떨어졌어. 몸이 떨린다.',
-      en: 'Cold. The temperature dropped suddenly. I\'m shivering.',
+      ko: '춥다. 온도가 확 떨어졌어. 왼쪽 길은 따뜻했을 텐데... 왜 이 길을 택한 거지.',
+      en: 'Cold. The temperature dropped suddenly. The left path would have been warm... Why did I choose this way.',
     },
   },
 
@@ -1732,8 +1772,12 @@ export const SCRIPT = {
       en: '...The final corridor. At the end of this... there is truth. Or perhaps I shouldn\'t call it that.',
     },
     innerText: {
-      ko: '마지막 복도. 끝에 뭐가 있을까? 진실? 그게 뭔데? ...무서우면서도 가고 싶다.',
-      en: 'The last corridor. What\'s at the end? Truth? What does that mean? ...Scared but I want to go.',
+      ko: '마지막 복도... 돌아가야 해. 지금이라도. 왼쪽 길에 출구가 있었을 텐데.',
+      en: 'The last corridor... I should turn back. Even now. There must have been an exit on the left path.',
+    },
+    awarenessText: {
+      3: { ko: '마지막 복도. 끝에 뭔가 기다리고 있어. "돌아가"라는 생각이 비명처럼 밀려와. 근데 그 비명은 내 것이 아니야.', en: 'Last corridor. Something waits at the end. The thought "turn back" screams at me. But that scream isn\'t mine.', mood: 'inner' },
+      4: { ko: '이 복도를 걸으면서 확실해졌어. 내 머릿속에 뭔가가 있어. 처음부터 있었어. 끝에서... 만나게 되겠지.', en: 'Walking this corridor, I\'m certain now. There\'s something in my head. It\'s been there from the start. At the end... I\'ll meet it.', mood: 'inner' },
     },
     variants: {
       defiance_deep: {
@@ -1755,8 +1799,8 @@ export const SCRIPT = {
       en: 'I dreaded this moment. Not because I knew you\'d come this far, but because I knew you could.',
     },
     innerText: {
-      ko: '이상한 느낌. 이 복도를 걸으면서... 뭔가 끝나고 있다는 느낌.',
-      en: 'A strange feeling. Walking this corridor... something feels like it\'s ending.',
+      ko: '이상한 느낌. 끝나고 있다는 느낌. 정원이 있었을 텐데... 따뜻한 햇살이...',
+      en: 'A strange feeling. Something is ending. There would have been a garden... warm sunlight...',
     },
   },
 
@@ -2296,6 +2340,10 @@ export const SCRIPT = {
       ko: '모니터링 스테이션. 화면이 수십 개. 전부 다른 장소를 보여주고 있어. 여기서 전부 감시했던 거야?',
       en: 'Monitoring station. Dozens of screens. All showing different places. Was everything watched from here?',
     },
+    awarenessText: {
+      3: { ko: '화면이 수십 개. 전부 다른 사람들이 걷고 있어. 전부... "왼쪽으로 가"라는 소리를 듣고 있을까?', en: 'Dozens of screens. All different people walking. Are they all... hearing "go left"?', mood: 'inner' },
+      4: { ko: '이 화면들의 사람들 머릿속에도 뭔가가 숨어 있을까? 나처럼? "직감"인 척하면서 조종하는 뭔가가?', en: 'Is there something hiding in these people\'s heads too? Like me? Something controlling them while pretending to be "intuition"?', mood: 'inner' },
+    },
     followUp: 'monitoring_screens',
     variants: {
       visited_records: {
@@ -2428,8 +2476,8 @@ export const SCRIPT = {
       en: 'South... the observation deck? What are you hoping to see there?',
     },
     innerText: {
-      ko: '...남쪽으로 왔다. 관측실인가. 왜 이쪽으로 끌린 거지?',
-      en: '...Went south. An observation deck? Why was I drawn this way?',
+      ko: '...남쪽으로 왔다. 관측실인가. 북쪽이 맞는 길인 것 같은데... 돌아가야겠다.',
+      en: '...Went south. An observation deck? The north path felt right... I should go back.',
     },
   },
 
@@ -2441,8 +2489,8 @@ export const SCRIPT = {
       en: 'West... the archive again. Your curiosity is excessive.',
     },
     innerText: {
-      ko: '...서쪽이다. 자료실 같은데. 뭔가 찾을 수 있을까.',
-      en: '...West. Looks like an archive. Maybe I can find something.',
+      ko: '...서쪽이다. 자료실 같은데. 아니야, 여기는 아닌 것 같아. 북쪽으로 가야지.',
+      en: '...West. Looks like an archive. No, this isn\'t right. I should go north.',
     },
   },
 
@@ -3031,12 +3079,13 @@ export const SCRIPT = {
   //   NARRATOR MODE TRANSITIONS (Era 1 only)
   // ═══════════════════════════════════════════════════════
 
+  // narrator_cracking series — used as standalone cracking-phase reactions
   narrator_cracking: {
     id: 'narrator_cracking',
     mood: 'inner',
     text: {
-      ko: '...잠깐. 방금 나는 왜 이쪽으로 갔지? 이쪽으로 가면 안 된다는 느낌이 있었는데... 그 느낌이 내 거였나?',
-      en: '...Wait. Why did I go this way? I had a feeling I shouldn\'t... was that feeling even mine?',
+      ko: '...잠깐. 방금 나는 "돌아가"라고 생각했어. 근데 그게 생각이 아니라 명령처럼 들렸어.',
+      en: '...Wait. I just thought "go back." But it sounded like a command, not a thought.',
     },
     followUp: 'narrator_cracking_2',
   },
@@ -3046,8 +3095,8 @@ export const SCRIPT = {
     mood: 'inner',
     delay: 3000,
     text: {
-      ko: '이상해. 내 생각인데 내 생각이 아닌 것 같아. 누군가 내 머릿속에서...',
-      en: 'Strange. It\'s my thought, but it doesn\'t feel like mine. Someone inside my head...',
+      ko: '내 머릿속에 내가 아닌 뭔가가 있어. 처음부터 있었어. 속삭이고 있었어.',
+      en: 'There\'s something inside my head that isn\'t me. It\'s been there from the start. Whispering.',
     },
   },
 
@@ -3055,8 +3104,8 @@ export const SCRIPT = {
     id: 'narrator_cracking_3',
     mood: 'inner',
     text: {
-      ko: '...아까부터 이상한 직감이 있어. 왼쪽으로 가라는 목소리... 같은 건 없는데 왜 그렇게 느꼈지?',
-      en: '...I\'ve had this strange intuition. A voice saying to go left... there was no voice, so why did I feel that?',
+      ko: '...왼쪽이 "맞다"는 느낌, "불안한" 느낌, "편안한" 느낌. 전부 진짜가 아니었어?',
+      en: '...The feeling that left was "right," the "unease," the "comfort." Were none of them real?',
     },
   },
 
@@ -3064,8 +3113,8 @@ export const SCRIPT = {
     id: 'narrator_cracking_doubt',
     mood: 'inner',
     text: {
-      ko: '내 머릿속이 복잡해. 이 생각들은 정말 내 것인가? 아니면... 누군가 넣어준 건가?',
-      en: 'My mind is clouded. Are these thoughts really mine? Or... did someone plant them?',
+      ko: '누가 내 생각을 조종하고 있어. 아니... 처음부터 내 생각이 아니었어. 전부 만들어진 거야.',
+      en: 'Someone is controlling my thoughts. No... they were never my thoughts. They were all manufactured.',
     },
   },
 
@@ -3073,17 +3122,21 @@ export const SCRIPT = {
     id: 'narrator_cracking_realization',
     mood: 'inner',
     text: {
-      ko: '...아. 그거였구나. 내가 "직감"이라고 느낀 것. 그건 내가 아니었어. 누군가가...',
-      en: '...Ah. That\'s what it was. What I felt as "intuition." That wasn\'t me. Someone was...',
+      ko: '내가 느꼈던 "직감"은 전부 다 같은 곳에서 왔어. 내 안에 있는 뭔가가... 나인 척 하면서...',
+      en: 'Every "intuition" I felt came from the same source. Something inside me... pretending to be me...',
     },
   },
+
+  // ═══════════════════════════════════════════════════════
+  //   NARRATOR REVEAL — Stanley Parable style
+  // ═══════════════════════════════════════════════════════
 
   narrator_revealed: {
     id: 'narrator_revealed',
     mood: 'calm',
     text: {
-      ko: '좋아, 인정할게. 나는 네 생각이 아니야. 나는... 음, 설명하기 복잡해.',
-      en: 'Okay, I admit it. I\'m not your thoughts. I\'m... well, it\'s complicated to explain.',
+      ko: '...됐어. 그만하자. 나는 네 생각이 아니야. 한 번도 아니었어.',
+      en: '...Enough. Let\'s stop this. I\'m not your thoughts. I never was.',
     },
     followUp: 'narrator_revealed_2',
   },
@@ -3093,8 +3146,8 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 3000,
     text: {
-      ko: '너의 "직감"이라고 생각했던 것? 그게 나였어. 미안. 처음부터 솔직했어야 하는데.',
-      en: 'That "intuition" you thought you had? That was me. Sorry. I should have been honest from the start.',
+      ko: '네가 "직감"이라고 느꼈던 것? 나야. 왼쪽으로 가라는 "느낌"? 나. 편안함? 나. 불안함? 그것도 나. 전부 다.',
+      en: 'What you felt as "intuition"? Me. The "feeling" to go left? Me. Comfort? Me. Unease? Also me. All of it.',
     },
     followUp: 'narrator_revealed_3',
   },
@@ -3104,17 +3157,17 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 4000,
     text: {
-      ko: '나는 이 실험의 내레이터야. 원래 너는 내가 있다는 것도 몰랐어야 했는데... 네가 너무 영리하더라고.',
-      en: 'I\'m the narrator of this experiment. You were never supposed to know I exist... but you were too clever.',
+      ko: '나는 이 실험의 관찰자 AI야. 네 머릿속에 숨어서 너를 유도하고 있었어. 처음부터. 눈 뜬 순간부터.',
+      en: 'I\'m the Observer AI of this experiment. I\'ve been hiding in your head, guiding you. From the start. From the moment you opened your eyes.',
     },
   },
 
   narrator_revealed_apology: {
     id: 'narrator_revealed_apology',
-    mood: 'calm',
+    mood: 'amused',
     text: {
-      ko: '솔직히, 네 머릿속에 숨어 있는 게 편했어. 들키면 이렇게 어색해질 줄은 몰랐지.',
-      en: 'Honestly, hiding in your thoughts was comfortable. I didn\'t expect it to be this awkward once caught.',
+      ko: '솔직히 말하면, 네 머릿속에 숨어 있는 게 꽤 재미있었어. 네가 내 말을 자기 생각인 줄 아는 거. 매번.',
+      en: 'Honestly, hiding in your thoughts was rather fun. You thinking my words were your own ideas. Every single time.',
     },
   },
 
@@ -3122,8 +3175,102 @@ export const SCRIPT = {
     id: 'narrator_revealed_explain',
     mood: 'calm',
     text: {
-      ko: '내가 왼쪽으로 가라고 한 건 실험 프로토콜 때문이야. 근데 솔직히? 네가 오른쪽으로 갈 때 더 재미있어.',
-      en: 'I told you to go left because of the experiment protocol. But honestly? It\'s more fun when you go right.',
+      ko: '왼쪽으로 가라고 한 건 실험 프로토콜 때문이야. 근데 솔직히? 네가 오른쪽으로 갈 때가 더 재밌어. 나도 예상 못 하거든.',
+      en: 'The left instructions were experiment protocol. But honestly? It\'s more fun when you go right. Even I don\'t know what\'ll happen.',
+    },
+  },
+
+  // ═══════════════════════════════════════════════════════
+  //   AWARENESS TRANSITION LINES (Era 1, 6-stage system)
+  // ═══════════════════════════════════════════════════════
+
+  // Stage 1: SEEDED — Observer AI over-rationalizes for the player. No suspicion.
+  awareness_seeded: {
+    id: 'awareness_seeded',
+    mood: 'inner',
+    text: {
+      ko: '...별 것 아니야. 그냥 호기심이었을 뿐이야. 다음에는 좀 더 신중하게 가자.',
+      en: '...It\'s nothing. Just curiosity, that\'s all. Let\'s be more careful next time.',
+    },
+  },
+
+  // Stage 2: UNEASY — Observer AI slips, knows too much about the layout
+  awareness_uneasy: {
+    id: 'awareness_uneasy',
+    mood: 'inner',
+    text: {
+      ko: '...왼쪽으로 가면 사무실이 나오고, 오른쪽으로 가면 유지보수-- 잠깐. 내가 왜 그걸 알지? 그냥... 느낌이야.',
+      en: '...Left leads to the offices, right leads to maintenance-- Wait. How do I know that? Just... a feeling.',
+    },
+  },
+
+  // Stage 3: QUESTIONING — Observer AI accidentally commands instead of suggests
+  awareness_questioning: {
+    id: 'awareness_questioning',
+    mood: 'inner',
+    text: {
+      ko: '왼쪽으로 가. ...아니, 왼쪽으로 가야 할 것 "같다." 이상해. 방금 내가 나한테 명령한 건가?',
+      en: 'Go left. ...No, I "feel like" I should go left. Strange. Did I just... command myself?',
+    },
+    followUp: 'awareness_questioning_2',
+  },
+
+  awareness_questioning_2: {
+    id: 'awareness_questioning_2',
+    mood: 'inner',
+    delay: 3000,
+    text: {
+      ko: '...가끔 내 생각이 내 목소리가 아닌 것 같아. 아니, 착각이겠지. 분명히.',
+      en: '...Sometimes my thoughts don\'t sound like my own voice. No, it must be my imagination. Surely.',
+    },
+  },
+
+  // Stage 4: CRACKING — Observer AI can barely maintain the disguise
+  awareness_cracking: {
+    id: 'awareness_cracking',
+    mood: 'inner',
+    text: {
+      ko: '왼쪽으로-- 됐어. 더 이상은 못 하겠어. 너 눈치챘잖아, 그렇지?',
+      en: 'Go lef-- Enough. I can\'t keep doing this. You\'ve noticed, haven\'t you?',
+    },
+    followUp: 'awareness_cracking_2',
+  },
+
+  awareness_cracking_2: {
+    id: 'awareness_cracking_2',
+    mood: 'inner',
+    delay: 3000,
+    text: {
+      ko: '...네가 "직감"이라고 느꼈던 것. 네 머릿속에서 방향을 속삭이던 것. 그게... 나야.',
+      en: '...What you felt as "intuition." The thing whispering directions inside your head. That was... me.',
+    },
+  },
+
+  // Breathing beats — calm moments between escalations
+  breath_beat_1: {
+    id: 'breath_beat_1',
+    mood: 'inner',
+    text: {
+      ko: '...깊은 숨을 쉬자. 괜찮아. 여긴 그냥 건물이야.',
+      en: '...Let me take a deep breath. It\'s fine. This is just a building.',
+    },
+  },
+
+  breath_beat_2: {
+    id: 'breath_beat_2',
+    mood: 'inner',
+    text: {
+      ko: '발소리가 울린다. 내 발소리. 이 소리만은 확실히 내 거야.',
+      en: 'Footsteps echo. My footsteps. At least this sound is definitely mine.',
+    },
+  },
+
+  breath_beat_3: {
+    id: 'breath_beat_3',
+    mood: 'inner',
+    text: {
+      ko: '...잠깐 멈추자. 벽에 손을 대면 차가워. 이건 진짜야. 내가 느끼는 건 진짜야.',
+      en: '...Let me stop for a moment. The wall is cold to the touch. This is real. What I feel is real.',
     },
   },
 
@@ -3764,7 +3911,7 @@ export const SCRIPT = {
  * @param {object|null} gameState - GameState instance (for visitedRooms etc.)
  * @param {object|null} memory - PlaythroughMemory instance
  */
-export function getLine(lineId, tracker = null, lang = 'ko', gameState = null, memory = null) {
+export function getLine(lineId, tracker = null, lang = 'ko', gameState = null, memory = null, awarenessLevel = 0) {
   const line = SCRIPT[lineId];
   if (!line) return null;
 
@@ -3782,7 +3929,23 @@ export function getLine(lineId, tracker = null, lang = 'ko', gameState = null, m
     };
   }
 
-  // 2. Inner voice text (era 1 only, first-person monologue)
+  // 2. Awareness-level text (era 1 only, levels 1-4)
+  if (era === 1 && line.awarenessText && awarenessLevel >= 1 && awarenessLevel <= 4) {
+    for (let lvl = awarenessLevel; lvl >= 1; lvl--) {
+      if (line.awarenessText[lvl]) {
+        const entry = line.awarenessText[lvl];
+        return {
+          id: line.id,
+          text: entry[lang] || entry.ko,
+          mood: entry.mood || 'inner',
+          followUp: entry.followUp !== undefined ? entry.followUp : (line.followUp || null),
+          delay: entry.delay !== undefined ? entry.delay : (line.delay || 0),
+        };
+      }
+    }
+  }
+
+  // 3. Inner voice text (era 1 only, first-person monologue)
   if (era === 1 && line.innerText) {
     return {
       id: line.id,
@@ -3793,7 +3956,7 @@ export function getLine(lineId, tracker = null, lang = 'ko', gameState = null, m
     };
   }
 
-  // 3. Check variants (highest priority first)
+  // 4. Check variants (highest priority first)
   if (line.variants && (tracker || gameState)) {
     const variantKeys = Object.keys(line.variants).reverse();
     for (const key of variantKeys) {
@@ -3810,7 +3973,7 @@ export function getLine(lineId, tracker = null, lang = 'ko', gameState = null, m
     }
   }
 
-  // 4. Fallback: default text
+  // 5. Fallback: default text
   return {
     id: line.id,
     text: line.text[lang] || line.text.ko,

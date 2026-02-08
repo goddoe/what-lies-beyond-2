@@ -13,7 +13,7 @@ export class Narrator {
 
     this.voiceProvider = new SilentProvider();
 
-    // Narrator mode: 'inner' | 'cracking' | 'revealed' | 'dialogue'
+    // Narrator mode: 'inner' | 'inner_uneasy' | 'questioning' | 'cracking' | 'revealed' | 'dialogue'
     this.narratorMode = 'inner';
 
     // State
@@ -126,7 +126,7 @@ export class Narrator {
 
   /**
    * Set narrator mode — affects visual style and typing speed.
-   * @param {'inner'|'cracking'|'revealed'|'dialogue'} mode
+   * @param {'inner'|'inner_uneasy'|'questioning'|'cracking'|'revealed'|'dialogue'} mode
    */
   setNarratorMode(mode) {
     this.narratorMode = mode;
@@ -228,9 +228,11 @@ export class Narrator {
     // Voice
     this.voiceProvider.speak(line.text, line.mood, { lineId: line.id });
 
-    // Typewriter — inner mode types slower (introspective), cracking has micro-pauses
+    // Typewriter — speed varies by narrator mode (introspective → tense)
     let speed = line.speed;
     if (this.narratorMode === 'inner') speed = Math.max(speed, 50);
+    else if (this.narratorMode === 'inner_uneasy') speed = Math.max(speed, 48);
+    else if (this.narratorMode === 'questioning') speed = Math.max(speed, 45);
     else if (this.narratorMode === 'cracking') speed = Math.max(speed, 42);
 
     this.typeTimer = setInterval(() => {
