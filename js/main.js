@@ -71,28 +71,29 @@ applyEraAtmosphere(era);
 
 function applyEraAtmosphere(eraLevel) {
   if (eraLevel >= 5) {
-    renderer.setFogColor(0x120505);
-    renderer.setFogNear(7);
-    renderer.setFogFar(40);
-    renderer.setExposure(1.4);
-    postfx.setNoise(0.04);
-    postfx.setScanlines(0.08);
+    renderer.setFogColor(0x1a0808);
+    renderer.setFogNear(10);
+    renderer.setFogFar(50);
+    renderer.setExposure(1.8);
+    postfx.setNoise(0.03);
+    postfx.setScanlines(0.06);
+    postfx.setColorShift(0.5);
     postfx.enabled = true;
   } else if (eraLevel >= 4) {
-    renderer.setFogColor(0x180808);
-    renderer.setFogNear(8);
-    renderer.setFogFar(45);
-    renderer.setExposure(1.6);
-    postfx.setNoise(0.02);
-    postfx.setScanlines(0.04);
-    postfx.setColorShift(0.4);
+    renderer.setFogColor(0x201010);
+    renderer.setFogNear(10);
+    renderer.setFogFar(50);
+    renderer.setExposure(1.9);
+    postfx.setNoise(0.015);
+    postfx.setScanlines(0.03);
+    postfx.setColorShift(0.35);
     postfx.enabled = true;
   } else if (eraLevel >= 3) {
     renderer.setFogColor(0x88bbee);
     renderer.setFogNear(15);
-    renderer.setFogFar(50);
+    renderer.setFogFar(55);
     renderer.setExposure(2.5);
-    postfx.setPixelSize(0.004);
+    postfx.setPixelSize(0.007);
     postfx.enabled = true;
   }
   // Era 1-2: defaults are fine (fog 0x111118, exposure 2.0)

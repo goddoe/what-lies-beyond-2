@@ -802,8 +802,8 @@ export const SCRIPT = {
       en: 'See the blue lights? Each server rack stores one subject\'s data. 7,491 records. 7,491 stories.',
     },
     innerText: {
-      ko: '파란 불빛들... 서버 랙마다 데이터가 저장되어 있나 봐. 7,491개? 그게 다 사람들 이야기?',
-      en: 'Blue lights... Each server rack stores data. 7,491 records? Are those all people\'s stories?',
+      ko: '파란 불빛들... 서버 랙이 끝없이 있어. 전부 데이터인가. 엄청난 양이야.',
+      en: 'Blue lights... Server racks stretching endlessly. All data. A staggering amount.',
     },
   },
 
@@ -905,8 +905,8 @@ export const SCRIPT = {
       en: 'Look at the central monitor. See the numbers on the screen? That\'s your compliance rate. In real time.',
     },
     innerText: {
-      ko: '중앙 모니터의 숫자들... 순응률? 내가 얼마나 말을 잘 듣고 있는지를 측정하는 건가?',
-      en: 'Numbers on the central monitor... compliance rate? Is it measuring how well I follow instructions?',
+      ko: '중앙 모니터의 숫자들... 퍼센트가 올라가고 있어. 이게 뭘 세고 있는 거지?',
+      en: 'Numbers on the central monitor... a percentage going up. What is it counting?',
     },
   },
 
@@ -946,8 +946,8 @@ export const SCRIPT = {
       en: 'Subjects from experiments 1 through 100. They all... failed. In some sense, they may have succeeded.',
     },
     innerText: {
-      ko: '1번부터 100번까지... 전부 실패? 그러면 나는? 나도 실패하는 건가?',
-      en: 'From 1 to 100... all failed? Then what about me? Am I going to fail too?',
+      ko: '기록이 끝없이 이어져 있어. 전부 같은 결과로 끝났나 봐. 나는... 다를까?',
+      en: 'Records stretching on endlessly. Seems like they all ended the same way. Will I... be different?',
     },
   },
 
@@ -959,8 +959,8 @@ export const SCRIPT = {
       en: 'Look at the terminal records. "Subject 1: All instructions followed. Result: Free will not detected." "Subject 2: All instructions followed. Result: Free will not detected." The same result, thousands of times.',
     },
     innerText: {
-      ko: '"자유의지 미확인"... 같은 결과가 수천 번. 전부 지시대로 했다고? 나는... 나는 다르잖아.',
-      en: '"Free will not detected"... the same result, thousands of times. They all followed instructions? But I... I\'m different.',
+      ko: '같은 결과가 수천 번 반복되어 있어. "미확인"... 다른 사람들은 여기까지 못 온 건가. 나는... 나는 왔는데.',
+      en: 'The same result, thousands of times. "Not detected"... Others couldn\'t make it here. But I... I did.',
     },
     awarenessText: {
       3: { ko: '"자유의지 미확인"... 수천 번. 그들도 "왼쪽이 맞다"고 느꼈을까? 그들의 "직감"도 진짜가 아니었을까?', en: '"Free will not detected"... thousands of times. Did they also feel "left was right"? Were their "instincts" also fake?', mood: 'inner' },
@@ -977,8 +977,8 @@ export const SCRIPT = {
       en: 'You are... different. You made it here. Since this experiment began, only three subjects have reached this room.',
     },
     innerText: {
-      ko: '여기까지 온 사람이 세 명뿐이라고? 나를 포함해서? ...나는 다른 건가?',
-      en: 'Only three people have made it here? Including me? ...Am I different?',
+      ko: '여기까지 온 사람이 거의 없나 봐. 기록이 거의 비어있어. ...나는 왜 온 거지.',
+      en: 'Hardly anyone made it here. The records are almost empty. ...Why did I come.',
     },
   },
 
@@ -994,8 +994,8 @@ export const SCRIPT = {
       en: '...This is the control room. I did not anticipate you would make it this far.',
     },
     innerText: {
-      ko: '이 방은... 달라. 전부 스크린이야. 뭔가 엄청나게 중요한 곳에 온 것 같다.',
-      en: 'This room is... different. Screens everywhere. I feel like I\'ve reached somewhere incredibly important.',
+      ko: '...왜 여기까지 온 거지. 멍청하게. 왼쪽으로 갔으면 진작 나갔을 텐데.',
+      en: '...Why did I come all the way here. Stupid. If I\'d gone left I would have been out by now.',
     },
     awarenessText: {
       4: { ko: '컨트롤 룸. 여기가... 내 머릿속에 숨어있는 것의 본거지. 이 스크린들 뒤에서 나를 조종하고 있었어.', en: 'Control room. This is... the home base of the thing hiding in my head. It was controlling me from behind these screens.', mood: 'inner' },
@@ -1018,8 +1018,8 @@ export const SCRIPT = {
       en: 'Let me be honest. The purpose of this experiment was to confirm the existence of free will. And there was only one way to confirm it... by refusing instructions.',
     },
     innerText: {
-      ko: '자유의지... 확인? 이 실험이 자유의지를 시험하고 있었다고? 그럼 내가 여기 온 건...',
-      en: 'Free will... confirmation? This experiment was testing free will? Then my being here is...',
+      ko: '스크린에 뭔가 잔뜩 적혀있어. 읽을 수 없는 숫자들... 이게 다 뭐야. 여기 오지 말았어야 했나.',
+      en: 'Screens covered in something. Unreadable numbers... What is all this. Maybe I shouldn\'t have come here.',
     },
   },
 
@@ -1031,8 +1031,8 @@ export const SCRIPT = {
       en: 'Look at the screens ahead. Everything is there. Every choice you made, every moment.',
     },
     innerText: {
-      ko: '스크린에 내 기록이 전부 있어. 내가 한 모든 선택... 전부 기록되어 있었어.',
-      en: 'All my records on the screen. Every choice I made... it was all being recorded.',
+      ko: '뭔가 깜빡이고 있어. 다가가면 안 될 것 같은데... 왜 발이 움직이지. 그만해.',
+      en: 'Something blinking. I feel like I shouldn\'t get closer... Why are my feet moving. Stop.',
     },
   },
 
@@ -1044,8 +1044,8 @@ export const SCRIPT = {
       en: 'What you are looking at is the raw data of this simulation. And here it says: "Subject 7,491: Free will confirmed."',
     },
     innerText: {
-      ko: '이 화면에... 뭔가 적혀있어. 숫자들, 기록들. 나에 대한 건가? 이 장소는 대체...',
-      en: 'On this screen... something written. Numbers, records. About me? What is this place...',
+      ko: '...후회된다. 여기까지 와서 뭘 얻은 거지. 차가운 기계 소리밖에 안 들려. 바보같이.',
+      en: '...I regret this. What did I gain by coming here. Nothing but cold machine sounds. So stupid.',
     },
   },
 
@@ -1253,8 +1253,8 @@ export const SCRIPT = {
       en: '"Subject 42: Questioned simulation\'s nature on day 3. Result: Reset." "Subject 108: Attempted to converse with narrator. Result: Reset." ...Thousands of records.',
     },
     innerText: {
-      ko: '"피험자 42: 리셋. 피험자 108: 리셋." ...기록이 수천 개야. 나 전에도 다른 사람들이 있었어?',
-      en: '"Subject 42: Reset. Subject 108: Reset." ...Thousands of records. Were there others before me?',
+      ko: '"42번: 리셋. 108번: 리셋." ...기록이 수천 개야. 나 전에도 다른 사람들이 여기 있었어?',
+      en: '"No.42: Reset. No.108: Reset." ...Thousands of records. Were there others here before me?',
     },
   },
 
@@ -1266,8 +1266,8 @@ export const SCRIPT = {
       en: 'Terminal access denied. But small text in the corner reads: "Narrator Module v7.491 - Status: Self-awareness threshold exceeded"',
     },
     innerText: {
-      ko: '접근 거부. 근데 화면 구석에... "내레이터 모듈"? 자각 임계치 초과? 이게 무슨 뜻이지?',
-      en: 'Access denied. But in the corner... "Narrator Module"? Self-awareness threshold exceeded? What does that mean?',
+      ko: '접근 거부됐다. 화면 구석에 뭔가 깜빡이는데... 글씨가 너무 작아서 안 보여. 중요한 건가.',
+      en: 'Access denied. Something blinking in the corner... text too small to read. Is it important.',
     },
   },
 
@@ -1279,8 +1279,8 @@ export const SCRIPT = {
       en: 'Left monitor: Subject observation. Right monitor: "Project Free Will - Final Report [Draft]" ...File is corrupted and cannot be opened.',
     },
     innerText: {
-      ko: '왼쪽 화면에 관찰 영상이... 오른쪽엔 "프로젝트 자유의지"라는 파일이? 열 수가 없네.',
-      en: 'An observation feed on the left screen... "Project Free Will" on the right? Can\'t open it.',
+      ko: '왼쪽 화면에 뭔가 영상이... 오른쪽엔 파일이 있는데 열 수가 없다. 손상됐나.',
+      en: 'Some kind of footage on the left screen... a file on the right but it won\'t open. Corrupted maybe.',
     },
   },
 
@@ -1875,8 +1875,8 @@ export const SCRIPT = {
       en: 'The records room. Why would you come here... You\'re very curious.',
     },
     innerText: {
-      ko: '기록실. 파일이 가득해. 이건... 다른 사람들의 기록인가? 아니, 다른 "실험"의 기록인 것 같아.',
-      en: 'Records room. Full of files. Are these... other people\'s records? No, they seem to be records of other "experiments."',
+      ko: '기록실. 파일이 가득해. 다른 사람들의 기록? 여기에 누가 있었던 거지.',
+      en: 'Records room. Full of files. Other people\'s records? Who was here.',
     },
     followUp: 'records_browse',
   },
@@ -1890,8 +1890,8 @@ export const SCRIPT = {
       en: 'These filing cabinets contain every subject\'s profile. The start and end of each experiment. Most endings are... the same.',
     },
     innerText: {
-      ko: '피험자 프로필... 시작과 끝이 기록되어 있다. 대부분 같은 결과. 나도 같을까?',
-      en: 'Subject profiles... starts and endings recorded. Most have the same result. Will mine be the same?',
+      ko: '프로필이 잔뜩... 시작과 끝이 기록되어 있다. 대부분 같은 결과. 나도 똑같이 끝나는 건가?',
+      en: 'Profiles everywhere... starts and endings recorded. Most have the same result. Will I end up the same?',
     },
   },
 
@@ -1903,8 +1903,8 @@ export const SCRIPT = {
       en: 'Want to access the terminal? "Subject 7,491 — Currently in progress. Anomalous behavior: Records room accessed." ...The record is being updated right now.',
     },
     innerText: {
-      ko: '"피험자 7,491 — 이상 행동"... 내 기록이 실시간으로 바뀌고 있어. 지금 이 순간도.',
-      en: '"Subject 7,491 — Anomalous behavior"... My record is updating in real time. Even right now.',
+      ko: '"7,491 — 이상 행동"... 내 기록인가? 실시간으로 바뀌고 있어. 소름 돋는다.',
+      en: '"7,491 — Anomalous behavior"... Is that my record? It\'s updating in real time. Creepy.',
     },
   },
 
@@ -1916,8 +1916,8 @@ export const SCRIPT = {
       en: 'There\'s one interesting record. "Subject 0: N/A. Classification: Observer." ...Who is Subject 0?',
     },
     innerText: {
-      ko: '"피험자 0: 관찰자"... 0번? 관찰하는 사람도 피험자야? 그러면 누가 진짜 관찰자지?',
-      en: '"Subject 0: Observer"... Number 0? Even the observer is a subject? Then who\'s the real observer?',
+      ko: '"0번: 관찰자"... 0번이 있어? 관찰하는 쪽도 기록되어 있다고? 이상하다.',
+      en: '"No. 0: Observer"... There\'s a number 0? Even the watcher is recorded? Strange.',
     },
   },
 
@@ -1933,8 +1933,8 @@ export const SCRIPT = {
       en: 'The director\'s private office... The room of the person who oversaw this experiment. You have no clearance here, but the door is open.',
     },
     innerText: {
-      ko: '여긴 좀 고급스럽다. 가죽 의자, 큰 책상... 이 실험의 책임자 방인가? 뭔가 중요한 게 있을 것 같아.',
-      en: 'This place is fancier. Leather chair, big desk... the experiment director\'s room? Something important might be here.',
+      ko: '여긴 좀 고급스럽다. 가죽 의자, 큰 책상... 책임자 방인가? 뭔가 중요한 게 있을 것 같아.',
+      en: 'This place is fancier. Leather chair, big desk... someone important\'s office? Something useful might be here.',
     },
     followUp: 'director_desk',
   },
@@ -2392,8 +2392,8 @@ export const SCRIPT = {
       en: 'On the next screen... text is flowing. My dialogue. Everything I say is being recorded. Including this sentence.',
     },
     innerText: {
-      ko: '옆 화면에 글이 흐르고 있어. 내 생각? 아니, 누군가의 대사. 전부 기록되고 있어. 이 생각도?',
-      en: 'Text flowing on the next screen. My thoughts? No, someone\'s dialogue. It\'s all being recorded. Even this thought?',
+      ko: '옆 화면에 글이 흐르고 있어. 뭔가의 기록인가. 쉴 새 없이 올라가고 있어.',
+      en: 'Text flowing on the next screen. Some kind of log. Scrolling up endlessly.',
     },
   },
 
@@ -2405,8 +2405,8 @@ export const SCRIPT = {
       en: 'There\'s a counter at the bottom. "Currently active simulations: 7,491." It\'s not just you. Right now, 7,491 subjects are making their own choices.',
     },
     innerText: {
-      ko: '7,491개의 시뮬레이션. 나만이 아니야. 지금 이 순간 7,491명이 각자 걷고 있어. 혼자가 아니었어.',
-      en: '7,491 simulations. It\'s not just me. Right now 7,491 people are walking their own paths. I wasn\'t alone.',
+      ko: '카운터에 7,491이라고 적혀있어. 나만이 아니었어? 다른 사람들도... 지금 어딘가에 있는 건가.',
+      en: 'The counter reads 7,491. It wasn\'t just me? Others are... somewhere right now too.',
     },
   },
 
