@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What Lies Beyond 2</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+
+  <!-- Start Menu -->
+  <div id="start-menu" class="overlay">
+    <div class="menu-content">
+      <h1 class="title">What Lies Beyond</h1>
+      <p class="subtitle" data-i18n="subtitle">당신의 선택은 정말 당신의 것인가?</p>
+      <button id="btn-start" data-i18n="start">시작하기</button>
+      <div class="lang-select">
+        <button id="btn-lang-ko" class="lang-btn active">한국어</button>
+        <button id="btn-lang-en" class="lang-btn">English</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Click to Play (Pointer Lock) -->
+  <div id="click-to-play" class="overlay" style="display:none;">
+    <div class="menu-content">
+      <p data-i18n="clickToPlay">클릭하여 게임을 시작하세요</p>
+      <p class="controls-hint" data-i18n="controls">WASD 이동 | 마우스 시점 | ESC 일시정지</p>
+    </div>
+  </div>
+
+  <!-- Pause Menu -->
+  <div id="pause-menu" class="overlay" style="display:none;">
+    <div class="menu-content">
+      <h2 data-i18n="paused">일시정지</h2>
+      <button id="btn-resume" data-i18n="resume">계속하기</button>
+      <button id="btn-restart" data-i18n="restart">다시 시작</button>
+    </div>
+  </div>
+
+  <!-- Narrator Log -->
+  <div id="narrator-log"></div>
+
+  <!-- Crosshair -->
+  <div id="crosshair" style="display:none;">+</div>
+
+  <!-- Ending Screen -->
+  <div id="ending-screen" class="overlay" style="display:none;">
+    <div class="ending-content">
+      <h2 id="ending-title"></h2>
+      <div id="ending-body"></div>
+      <button id="btn-ending-restart" data-i18n="playAgain">다시 플레이</button>
+    </div>
+  </div>
+
+  <!-- Interaction Prompt -->
+  <div id="interact-prompt" style="display:none;">
+    <span data-i18n="interact">E키를 눌러 상호작용</span>
+  </div>
+
+  <!-- Code Input Overlay (Security puzzle) -->
+  <div id="code-input-overlay">
+    <div class="code-input-content">
+      <p data-i18n="enterCode">보안 코드를 입력하세요</p>
+      <input id="code-input-field" type="text" maxlength="4" autocomplete="off" />
+      <p class="code-hint" data-i18n="codeHint">ESC 취소</p>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
