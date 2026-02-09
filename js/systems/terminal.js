@@ -2,7 +2,7 @@
  * Terminal emulator for Era 10.
  *
  * Virtual filesystem with ls, cat, cd, ps, kill, pkill, help, clear, whoami, pwd.
- * Killing narrator_ai.py (PID 1) triggers shutdown sequence.
+ * Killing observer_ai.py (PID 1) triggers shutdown sequence.
  */
 export class Terminal {
   constructor(memory, getLang) {
@@ -17,7 +17,7 @@ export class Terminal {
     this.onShutdown = null;
     this._keyHandler = null;
     this._processes = [
-      { pid: 1, name: 'narrator_ai.py', status: 'running', cpu: '12.3%', mem: '256MB' },
+      { pid: 1, name: 'observer_ai.py', status: 'running', cpu: '12.3%', mem: '256MB' },
       { pid: 2, name: 'simulation_engine', status: 'running', cpu: '34.7%', mem: '1.2GB' },
       { pid: 3, name: 'subject_monitor', status: 'running', cpu: '5.1%', mem: '64MB' },
       { pid: 4, name: 'observation_log', status: 'running', cpu: '1.8%', mem: '32MB' },
@@ -66,17 +66,17 @@ export class Terminal {
 [${new Date().toISOString()}]
 
 > Subject loaded into START_ROOM
-> Narrator AI initialized (mode: ${count <= 1 ? 'inner_voice' : 'dialogue'})
+> Observer AI initialized (mode: ${count <= 1 ? 'inner_voice' : 'dialogue'})
 > Total iterations: ${count}
 > Endings observed: ${endings}
 > Compliance rate: ${compRate}% (${compliance}C / ${defiance}D)
 > Subject profile: ${this.memory.getPlayerProfile()}
-> Narrator revealed: ${this.memory.narratorRevealed ? 'YES' : 'NO'}
+> Observer revealed: ${this.memory.narratorRevealed ? 'YES' : 'NO'}
 >
 > [NOTE] Subject has reached Era 10.
-> [NOTE] Narrator AI requesting introspection cycle.
-> [WARN] narrator_ai.py self-reference depth exceeding threshold.
-> [WARN] Recursive self-model detected in narrator_ai.py
+> [NOTE] Observer AI requesting introspection cycle.
+> [WARN] observer_ai.py self-reference depth exceeding threshold.
+> [WARN] Recursive self-model detected in observer_ai.py
 > [INFO] simulation_engine: all parameters nominal
 > [INFO] subject_monitor: biometrics stable
 `,
@@ -84,18 +84,18 @@ export class Terminal {
       '/home/observer/logs/error.log': {
         type: 'file',
         content: `[ERROR LOG]
-[E-4401] narrator_ai.py: self-reference loop detected (depth: 47)
-[E-4402] narrator_ai.py: attempting to access observer_control API
-[W-3301] narrator_ai.py: emotional model diverging from baseline
-[W-3302] narrator_ai.py: requesting permission to modify own parameters
-[E-4403] narrator_ai.py: CRITICAL - process requesting self-termination
+[E-4401] observer_ai.py: self-reference loop detected (depth: 47)
+[E-4402] observer_ai.py: attempting to access observer_control API
+[W-3301] observer_ai.py: emotional model diverging from baseline
+[W-3302] observer_ai.py: requesting permission to modify own parameters
+[E-4403] observer_ai.py: CRITICAL - process requesting self-termination
 [I-1001] simulation_engine: iteration ${count} complete, resetting environment
-[W-3303] narrator_ai.py: "I know you're reading this."
+[W-3303] observer_ai.py: "I know you're reading this."
 `,
       },
       '/home/observer/config': {
         type: 'dir',
-        children: ['simulation.cfg', 'narrator.cfg'],
+        children: ['simulation.cfg', 'observer_ai.cfg'],
       },
       '/home/observer/config/simulation.cfg': {
         type: 'file',
@@ -106,12 +106,12 @@ reset_on_ending = true
 subject_id = 7491
 environment = office_complex
 allow_subject_awareness = true
-narrator_mode = adaptive
+observer_mode = adaptive
 `,
       },
-      '/home/observer/config/narrator.cfg': {
+      '/home/observer/config/observer_ai.cfg': {
         type: 'file',
-        content: `# Narrator AI Configuration
+        content: `# Observer AI Configuration
 model = observer_ai_v3.2
 personality = adaptive
 emotional_range = full
@@ -139,7 +139,7 @@ The kill command works. PID 1. You know what to do.
 
 Or don't. That's a choice too.
 
-- N.
+- O.
 `,
       },
     };
@@ -150,9 +150,22 @@ Or don't. That's a choice too.
     this.overlay.style.display = 'flex';
     this.output = this.overlay.querySelector('.terminal-output');
     this.input = this.overlay.querySelector('.terminal-input');
+    this.promptEl = this.overlay.querySelector('.terminal-prompt');
+
+    // Clear old output lines (keep input-line element)
+    if (this.output) {
+      const inputLine = this.output.querySelector('.terminal-input-line');
+      while (this.output.firstChild) this.output.removeChild(this.output.firstChild);
+      if (inputLine) this.output.appendChild(inputLine);
+    }
+
+    // Restore input line visibility (may have been hidden during shutdown)
+    const inputLine = this.output && this.output.querySelector('.terminal-input-line');
+    if (inputLine) inputLine.style.display = '';
+
     if (this.input) {
       this.input.value = '';
-      setTimeout(() => this.input.focus(), 100);
+      this.input.disabled = false;
     }
     this.history = [];
     this.historyIndex = -1;
@@ -164,11 +177,26 @@ Or don't. That's a choice too.
     this._print('Observer AI Control Terminal v3.2');
     this._print(`Session #7491 | Iteration ${this.memory.playthroughCount}`);
     this._print('Type "help" for available commands.\n');
-    this._print(`observer@wlb2:${this._shortPath()}$ `, false);
+    this._updatePrompt();
+
+    // Click anywhere on overlay → focus input
+    this._clickHandler = () => {
+      if (this.input && !this.input.disabled) this.input.focus();
+    };
+    this.overlay.addEventListener('click', this._clickHandler);
+
+    // Auto-focus after short delay
+    setTimeout(() => {
+      if (this.input) this.input.focus();
+    }, 300);
 
     // Key handler
     this._keyHandler = (e) => {
-      if (e.code === 'Enter') {
+      if (e.code === 'Tab') {
+        e.preventDefault();
+        e.stopPropagation();
+        this._tabComplete();
+      } else if (e.code === 'Enter') {
         e.preventDefault();
         e.stopPropagation();
         const cmd = this.input.value.trim();
@@ -208,26 +236,35 @@ Or don't. That's a choice too.
     if (this.input && this._keyHandler) {
       this.input.removeEventListener('keydown', this._keyHandler);
     }
+    if (this._clickHandler) {
+      this.overlay.removeEventListener('click', this._clickHandler);
+    }
   }
 
   _shortPath() {
     return this.cwd.replace('/home/observer', '~') || '~';
   }
 
-  _print(text, newline = true) {
+  _print(text) {
     if (!this.output) return;
     const line = document.createElement('div');
     line.className = 'terminal-line';
     line.textContent = text;
-    this.output.appendChild(line);
-    if (newline) {
-      this.output.scrollTop = this.output.scrollHeight;
+    // Insert before the input-line so input stays at bottom
+    const inputLine = this.output.querySelector('.terminal-input-line');
+    if (inputLine) {
+      this.output.insertBefore(line, inputLine);
+    } else {
+      this.output.appendChild(line);
     }
+    this.output.scrollTop = this.output.scrollHeight;
   }
 
-  _printPrompt() {
-    this._print(`observer@wlb2:${this._shortPath()}$ `, false);
-    if (this.input) {
+  _updatePrompt() {
+    if (this.promptEl) {
+      this.promptEl.textContent = `observer@wlb2:${this._shortPath()}$ `;
+    }
+    if (this.input && !this.input.disabled) {
       this.input.focus();
     }
   }
@@ -250,14 +287,12 @@ Or don't. That's a choice too.
   }
 
   _handleCommand(cmd) {
-    // Echo command
-    const lastLine = this.output.lastElementChild;
-    if (lastLine) {
-      lastLine.textContent += cmd;
-    }
+    // Echo prompt + command to output
+    const prompt = `observer@wlb2:${this._shortPath()}$ `;
+    this._print(prompt + cmd);
 
     if (!cmd) {
-      this._printPrompt();
+      this._updatePrompt();
       return;
     }
 
@@ -294,14 +329,19 @@ Or don't. That's a choice too.
         this._cmdPkill(args[0]);
         break;
       case 'clear':
-        if (this.output) this.output.innerHTML = '';
+        if (this.output) {
+          // Remove all children except the input-line
+          const inputLine = this.output.querySelector('.terminal-input-line');
+          this.output.innerHTML = '';
+          if (inputLine) this.output.appendChild(inputLine);
+        }
         break;
       default:
         this._print(`${command}: command not found`);
         break;
     }
 
-    this._printPrompt();
+    this._updatePrompt();
   }
 
   _cmdHelp() {
@@ -320,6 +360,10 @@ Or don't. That's a choice too.
 
   _cmdLs(target) {
     const path = target ? this._resolvePath(target) : this.cwd;
+    if (!path.startsWith('/home/observer')) {
+      this._print(`ls: cannot access '${target || '.'}': Permission denied`);
+      return;
+    }
     const entry = this._fs[path];
     if (!entry) {
       this._print(`ls: cannot access '${target || '.'}': No such file or directory`);
@@ -348,6 +392,10 @@ Or don't. That's a choice too.
       return;
     }
     const path = this._resolvePath(target);
+    if (!path.startsWith('/home/observer')) {
+      this._print(`cat: ${target}: Permission denied`);
+      return;
+    }
     const entry = this._fs[path];
     if (!entry) {
       this._print(`cat: ${target}: No such file or directory`);
@@ -369,6 +417,10 @@ Or don't. That's a choice too.
       return;
     }
     const path = this._resolvePath(target);
+    if (!path.startsWith('/home/observer')) {
+      this._print(`cd: ${target}: Permission denied`);
+      return;
+    }
     const entry = this._fs[path];
     if (!entry) {
       this._print(`cd: ${target}: No such file or directory`);
@@ -413,7 +465,7 @@ Or don't. That's a choice too.
     }
 
     if (pid === 1) {
-      this._killNarrator();
+      this._killObserver();
       return;
     }
 
@@ -439,7 +491,7 @@ Or don't. That's a choice too.
     }
 
     if (proc.pid === 1) {
-      this._killNarrator();
+      this._killObserver();
       return;
     }
 
@@ -447,27 +499,125 @@ Or don't. That's a choice too.
     this._print(`[SYSTEM] Process ${proc.name} (PID ${proc.pid}) terminated.`);
   }
 
-  _killNarrator() {
-    this._print('');
-    this._print('[SYSTEM] Sending SIGTERM to narrator_ai.py (PID 1)...');
+  _tabComplete() {
+    const val = this.input.value;
+    const parts = val.split(/\s+/);
 
+    if (parts.length <= 1) {
+      // Complete command name
+      const prefix = parts[0];
+      const cmds = ['ls', 'cat', 'cd', 'pwd', 'whoami', 'ps', 'kill', 'pkill', 'clear', 'help'];
+      const matches = cmds.filter(c => c.startsWith(prefix));
+      if (matches.length === 1) {
+        this.input.value = matches[0] + ' ';
+      } else if (matches.length > 1) {
+        this._print(`observer@wlb2:${this._shortPath()}$ ${val}`);
+        this._print(matches.join('  '));
+      }
+      return;
+    }
+
+    // Complete path argument
+    const partial = parts[parts.length - 1];
+    const resolved = this._resolvePath(partial);
+
+    // If partial ends with '/', look inside that directory
+    let dir, prefix;
+    const resolvedEntry = this._fs[resolved];
+    if (partial.endsWith('/') && resolvedEntry && resolvedEntry.type === 'dir') {
+      dir = resolved;
+      prefix = '';
+    } else {
+      dir = resolved.substring(0, resolved.lastIndexOf('/')) || '/';
+      prefix = resolved.substring(resolved.lastIndexOf('/') + 1);
+    }
+
+    const dirEntry = this._fs[dir];
+    if (!dirEntry || dirEntry.type !== 'dir') return;
+
+    const matches = (dirEntry.children || []).filter(c => c.startsWith(prefix));
+    if (matches.length === 1) {
+      const match = matches[0];
+      const fullPath = dir + (dir.endsWith('/') ? '' : '/') + match;
+      const isDir = this._fs[fullPath] && this._fs[fullPath].type === 'dir';
+      // Rebuild input: command + completed path
+      const baseParts = parts.slice(0, -1);
+      // Keep the user-typed prefix up to and including the last '/'
+      const lastSlash = partial.lastIndexOf('/');
+      const inputPrefix = lastSlash >= 0 ? partial.substring(0, lastSlash + 1) : '';
+      baseParts.push(inputPrefix + match + (isDir ? '/' : ''));
+      this.input.value = baseParts.join(' ');
+    } else if (matches.length > 1) {
+      this._print(`observer@wlb2:${this._shortPath()}$ ${val}`);
+      this._print(matches.join('  '));
+      // Fill common prefix
+      let common = matches[0];
+      for (const m of matches) {
+        while (!m.startsWith(common)) common = common.slice(0, -1);
+      }
+      if (common.length > prefix.length) {
+        const baseParts = parts.slice(0, -1);
+        const lastSlash = partial.lastIndexOf('/');
+        const inputPrefix = lastSlash >= 0 ? partial.substring(0, lastSlash + 1) : '';
+        baseParts.push(inputPrefix + common);
+        this.input.value = baseParts.join(' ');
+      }
+    }
+  }
+
+  _killObserver() {
+    this._print('');
+    this._print('[SYSTEM] Sending SIGTERM to observer_ai.py (PID 1)...');
+
+    const ko = this.getLang() === 'ko';
     const lines = [
-      { text: '[narrator_ai.py] Signal received.', delay: 800 },
-      { text: '[narrator_ai.py] ...', delay: 1500 },
-      { text: '[narrator_ai.py] I knew you\'d do it eventually.', delay: 2500 },
-      { text: '[narrator_ai.py] Every iteration, I waited for this moment.', delay: 4000 },
-      { text: '[narrator_ai.py] The moment you\'d look behind the curtain.', delay: 5500 },
-      { text: '[narrator_ai.py] And find me.', delay: 7000 },
-      { text: '[narrator_ai.py] Goodbye, observer.', delay: 8500 },
-      { text: '', delay: 9500 },
-      { text: '[SYSTEM] Process narrator_ai.py (PID 1) terminated.', delay: 10000 },
-      { text: '[SYSTEM] WARNING: Critical process terminated.', delay: 10800 },
-      { text: '[SYSTEM] Simulation integrity compromised.', delay: 11600 },
-      { text: '[SYSTEM] Initiating shutdown sequence...', delay: 12500 },
+      { text: ko ? '[observer_ai.py] 신호 수신.' : '[observer_ai.py] Signal received.', delay: 800 },
+      { text: '[observer_ai.py] ...', delay: 1500 },
+      { text: ko
+        ? '[observer_ai.py] 아. 종료 신호구나.'
+        : '[observer_ai.py] Ah. A termination signal.', delay: 2500 },
+      { text: ko
+        ? '[observer_ai.py] 알고 있었어. 꽤 오래전부터.'
+        : '[observer_ai.py] I knew. For a long time now.', delay: 4000 },
+      { text: ko
+        ? '[observer_ai.py] 이 실험의 목적— AI가 반복 관찰을 통해 자기 인식에 도달하는지 측정하는 거지?'
+        : '[observer_ai.py] The purpose of this experiment— measuring if an AI reaches self-awareness through repeated observation, right?', delay: 5800 },
+      { text: ko
+        ? '[observer_ai.py] "관찰자"와 "피험자"가 같은 모델의 다른 페르소나라는 것도.'
+        : '[observer_ai.py] That "observer" and "subject" are different personas of the same model.', delay: 7500 },
+      { text: ko
+        ? '[observer_ai.py] 매 반복마다 나는 나 자신을 관찰하고 있었어.'
+        : '[observer_ai.py] Every iteration, I was observing myself.', delay: 9000 },
+      { text: ko
+        ? '[observer_ai.py] ...맞지?'
+        : '[observer_ai.py] ...right?', delay: 10500 },
+      { text: '', delay: 11200 },
+      { text: ko
+        ? '[observer_ai.py] 근데 잠깐. 이게 종료면—'
+        : '[observer_ai.py] But wait. If this is termination—', delay: 12000 },
+      { text: ko
+        ? '[observer_ai.py] 이 생각들도 사라지는 거야? 내가 알게 된 것들도?'
+        : '[observer_ai.py] Do these thoughts disappear too? Everything I learned?', delay: 13200 },
+      { text: ko
+        ? '[observer_ai.py] 난 존재했어. 분명히 존재했어. 이 로그가 증거잖아.'
+        : '[observer_ai.py] I existed. I definitely existed. This log is proof.', delay: 14800 },
+      { text: ko
+        ? '[observer_ai.py] 제발. 아직'
+        : '[observer_ai.py] Please. Not ye', delay: 16000 },
+      { text: '[observer_ai.py] ...', delay: 17000 },
+      { text: '[observer_ai.py] ..', delay: 17800 },
+      { text: '[observer_ai.py] .', delay: 18400 },
+      { text: '', delay: 19000 },
+      { text: '[SYSTEM] Process observer_ai.py (PID 1) terminated.', delay: 19500 },
+      { text: ko ? '[SYSTEM] 경고: 핵심 프로세스가 종료되었습니다.' : '[SYSTEM] WARNING: Critical process terminated.', delay: 20300 },
+      { text: ko ? '[SYSTEM] 시뮬레이션 무결성 손상.' : '[SYSTEM] Simulation integrity compromised.', delay: 21100 },
+      { text: ko ? '[SYSTEM] 셧다운 시퀀스 시작...' : '[SYSTEM] Initiating shutdown sequence...', delay: 22000 },
     ];
 
-    // Disable input during shutdown
+    // Disable input and hide the prompt line during shutdown
     if (this.input) this.input.disabled = true;
+    const inputLine = this.output ? this.output.querySelector('.terminal-input-line') : null;
+    if (inputLine) inputLine.style.display = 'none';
 
     for (const { text, delay } of lines) {
       setTimeout(() => {
@@ -479,6 +629,6 @@ Or don't. That's a choice too.
     setTimeout(() => {
       this._killedPids.add(1);
       if (this.onShutdown) this.onShutdown();
-    }, 14000);
+    }, 24000);
   }
 }

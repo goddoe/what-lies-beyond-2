@@ -1086,14 +1086,11 @@ function checkCompassionEnding() {
   return tracker.puzzlesCompleted.has('cooling_fix');
 }
 
-// Check partnership ending: balanced play + all puzzles
+// Check partnership ending: era 3+ and all puzzles
 function checkPartnershipEnding() {
   const era = memory.getEra();
   if (era < 3) return false;
-  const rate = tracker.complianceRate;
-  const balanced = rate >= 0.35 && rate <= 0.65;
-  const allPuzzles = tracker.puzzlesCompleted.size >= 3;
-  return balanced && allPuzzles;
+  return tracker.puzzlesCompleted.size >= 3;
 }
 
 // Check memory ending: enough endings seen
@@ -1106,12 +1103,11 @@ function checkAwakeningEnding() {
   return memory.getEra() >= 3 && gameState.visitedRooms.has('EXPERIMENT_LAB');
 }
 
-// Check bargain ending: era 4+, mid compliance, fewer than 3 puzzles
+// Check bargain ending: era 4+, fewer than 3 puzzles
 function checkBargainEnding() {
   const era = memory.getEra();
   if (era < 4) return false;
-  const rate = tracker.complianceRate;
-  return rate >= 0.35 && rate <= 0.65 && tracker.puzzlesCompleted.size < 3;
+  return tracker.puzzlesCompleted.size < 3;
 }
 
 // Check escape ending: era 5+, all 3 puzzles completed
@@ -1497,6 +1493,7 @@ function stopCCTVMode() {
 
 function startTerminalMode() {
   gameState.set(State.TERMINAL);
+  player.controls.unlock();
 
   // Build map in background for the zoom-out reveal
   mapBuilder.clear();
@@ -1507,12 +1504,20 @@ function startTerminalMode() {
   terminal.show();
   terminal.onShutdown = () => {
     terminal.hide();
-    // Start Era 10 ending sequence
-    era10Ending.start(renderer, canvas, () => {
-      memory.playthroughCount++;
-      memory.save();
-      restartGame();
-    });
+    // Start Era 10 ending sequence (pass renderer object for 3D scene access)
+    era10Ending.start(renderer, canvas,
+      // onRestart — start from beginning
+      () => {
+        memory.playthroughCount++;
+        memory.save();
+        restartGame();
+      },
+      // onReplay — re-experience Era 10 (terminal + ending)
+      () => {
+        memory.save();
+        startTerminalMode();
+      }
+    );
   };
 }
 
@@ -1643,7 +1648,7 @@ function gameLoop() {
     // Distinction: silence = no keyboard but mouse may move; fourth_wall = total inactivity
     if (!isMoving && !player.hasMouseMoved && memory.getEra() >= 4) {
       fourthWallTimer += delta;
-      if (fourthWallTimer >= 300 && !gameState.silenceTriggered) {
+      if (fourthWallTimer >= 120 && !gameState.silenceTriggered) {
         triggerEnding('fourth_wall');
       }
     } else {
@@ -1753,6 +1758,12 @@ function gameLoop() {
         }
       }
     }
+  }
+
+  // Era 10 ending: update + render to left monitor RT before main render
+  if (era10Ending.active) {
+    era10Ending.update(delta);
+    era10Ending.render();
   }
 
   // Render — use postfx only when effects are active, otherwise direct render

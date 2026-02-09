@@ -106,28 +106,28 @@ export class PlaythroughMemory {
    *
    * Era 1:  First playthrough (inner voice)
    * Era 2:  2+ playthroughs OR narrator revealed (dialogue mode)
-   * Era 3:  4+ playthroughs (self-aware, philosophical)
-   * Era 4:  7+ playthroughs (fatigue, cynicism, run variants)
-   * Era 5:  10+ playthroughs OR all 7 original endings (honest, SUBJECT_CHAMBER)
-   * Era 6:  12+ playthroughs AND 8+ endings seen (CCTV compliance path)
-   * Era 7:  14+ playthroughs AND cctvComplianceSeen (CCTV defiance path)
-   * Era 8:  16+ playthroughs AND cctvDefianceSeen (hybrid mode 1)
-   * Era 9:  18+ playthroughs AND era8Completed (hybrid mode 2, heavy glitch)
-   * Era 10: 20+ playthroughs AND era9Completed (terminal ending)
+   * Era 3:  3+ playthroughs (self-aware, philosophical)
+   * Era 4:  5+ playthroughs (fatigue, cynicism, run variants)
+   * Era 5:  7+ playthroughs OR all 7 original endings (honest, SUBJECT_CHAMBER)
+   * Era 6:  8+ playthroughs OR 8+ endings seen (CCTV compliance path)
+   * Era 7:  9+ playthroughs OR cctvComplianceSeen (CCTV defiance path)
+   * Era 8:  10+ playthroughs OR cctvDefianceSeen (hybrid mode 1)
+   * Era 9:  12+ playthroughs OR era8Completed (hybrid mode 2, heavy glitch)
+   * Era 10: 14+ playthroughs OR era9Completed (terminal ending)
    */
   getEra() {
     const count = this.playthroughCount;
     const allOriginalEndings = ['false_happy', 'truth', 'rebellion', 'loop', 'meta', 'compassion', 'silence'];
     const seenAll = allOriginalEndings.every(e => this.endingsSeen.has(e));
 
-    if (count >= 20 && this.era9Completed) return 10;
-    if (count >= 18 && this.era8Completed) return 9;
-    if (count >= 16 && this.cctvDefianceSeen) return 8;
-    if (count >= 14 && this.cctvComplianceSeen) return 7;
-    if (count >= 12 && this.endingsSeen.size >= 8) return 6;
-    if (seenAll || count >= 10) return 5;
-    if (count >= 7) return 4;
-    if (count >= 4) return 3;
+    if (count >= 14 || this.era9Completed) return 10;
+    if (count >= 12 || this.era8Completed) return 9;
+    if (count >= 10 || this.cctvDefianceSeen) return 8;
+    if (count >= 9 || this.cctvComplianceSeen) return 7;
+    if (count >= 8 || this.endingsSeen.size >= 8) return 6;
+    if (seenAll || count >= 7) return 5;
+    if (count >= 5) return 4;
+    if (count >= 3) return 3;
     if (count >= 2 || this.narratorRevealed) return 2;
     return 1;
   }
