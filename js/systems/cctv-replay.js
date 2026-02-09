@@ -143,6 +143,8 @@ export class CCTVReplay {
     this._cameraLookFrom = new THREE.Vector3();
     this._narratorEvents = {};
     this._triggeredEvents = new Set();
+    this._doorSystem = null;
+    this._openedDoors = new Set();
 
     this.onComplete = null;
 
@@ -162,7 +164,9 @@ export class CCTVReplay {
     this._waypointIndex = 0;
     this._pauseTimer = this._waypoints[0].pause || 0;
     this._triggeredEvents.clear();
+    this._openedDoors.clear();
     this._narratorEvents = CCTV_NARRATOR_EVENTS[pathType] || {};
+    this._doorSystem = buildResult.doorSystem || null;
 
     // Create character silhouette
     this._createCharacter();
@@ -181,6 +185,9 @@ export class CCTVReplay {
 
     // Trigger initial narrator event
     this._checkNarratorEvent(0);
+
+    // Pre-open door to first room transition
+    this._preOpenDoorsToNextRoom();
   }
 
   update(delta) {
@@ -221,6 +228,9 @@ export class CCTVReplay {
 
       // Check narrator event
       this._checkNarratorEvent(this._waypointIndex);
+
+      // Pre-open doors to next room before character starts moving
+      this._preOpenDoorsToNextRoom();
 
       // Set pause
       this._pauseTimer = nextWP.pause || 0;
@@ -320,6 +330,37 @@ export class CCTVReplay {
       if (line) {
         const text = lang === 'ko' ? line.ko : line.en;
         this.narrator.say(text, { mood: line.mood || 'calm', id: scriptId });
+      }
+    }
+  }
+
+  _preOpenDoorsToNextRoom() {
+    if (!this._doorSystem) return;
+    const idx = this._waypointIndex;
+    if (idx >= this._waypoints.length - 1) return;
+    const next = this._waypoints[idx + 1];
+    if (next.room === this._currentRoom) return;
+
+    // Determine movement direction → exit/entry walls
+    const cur = this._waypoints[idx];
+    const dx = next.pos[0] - cur.pos[0];
+    const dz = next.pos[2] - cur.pos[2];
+    let exitWall, entryWall;
+    if (Math.abs(dz) >= Math.abs(dx)) {
+      exitWall = dz < 0 ? 'north' : 'south';
+      entryWall = dz < 0 ? 'south' : 'north';
+    } else {
+      exitWall = dx < 0 ? 'west' : 'east';
+      entryWall = dx < 0 ? 'east' : 'west';
+    }
+
+    const exitId = `${this._currentRoom}_${exitWall}`;
+    const entryId = `${next.room}_${entryWall}`;
+
+    for (const door of this._doorSystem.doors) {
+      if ((door.id === exitId || door.id === entryId) && !this._openedDoors.has(door.id)) {
+        this._openedDoors.add(door.id);
+        this._doorSystem.openDoor(door);
       }
     }
   }

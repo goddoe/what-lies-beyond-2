@@ -1463,6 +1463,13 @@ function startOneRoomSequence() {
 function startCCTVMode(eraLevel) {
   const pathType = eraLevel === 6 ? 'compliance' : 'defiance';
   gameState.set(State.CCTV);
+  player.controls.unlock();
+
+  // Disable postfx for CCTV — CSS overlay provides scanlines
+  postfx.enabled = false;
+  renderer.setExposure(2.8);
+  renderer.setFogNear(15);
+  renderer.setFogFar(50);
 
   // Build the map normally so the 3D scene is visible
   mapBuilder.clear();
@@ -1583,6 +1590,7 @@ function routeByEra(eraLevel) {
 
 function updateEnvironment() {
   const defiance = tracker.totalDefiance;
+  const era = memory.getEra();
   // Only enable postfx at high defiance — subtle glitch effects, no exposure change
   if (defiance >= 6) {
     postfx.setNoise(0.01);
@@ -1592,7 +1600,8 @@ function updateEnvironment() {
     postfx.setScanlines(0.03);
     postfx.setNoise(0);
     postfx.enabled = true;
-  } else {
+  } else if (era < 3) {
+    // Only disable postfx when era atmosphere hasn't enabled it
     postfx.enabled = false;
   }
   // No exposure change — ambient-only lighting is already uniform
@@ -1613,6 +1622,7 @@ function gameLoop() {
   // CCTV mode update
   if (gameState.is(State.CCTV)) {
     cctvReplay.update(delta);
+    doorSystem.update(delta);
   }
 
   if (gameState.is(State.PLAYING)) {

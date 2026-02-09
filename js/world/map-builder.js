@@ -494,6 +494,7 @@ export class MapBuilder {
 
           // Skip one redundant wall to prevent z-fighting.
           // Never skip a wall with locked doors or unlocked doors (unless other side also has doors).
+          // Locked-door walls use an inward offset instead (see _buildWall).
           if (aCoversB) {
             if (!bHasLocked && (bDoors.length === 0 || aDoors.length > 0)) {
               skipWalls.add(`${b.id}_${wallB}`);
@@ -613,8 +614,14 @@ export class MapBuilder {
       const doorOffset = door.offset;
 
       if (door.locked) {
-        // Locked door: build as solid wall, track for removal
-        this._addWallMesh(room, wx, wy, wz, wallLength, wallHeight, axis, `${room.id}_${wallName}_locked`);
+        // Locked door: build as solid wall, track for removal.
+        // Offset slightly inward to avoid z-fighting with opposing room's wall.
+        let lwx = wx, lwz = wz;
+        if (wallName === 'north') lwz += 0.05;
+        else if (wallName === 'south') lwz -= 0.05;
+        else if (wallName === 'east') lwx -= 0.05;
+        else if (wallName === 'west') lwx += 0.05;
+        this._addWallMesh(room, lwx, wy, lwz, wallLength, wallHeight, axis, `${room.id}_${wallName}_locked`);
         return; // locked door = entire wall is solid
       }
 
