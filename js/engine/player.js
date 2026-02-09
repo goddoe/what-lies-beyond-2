@@ -232,5 +232,36 @@ export class Player {
       this.bobTime = 0;
       this.camera.position.y = this.height;
     }
+
+    // Update flashlight position/target
+    if (this.flashlight && this.flashlightOn) {
+      this.flashlight.position.copy(this.camera.position);
+      const fdir = new THREE.Vector3();
+      this.camera.getWorldDirection(fdir);
+      this.flashlightTarget.position.copy(this.camera.position).add(fdir.multiplyScalar(5));
+    }
+  }
+
+  setupFlashlight(scene) {
+    this.flashlight = new THREE.SpotLight(0xffffee, 80, 20, Math.PI / 7, 0.4, 1.5);
+    this.flashlight.visible = false;
+    this.flashlightTarget = new THREE.Object3D();
+    scene.add(this.flashlightTarget);
+    scene.add(this.flashlight);
+    this.flashlight.target = this.flashlightTarget;
+    this.flashlightOn = false;
+  }
+
+  toggleFlashlight() {
+    if (!this.flashlight) return;
+    this.flashlightOn = !this.flashlightOn;
+    this.flashlight.visible = this.flashlightOn;
+  }
+
+  resetFlashlight() {
+    if (this.flashlight) {
+      this.flashlightOn = false;
+      this.flashlight.visible = false;
+    }
   }
 }

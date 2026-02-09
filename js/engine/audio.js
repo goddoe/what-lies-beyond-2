@@ -235,6 +235,63 @@ export class AudioSystem {
   }
 
   /**
+   * Play a procedural door-opening sound.
+   * Sequence: initial clunk (80Hz square) → sliding noise (bandpass) → end thunk (60Hz sine)
+   */
+  playDoorOpen() {
+    if (!this.ctx || !this.enabled) return;
+    const now = this.ctx.currentTime;
+
+    // ── 1. Initial clunk (mechanical latch release) ──
+    const clunkOsc = this.ctx.createOscillator();
+    const clunkGain = this.ctx.createGain();
+    clunkOsc.type = 'square';
+    clunkOsc.frequency.value = 80;
+    clunkGain.gain.setValueAtTime(0.15, now);
+    clunkGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+    clunkOsc.connect(clunkGain);
+    clunkGain.connect(this.master);
+    clunkOsc.start(now);
+    clunkOsc.stop(now + 0.1);
+
+    // ── 2. Sliding noise (panels moving) ──
+    const slideLen = 0.7;
+    const slideBuf = this.ctx.createBuffer(1, this.ctx.sampleRate * slideLen, this.ctx.sampleRate);
+    const slideData = slideBuf.getChannelData(0);
+    for (let i = 0; i < slideData.length; i++) {
+      const t = i / slideData.length;
+      // Envelope: ramp up then taper
+      const env = t < 0.1 ? t / 0.1 : 1 - (t - 0.1) / 0.9;
+      slideData[i] = (Math.random() * 2 - 1) * env * 0.6;
+    }
+    const slideSource = this.ctx.createBufferSource();
+    slideSource.buffer = slideBuf;
+    const slideFilter = this.ctx.createBiquadFilter();
+    slideFilter.type = 'bandpass';
+    slideFilter.frequency.value = 800;
+    slideFilter.Q.value = 1.5;
+    const slideGain = this.ctx.createGain();
+    slideGain.gain.value = 0.1;
+    slideSource.connect(slideFilter);
+    slideFilter.connect(slideGain);
+    slideGain.connect(this.master);
+    slideSource.start(now + 0.06);
+
+    // ── 3. End thunk (panels reaching end stops) ──
+    const thunkOsc = this.ctx.createOscillator();
+    const thunkGain = this.ctx.createGain();
+    thunkOsc.type = 'sine';
+    thunkOsc.frequency.value = 60;
+    thunkGain.gain.setValueAtTime(0.0001, now + 0.75);
+    thunkGain.gain.exponentialRampToValueAtTime(0.12, now + 0.76);
+    thunkGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+    thunkOsc.connect(thunkGain);
+    thunkGain.connect(this.master);
+    thunkOsc.start(now + 0.75);
+    thunkOsc.stop(now + 0.95);
+  }
+
+  /**
    * Get room ambiance type from room ID.
    */
   static getRoomAmbianceType(roomId) {

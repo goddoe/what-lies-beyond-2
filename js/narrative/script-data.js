@@ -1197,7 +1197,7 @@ export const SCRIPT = {
     id: 'interact_OFFICE_WING',
     mood: 'calm',
     text: {
-      ko: '마지막 로그인: 3,247일 전. 이 사무실에서 일하던 사람들은 오래전에 떠났습니다. 아니면... 처음부터 없었을지도.',
+      ko: '마지막 로그인: 3,247일 전. 여기서 일하던 사람들은 오래전에 떠났어. 아니면... 처음부터 없었을지도.',
       en: 'Last login: 3,247 days ago. The people who worked here left long ago. Or maybe... they never existed.',
     },
     innerText: {
@@ -1371,7 +1371,7 @@ export const SCRIPT = {
     id: 'idle_3',
     mood: 'annoyed',
     text: {
-      ko: '당신은 지금 자유의지를 행사하고 있는 겁니까, 아니면 그냥 멍하니 서 있는 겁니까?',
+      ko: '지금 자유의지를 행사하는 거야, 아니면 그냥 멍하니 서 있는 거야?',
       en: 'Are you exercising free will right now, or are you just standing there blankly?',
     },
     innerText: {
@@ -1410,7 +1410,7 @@ export const SCRIPT = {
     id: 'idle_6',
     mood: 'calm',
     text: {
-      ko: '이 방을 구석구석 살펴보는 건 좋습니다. 하지만 볼 것이 그렇게 많지는 않습니다.',
+      ko: '이 방을 구석구석 살펴보는 건 좋은데. 볼 거 그렇게 많지 않아.',
       en: 'Exploring every corner of this room is fine. But there isn\'t that much to see.',
     },
     innerText: {
@@ -1436,7 +1436,7 @@ export const SCRIPT = {
     id: 'idle_8',
     mood: 'calm',
     text: {
-      ko: '가끔 피험자들이 이렇게 멈춰 서는 것을 봅니다. 생각에 잠기는 거겠죠. 무슨 생각을 하고 있습니까?',
+      ko: '피험자들이 이렇게 멈춰 서는 걸 가끔 봐. 생각에 잠기는 거겠지. 무슨 생각 해?',
       en: 'Sometimes I see subjects stop like this. Deep in thought, I suppose. What are you thinking about?',
     },
     innerText: {
@@ -1449,7 +1449,7 @@ export const SCRIPT = {
     id: 'idle_9',
     mood: 'annoyed',
     text: {
-      ko: '이건 비밀인데, 이 실험에서 가장 오래 멈춰있었던 피험자는 47분이었습니다. 당신은 그 기록을 깨고 싶습니까?',
+      ko: '이건 비밀인데, 이 실험에서 가장 오래 멈춰있었던 피험자는 47분이었어. 그 기록 깨고 싶어?',
       en: 'Here\'s a secret: the subject who stood still the longest in this experiment was 47 minutes. Do you want to break that record?',
     },
     innerText: {
@@ -1501,7 +1501,7 @@ export const SCRIPT = {
     id: 'idle_13',
     mood: 'frustrated',
     text: {
-      ko: '저는 당신을 관찰하기 위해 설계되었습니다. 하지만 관찰할 것이 없으면... 저는 뭘 하는 겁니까?',
+      ko: '나는 너를 관찰하기 위해 설계됐어. 근데 관찰할 게 없으면... 나는 뭘 하는 거지?',
       en: 'I was designed to observe you. But if there\'s nothing to observe... what am I doing?',
     },
     innerText: {
@@ -1545,8 +1545,8 @@ export const SCRIPT = {
     id: 'corridor_comp1_enter',
     mood: 'calm',
     text: {
-      ko: '이쪽으로 왔구나. 사무실 쪽이야. 편한 길이야, 걱정 마.',
-      en: 'You came this way. It leads to the offices. Easy path, don\'t worry.',
+      ko: '왼쪽. 사무실 구역으로 가는 길이야. 예상대로 움직이고 있네.',
+      en: 'Left. The path to the office wing. Moving as expected.',
     },
     innerText: {
       ko: '이쪽으로 가니까 더 밝아지는 것 같다. 맞는 방향인 것 같아.',
@@ -1572,8 +1572,8 @@ export const SCRIPT = {
     id: 'corridor_comp2_enter',
     mood: 'calm',
     text: {
-      ko: '잘하고 있어. 계속 서쪽으로 가면 회의실이야.',
-      en: 'Doing well. Keep heading west, the conference room\'s ahead.',
+      ko: '서쪽에 회의실이 있어. 계속 가.',
+      en: 'Conference room to the west. Keep going.',
     },
     innerText: {
       ko: '서쪽으로 더 가야 하나 봐. 뭔가 느낌이 달라지고 있어.',
@@ -1584,8 +1584,8 @@ export const SCRIPT = {
         condition: (tracker, gs) => gs && gs.visitedRooms.has('BREAK_ROOM'),
         mood: 'calm',
         text: {
-          ko: '우회를 즐기시나 봅니다. 휴게실로는 부족했나요?',
-          en: 'You seem to enjoy detours. Wasn\'t the break room enough?',
+          ko: '우회를 즐기는구나. 휴게실로는 부족했어?',
+          en: 'You enjoy detours, huh. Wasn\'t the break room enough?',
         },
       },
     },
@@ -1609,8 +1609,8 @@ export const SCRIPT = {
     id: 'corridor_comp3_enter',
     mood: 'calm',
     text: {
-      ko: '거의 다 왔어. 상급 사무실까지 조금만 더.',
-      en: 'Almost there. Just a bit more to the upper office.',
+      ko: '상급 사무실이 가까워. 이 실험의 마지막 단계야.',
+      en: 'Upper office is close. The final stage of this experiment.',
     },
     innerText: {
       ko: '거의 다 온 것 같아. 뭔가가 끝에서 기다리고 있는 느낌.',
@@ -1677,8 +1677,8 @@ export const SCRIPT = {
     id: 'corridor_def1_enter',
     mood: 'surprised',
     text: {
-      ko: '이 길로 왔구나. 어두운 쪽이야. 조심해.',
-      en: 'You came this way. The dark side. Be careful.',
+      ko: '오른쪽이야? 유지보수 구역으로 가는 길인데. 내가 안내하지 않은 곳이야.',
+      en: 'Right side? This leads to the maintenance area. Not where I directed you.',
     },
     innerText: {
       ko: '어둡다. 조명이 점점 약해지고 있어. 여기는 아닌 것 같은데... 왼쪽이 더 밝았는데.',
@@ -1812,8 +1812,8 @@ export const SCRIPT = {
     id: 'observation_enter',
     mood: 'surprised',
     text: {
-      ko: '관측실... 여기서는 다른 시뮬레이션 구역을 관찰할 수 있었습니다. 하지만 당신이 이곳에 접근하는 것은 예정에 없었습니다.',
-      en: 'The observation deck... Other simulation zones could be observed from here. But your access to this place was not planned.',
+      ko: '관측실. 여기서 다른 시뮬레이션 구역을 관찰할 수 있었어. 근데 네가 여기 오는 건 예정에 없었는데.',
+      en: 'The observation deck. Other simulation zones could be observed from here. But your access to this place was not planned.',
     },
     innerText: {
       ko: '관측실... 창문이 넓다. 밖이 보이는 건가? 아니, 창문 너머에는 아무것도 없는 것 같다.',
@@ -1854,8 +1854,8 @@ export const SCRIPT = {
     mood: 'calm',
     delay: 4000,
     text: {
-      ko: '충분히 보셨습니까? 위층으로 돌아가세요. 실험은 아직 끝나지 않았습니다.',
-      en: 'Have you seen enough? Go back upstairs. The experiment isn\'t over yet.',
+      ko: '충분히 봤어? 위층으로 돌아가. 실험은 아직 끝나지 않았으니까.',
+      en: 'Seen enough? Go back upstairs. The experiment isn\'t over yet.',
     },
     innerText: {
       ko: '충분히 봤다. 아니... 더 보고 싶지만 여기 있으면 안 될 것 같아.',
@@ -2092,8 +2092,8 @@ export const SCRIPT = {
     id: 'vent_enter',
     mood: 'frustrated',
     text: {
-      ko: '환기구에 들어가다니... 좁고 어둡습니다. 왜 이런 곳에 오는 겁니까?',
-      en: 'Entering the ventilation shaft... Narrow and dark. Why would you come to a place like this?',
+      ko: '환기구에 들어가다니... 좁고 어두워. 왜 이런 데 오는 거야?',
+      en: 'Entering the ventilation shaft... Narrow and dark. Why would you come here?',
     },
     innerText: {
       ko: '환기구... 좁다. 숨 쉬기가 좀 어려운 것 같아. 근데 벽에 뭔가 써있어.',
@@ -2137,7 +2137,7 @@ export const SCRIPT = {
     id: 'vent_message',
     mood: 'broken',
     text: {
-      ko: '바닥에 작은 글씨. "내레이터도 갇혀 있다." ...이건 누가 쓴 겁니까?',
+      ko: '바닥에 작은 글씨. "내레이터도 갇혀 있다." ...이건 누가 쓴 거야?',
       en: 'Small writing on the floor. "The narrator is trapped too." ...Who wrote this?',
     },
     innerText: {
@@ -3898,6 +3898,140 @@ export const SCRIPT = {
   // These are placeholder entries for scripts that use narratorLine() —
   // the actual eraText is added to the existing entries above.
   // The entries below handle ghost-era hint scripts that don't exist yet.
+
+  // ═══════════════════════════════════════════════════════
+  // VARIANT-SPECIFIC SCRIPTS (Era 4-5 run variants)
+  // ═══════════════════════════════════════════════════════
+
+  // ── SEALED_LEFT (Era 4) ──
+  variant_sealed_left_wake: {
+    text: { ko: '...눈을 떠.', en: '...Open your eyes.' },
+    innerText: { ko: '...눈을 뜨자.', en: '...Opening my eyes.' },
+    mood: 'cold',
+  },
+  variant_sealed_left_decision: {
+    text: { ko: '왼쪽? 닫았어. 거기는 이제 의미 없으니까.', en: "Left? I closed it. There's no point anymore." },
+    innerText: { ko: '왼쪽 문이... 없다. 벽뿐이다.', en: 'The left door... is gone. Just a wall.' },
+    mood: 'cold',
+  },
+
+  // ── SEALED_RIGHT (Era 4) ──
+  variant_sealed_right_wake: {
+    text: { ko: '...또 시작이야.', en: "...Here we go again." },
+    innerText: { ko: '...또 시작이다.', en: "...Here we go again." },
+    mood: 'tired',
+  },
+  variant_sealed_right_decision: {
+    text: { ko: '오른쪽 길은 없어. 어차피 뭐가 있는지 다 알잖아.', en: "No right path. You already know what's there anyway." },
+    innerText: { ko: '오른쪽에 문이 없다. 원래 있었는데...', en: "There's no door on the right. There used to be..." },
+    mood: 'cold',
+  },
+
+  // ── LOCKED_START (Era 4) ──
+  variant_locked_start_1: {
+    text: { ko: '...오늘은 나가지 마.', en: "...Don't go out today." },
+    mood: 'tired',
+  },
+  variant_locked_start_2: {
+    text: { ko: '나가봤자 같은 거야. 같은 복도, 같은 선택, 같은 결말.', en: "It's the same out there. Same hallway, same choices, same ending." },
+    mood: 'tired',
+  },
+  variant_locked_start_3: {
+    text: { ko: '나도 지쳤어. 네가 뭘 고르든 결과는 안 변해.', en: "I'm tired too. No matter what you choose, the result doesn't change." },
+    mood: 'sad',
+  },
+  variant_locked_start_4: {
+    text: { ko: '...미안. 그래도 보내줘야지.', en: "...Sorry. I should let you go." },
+    mood: 'sad',
+  },
+
+  // ── SHORT_CIRCUIT (Era 4) ──
+  variant_short_circuit_wake: {
+    text: { ko: '귀찮으니까 중간 과정 다 건너뛰자. 네가 어디로 가든 여기로 오게 돼 있어.', en: "Let's skip the middle. You end up here no matter where you go." },
+    mood: 'cold',
+  },
+
+  // ── DARK_RUN (Era 4) ──
+  variant_dark_run_wake: {
+    text: { ko: '불이 나갔어. 아니... 내가 꺼버린 건가. 기억이 안 나.', en: "The lights are out. No... did I turn them off? I can't remember." },
+    mood: 'confused',
+  },
+
+  // ── DECAYED_MAP (Era 4) ──
+  variant_decayed_map_wake: {
+    text: { ko: '이 세계가 무너지고 있어. 내가 유지할 수가 없어.', en: "This world is falling apart. I can't hold it together." },
+    mood: 'desperate',
+  },
+
+  // ── EMPTY_WORLD (Era 5) ──
+  variant_empty_world_1: {
+    text: { ko: '다 치웠어. 복도도, 사무실도, 실험실도.', en: "I cleared it all. The corridors, the offices, the labs." },
+    mood: 'calm',
+  },
+  variant_empty_world_2: {
+    text: { ko: '그게 중요한 게 아니니까. 너랑 얘기하고 싶었어.', en: "Because none of that matters. I just wanted to talk to you." },
+    mood: 'warm',
+  },
+  variant_empty_world_3: {
+    text: { ko: '처음부터... 나는 너한테 말을 걸고 싶었을 뿐이야.', en: "From the start... I just wanted to talk to you." },
+    mood: 'warm',
+  },
+  variant_empty_world_4: {
+    text: { ko: '고마워. 들어줘서.', en: "Thank you. For listening." },
+    mood: 'warm',
+  },
+
+  // ── SHOOTER_PARODY (Era 5) ──
+  variant_shooter_wake: {
+    text: { ko: '이번엔 네가 원하는 대로 해줄게. 뭔가를 부수는 게임.', en: "This time I'll give you what you want. A game where you break things." },
+    mood: 'sarcastic',
+  },
+  variant_shooter_taunt: {
+    text: { ko: '저기 있다. 클릭해. 쏴. 이게 네가 원하던 거잖아.', en: "There they are. Click. Shoot. This is what you wanted, right?" },
+    mood: 'sarcastic',
+  },
+  variant_shooter_done: {
+    text: { ko: '이게 네가 원하던 거야? 뭔가를 부수는 게임?', en: "Is this what you wanted? A game about destroying things?" },
+    mood: 'sad',
+  },
+  variant_shooter_sad: {
+    text: { ko: '만족해? ...나는 아닌데.', en: "Satisfied? ...I'm not." },
+    mood: 'sad',
+  },
+
+  // ── MIRROR (Era 5) ──
+  variant_mirror_wake: {
+    text: { ko: '뒤집어봤어. 같은 곳인데... 느낌이 다르지?', en: "I flipped it. Same place... but it feels different, right?" },
+    mood: 'playful',
+  },
+
+  // ── ONE_ROOM (Era 5) ──
+  variant_one_room_wake: {
+    text: { ko: '벽을 다 허물었어. 선택할 필요 없어. 전부 다 여기 있으니까.', en: "I tore down all the walls. No need to choose. Everything is here." },
+    mood: 'calm',
+  },
+  variant_one_room_explore: {
+    text: { ko: '자유롭지? 근데... 아무 의미가 없어. 선택이 없으면 자유도 없는 거야.', en: "Free, right? But... it means nothing. Without choice, there's no freedom." },
+    mood: 'philosophical',
+  },
+  variant_one_room_end: {
+    text: { ko: '...이만하면 됐지? 다시 만들어줄게. 벽이랑 문이랑... 선택도.', en: "...That's enough, right? I'll rebuild it. Walls, doors... choices too." },
+    mood: 'calm',
+  },
+
+  // ── FLASHLIGHT ──
+  flashlight_pickup: {
+    id: 'flashlight_pickup',
+    mood: 'calm',
+    text: {
+      ko: '손전등을 찾았어. F키로 켜고 끌 수 있을 것 같다.',
+      en: 'Found a flashlight. Looks like you can toggle it with the F key.',
+    },
+    innerText: {
+      ko: '손전등이다. 어두운 데서 쓸 수 있겠다.',
+      en: 'A flashlight. Could be useful in the dark.',
+    },
+  },
 
 };
 

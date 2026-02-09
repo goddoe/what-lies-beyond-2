@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ROOMS, CONNECTIONS } from './map-data.js';
 import { ProceduralTextures } from '../engine/textures.js';
+import { DoorSystem } from './doors.js';
 
 
 // ── Seeded Random ──────────────────────────────────────
@@ -67,8 +68,8 @@ const WALL_WRITINGS = {
 
 // ── Era Color Adjustments ──────────────────────────────
 
-const ERA_COLOR_MULT = { 1: 1.0, 2: 0.95, 3: 1.3, 4: 0.88, 5: 0.78 };
-const ERA_RED_TINT   = { 1: 0,   2: 0,    3: 0,   4: 10,   5: 18  };
+const ERA_COLOR_MULT = { 1: 1.0, 2: 0.95, 3: 1.3, 4: 1.0, 5: 1.0 };
+const ERA_RED_TINT   = { 1: 0,   2: 0,    3: 0,   4: 15,  5: 25  };
 const ERA_SATURATE   = { 1: 0,   2: 0,    3: 40,  4: 0,    5: 0   };
 
 function adjustColorForEra(hex, era) {
@@ -135,27 +136,152 @@ export class MapBuilder {
     this._texMatCache = new Map();
     // Procedural texture generator
     this._textures = new ProceduralTextures();
+    // Door system
+    this.doorSystem = new DoorSystem(this.group);
 
     scene.add(this.group);
   }
 
-  build(era = 1) {
+  /**
+   * Remove all built meshes from the scene. Used before rebuilding for a new run.
+   */
+  clear() {
+    // Remove all children from the group
+    while (this.group.children.length > 0) {
+      const child = this.group.children[0];
+      this.group.remove(child);
+      // Dispose geometry
+      if (child.geometry) child.geometry.dispose();
+      // Dispose children of groups
+      if (child.isGroup) {
+        child.traverse(c => {
+          if (c.geometry) c.geometry.dispose();
+        });
+      }
+    }
+    this.colliders = [];
+    this.triggerZones = [];
+    this.interactables = [];
+    this.wallMeshes.clear();
+    this.doorSystem.clear();
+  }
+
+  build(era = 1, variant = null) {
     this.era = era;
-    for (const room of ROOMS) {
-      // Skip rooms that require a higher era
-      if (room.eraMin && era < room.eraMin) continue;
+    this._variant = variant;
+    const mods = (variant && variant.mapMods) || {};
+
+    // Prepare room list: filter by era, then apply variant mods
+    let activeRooms = ROOMS.filter(r => !r.eraMin || era >= r.eraMin);
+
+    // Variant: keepRooms — only build listed rooms (empty array = build nothing from ROOMS)
+    if (mods.keepRooms != null) {
+      const keep = new Set(mods.keepRooms);
+      activeRooms = activeRooms.filter(r => keep.has(r.id));
+    }
+
+    // Variant: customRooms — add synthetic rooms
+    if (mods.customRooms) {
+      activeRooms = [...activeRooms, ...mods.customRooms];
+    }
+
+    // Variant: removeRooms — exclude specific rooms
+    if (mods.removeRooms) {
+      const remove = new Set(mods.removeRooms);
+      activeRooms = activeRooms.filter(r => !remove.has(r.id));
+    }
+
+    // Variant: mirrorX — flip all room origins on X axis
+    if (mods.mirrorX) {
+      activeRooms = activeRooms.map(r => {
+        const mirrored = { ...r, origin: [-r.origin[0], r.origin[1], r.origin[2]] };
+        // Mirror door offsets on N/S walls, swap E/W walls
+        mirrored.doors = r.doors.map(d => {
+          const swapMap = { east: 'west', west: 'east', north: 'north', south: 'south' };
+          return {
+            ...d,
+            wall: swapMap[d.wall],
+            offset: (d.wall === 'north' || d.wall === 'south') ? -(d.offset || 0) : (d.offset || 0),
+          };
+        });
+        // Mirror trigger positions
+        mirrored.triggers = r.triggers.map(t => ({
+          ...t,
+          position: [-t.position[0], t.position[1], t.position[2]],
+        }));
+        // Mirror prop positions
+        mirrored.props = r.props.map(p => ({
+          ...p,
+          position: [-p.position[0], p.position[1], p.position[2]],
+        }));
+        return mirrored;
+      });
+    }
+
+    // Variant: moveRooms — override origins for specific rooms
+    if (mods.moveRooms) {
+      activeRooms = activeRooms.map(r => {
+        if (mods.moveRooms[r.id]) {
+          return { ...r, ...mods.moveRooms[r.id] };
+        }
+        return r;
+      });
+    }
+
+    // Variant: removeDoors — remove specific doors
+    if (mods.removeDoors) {
+      const removals = mods.removeDoors;
+      activeRooms = activeRooms.map(r => {
+        const toRemove = removals.filter(rd => rd.room === r.id);
+        if (toRemove.length === 0) return r;
+        const removeWalls = new Set(toRemove.map(rd => rd.wall));
+        return { ...r, doors: r.doors.filter(d => !removeWalls.has(d.wall)) };
+      });
+    }
+
+    // Variant: addDoors — add extra doors
+    if (mods.addDoors) {
+      activeRooms = activeRooms.map(r => {
+        const extra = mods.addDoors.filter(ad => ad.room === r.id);
+        if (extra.length === 0) return r;
+        return { ...r, doors: [...r.doors, ...extra.map(ad => ({ wall: ad.wall, offset: ad.offset || 0, width: ad.width || 2, height: ad.height || 2.5 }))] };
+      });
+    }
+
+    // Remove orphan doors: doors connecting to rooms no longer in activeRooms
+    const activeIds = new Set(activeRooms.map(r => r.id));
+    activeRooms = activeRooms.map(r => {
+      const filtered = r.doors.filter(d => {
+        // Check if any connection references this room+wall leading to a removed room
+        for (const conn of CONNECTIONS) {
+          if (conn.from === r.id && conn.wall === d.wall && !activeIds.has(conn.to)) return false;
+          if (conn.to === r.id && conn.toWall === d.wall && !activeIds.has(conn.from)) return false;
+        }
+        return true;
+      });
+      if (filtered.length !== r.doors.length) {
+        return { ...r, doors: filtered };
+      }
+      return r;
+    });
+
+    // Store active rooms for getRoomAtPosition
+    this._activeRooms = activeRooms;
+
+    // Detect shared walls to avoid double-wall panels behind doors
+    this._skipWalls = this._findSharedWalls(activeRooms, era);
+
+    for (const room of activeRooms) {
       this._buildRoom(room);
     }
     // Add era-based decorations after all rooms are built
     if (era >= 2) {
-      for (const room of ROOMS) {
-        if (room.eraMin && era < room.eraMin) continue;
+      for (const room of activeRooms) {
         this._addWallWritings(room, era);
       }
     }
     if (era >= 3) {
-      for (const room of ROOMS) {
-        if (room.eraMin && era < room.eraMin) continue;
+      for (const room of activeRooms) {
         this._addFloorStains(room, era);
       }
     }
@@ -163,11 +289,17 @@ export class MapBuilder {
     this._buildEraProps(era);
     // Ghost figures
     const ghosts = this._buildGhostFigures(era);
+
+    // Merge door colliders and interactables
+    const doorColliders = this.doorSystem.getColliders();
+    const doorInteractables = this.doorSystem.getInteractables();
+
     return {
-      colliders: this.colliders,
+      colliders: [...this.colliders, ...doorColliders],
       triggerZones: this.triggerZones,
-      interactables: this.interactables,
+      interactables: [...this.interactables, ...doorInteractables],
       ghosts,
+      doorSystem: this.doorSystem,
     };
   }
 
@@ -188,6 +320,39 @@ export class MapBuilder {
       }
       this.wallMeshes.delete(key);
     }
+
+    // Create a shutter door at the unlocked position and open it immediately
+    const rooms = this._activeRooms || ROOMS;
+    const room = rooms.find(r => r.id === roomId);
+    if (!room) return;
+    const [ox, oy, oz] = room.origin;
+    const [w, h, d] = room.size;
+    const halfW = w / 2;
+    const halfD = d / 2;
+
+    const doorData = room.doors.find(dd => dd.wall === wall);
+    if (!doorData) return;
+    const doorWidth = doorData.width || 2;
+    const doorHeight = doorData.height || 2.5;
+    const doorOffset = doorData.offset || 0;
+
+    let cx, cy, cz, axis;
+    cy = oy;
+    if (wall === 'north') {
+      cx = ox + doorOffset; cz = oz - halfD; axis = 'z';
+    } else if (wall === 'south') {
+      cx = ox + doorOffset; cz = oz + halfD; axis = 'z';
+    } else if (wall === 'east') {
+      cx = ox + halfW; cz = oz + doorOffset; axis = 'x';
+    } else {
+      cx = ox - halfW; cz = oz + doorOffset; axis = 'x';
+    }
+
+    const door = this.doorSystem.createDoor({
+      cx, cy, cz, width: doorWidth, height: doorHeight, axis, wallName: wall, roomId,
+    });
+    // Open immediately with animation
+    this.doorSystem.openDoor(door);
   }
 
   _getOrCreateMaterial(color, opts = {}) {
@@ -242,6 +407,73 @@ export class MapBuilder {
 
     this._texMatCache.set(key, mat);
     return mat;
+  }
+
+  /**
+   * Detect shared walls between adjacent rooms.
+   * When both sides of a shared wall have a door, one side's wall should be skipped.
+   * Returns a Set of keys like "ROOM_ID_wallName" to skip.
+   */
+  _findSharedWalls(rooms, era) {
+    const skipWalls = new Set();
+    const TOLERANCE = 0.5;
+
+    for (let i = 0; i < rooms.length; i++) {
+      for (let j = i + 1; j < rooms.length; j++) {
+        const a = rooms[i];
+        const b = rooms[j];
+        const [ax, , az] = a.origin;
+        const [aw, , ad] = a.size;
+        const [bx, , bz] = b.origin;
+        const [bw, , bd] = b.size;
+
+        // Check each wall pair for adjacency
+        // For N/S walls, perpendicular extent is along X axis
+        // For E/W walls, perpendicular extent is along Z axis
+        const checks = [
+          { wallA: 'north', wallB: 'south',
+            match: Math.abs((az - ad / 2) - (bz + bd / 2)) < TOLERANCE,
+            aMin: ax - aw / 2, aMax: ax + aw / 2,
+            bMin: bx - bw / 2, bMax: bx + bw / 2 },
+          { wallA: 'south', wallB: 'north',
+            match: Math.abs((az + ad / 2) - (bz - bd / 2)) < TOLERANCE,
+            aMin: ax - aw / 2, aMax: ax + aw / 2,
+            bMin: bx - bw / 2, bMax: bx + bw / 2 },
+          { wallA: 'east', wallB: 'west',
+            match: Math.abs((ax + aw / 2) - (bx - bw / 2)) < TOLERANCE,
+            aMin: az - ad / 2, aMax: az + ad / 2,
+            bMin: bz - bd / 2, bMax: bz + bd / 2 },
+          { wallA: 'west', wallB: 'east',
+            match: Math.abs((ax - aw / 2) - (bx + bw / 2)) < TOLERANCE,
+            aMin: az - ad / 2, aMax: az + ad / 2,
+            bMin: bz - bd / 2, bMax: bz + bd / 2 },
+        ];
+
+        for (const { wallA, wallB, match, aMin, aMax, bMin, bMax } of checks) {
+          if (!match) continue;
+
+          // Only consider non-locked doors active for this era
+          const aDoors = a.doors.filter(d => d.wall === wallA && (!d.eraMin || era >= d.eraMin) && !d.locked);
+          const bDoors = b.doors.filter(d => d.wall === wallB && (!d.eraMin || era >= d.eraMin) && !d.locked);
+
+          if (aDoors.length === 0 || bDoors.length === 0) continue;
+
+          // Check perpendicular coverage: only skip if one wall fully covers the other
+          const aCoversB = aMin <= bMin + TOLERANCE && aMax >= bMax - TOLERANCE;
+          const bCoversA = bMin <= aMin + TOLERANCE && bMax >= aMax - TOLERANCE;
+
+          if (aCoversB) {
+            // A's wall fully covers B's extent — safe to skip B's wall
+            skipWalls.add(`${b.id}_${wallB}`);
+          } else if (bCoversA) {
+            // B's wall fully covers A's extent — safe to skip A's wall
+            skipWalls.add(`${a.id}_${wallA}`);
+          }
+          // If neither fully covers the other, keep both walls (no skip)
+        }
+      }
+    }
+    return skipWalls;
   }
 
   _buildRoom(room) {
@@ -330,6 +562,9 @@ export class MapBuilder {
   }
 
   _buildWall(room, wallName, wx, wy, wz, wallLength, wallHeight, axis, doors) {
+    // Skip this wall if it's a shared wall where the other room already builds it
+    if (this._skipWalls && this._skipWalls.has(`${room.id}_${wallName}`)) return;
+
     const wallDoors = doors.filter(d => d.wall === wallName);
 
     if (wallDoors.length === 0) {
@@ -380,6 +615,21 @@ export class MapBuilder {
         } else {
           this._addWallMesh(room, wx, wy + doorHeight, wz + doorOffset, doorWidth, topHeight, axis);
         }
+      }
+
+      // Create shutter door mesh at the cutout
+      if (axis === 'z') {
+        this.doorSystem.createDoor({
+          cx: wx + doorOffset, cy: wy, cz: wz,
+          width: doorWidth, height: doorHeight,
+          axis, wallName, roomId: room.id,
+        });
+      } else {
+        this.doorSystem.createDoor({
+          cx: wx, cy: wy, cz: wz + doorOffset,
+          width: doorWidth, height: doorHeight,
+          axis, wallName, roomId: room.id,
+        });
       }
     }
   }
@@ -865,9 +1115,10 @@ export class MapBuilder {
    * Get the room the player is currently in based on position.
    */
   getRoomAtPosition(pos) {
-    for (const room of ROOMS) {
+    const rooms = this._activeRooms || ROOMS;
+    for (const room of rooms) {
       // Skip rooms not built for current era
-      if (room.eraMin && (this.era || 1) < room.eraMin) continue;
+      if (!this._activeRooms && room.eraMin && (this.era || 1) < room.eraMin) continue;
       const [ox, , oz] = room.origin;
       const [w, , d] = room.size;
       if (
@@ -952,13 +1203,34 @@ export class MapBuilder {
       { id: 'subject_chamber', era: 5, room: 'SUBJECT_CHAMBER', x: 65, y: 0, z: -45, rotY: 0, persistent: true },
     ];
 
+    // Check which rooms are active
+    const activeRoomIds = new Set((this._activeRooms || []).map(r => r.id));
+
     const ghosts = [];
     for (const config of GHOST_CONFIGS) {
       if (era < config.era) continue;
+      // Don't spawn ghosts in rooms that don't exist in this variant
+      if (config.room && !activeRoomIds.has(config.room)) continue;
       const ghost = this._createGhostMesh(config);
       this.group.add(ghost);
       ghosts.push(ghost);
     }
+
+    // SHOOTER_PARODY: extra ghost enemies in hallway
+    if (this._variant && this._variant.id === 'SHOOTER_PARODY') {
+      const shooterGhosts = [
+        { id: 'enemy_1', era: 5, x: 0, y: 0, z: -8, rotY: Math.PI },
+        { id: 'enemy_2', era: 5, x: -1, y: 0, z: -15, rotY: Math.PI * 0.8 },
+        { id: 'enemy_3', era: 5, x: 1, y: 0, z: -20, rotY: -Math.PI * 0.5 },
+        { id: 'enemy_4', era: 5, x: 0, y: 0, z: -23, rotY: 0 },
+      ];
+      for (const config of shooterGhosts) {
+        const ghost = this._createGhostMesh(config);
+        this.group.add(ghost);
+        ghosts.push(ghost);
+      }
+    }
+
     return ghosts;
   }
 }

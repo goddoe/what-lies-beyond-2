@@ -87,6 +87,21 @@ body {
   gap: 1em;
 }
 
+.btn-reset {
+  margin-top: 2.5em !important;
+  padding: 0.4em 1.2em !important;
+  font-size: 0.7rem !important;
+  opacity: 0.25;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  transition: opacity 0.3s, border-color 0.3s;
+}
+
+.btn-reset:hover {
+  opacity: 0.6;
+  border-color: rgba(255, 100, 100, 0.5) !important;
+  color: #ff8888;
+}
+
 .lang-btn {
   padding: 0.4em 1em !important;
   font-size: 0.9rem !important;

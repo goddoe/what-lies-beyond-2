@@ -15,6 +15,7 @@ import { UI } from './systems/ui.js';
 import { PlaythroughMemory } from './systems/playthrough-memory.js';
 import { getLanguage, setLanguage } from './data/i18n.js';
 import { AudioSystem } from './engine/audio.js';
+import { selectVariant } from './world/run-variants.js';
 
 // ── Bootstrap ──────────────────────────────────────────
 
@@ -55,48 +56,54 @@ endings.setGameState(gameState);
 
 // ── Build World ──────────────────────────────────────────
 
+let currentVariant = null;
 const era = memory.getEra();
 mapBuilder.setLang(getLanguage());
-const { colliders, triggerZones, interactables, ghosts } = mapBuilder.build(era);
-player.setColliders(colliders);
-player.setInteractables(interactables);
-triggers.loadZones(triggerZones);
-let activeGhosts = ghosts || [];
+
+// Initial variant selection for era 4+
+currentVariant = selectVariant(era, memory.lastVariant);
+const buildResult = mapBuilder.build(era, currentVariant);
+player.setColliders(buildResult.colliders);
+player.setInteractables(buildResult.interactables);
+triggers.loadZones(buildResult.triggerZones);
+let activeGhosts = buildResult.ghosts || [];
+let doorSystem = buildResult.doorSystem;
+player.setupFlashlight(renderer.scene);
 mapBuilder.updateShadowsForRoom('START_ROOM');
+if (currentVariant) {
+  memory.lastVariant = currentVariant.id;
+  memory.save();
+}
 
 // Era-based atmospheric settings
 applyEraAtmosphere(era);
 
+// Apply initial variant effects (era 4+ on fresh load)
+if (currentVariant) {
+  // Defer to after all functions are defined (needed for hoisting edge cases)
+  setTimeout(() => applyVariantEffects(currentVariant), 100);
+}
+
 // ── Era Atmosphere ──────────────────────────────────────
 
 function applyEraAtmosphere(eraLevel) {
+  // Era 4-5: same brightness as era 1-2, only postfx for atmosphere
+  // DARK_RUN variant overrides brightness separately in applyVariantEffects()
   if (eraLevel >= 5) {
-    renderer.setFogColor(0x2a1010);
-    renderer.setFogNear(12);
-    renderer.setFogFar(55);
-    renderer.setExposure(2.3);
     postfx.setNoise(0.03);
     postfx.setScanlines(0.04);
     postfx.setColorShift(0.5);
     postfx.enabled = true;
   } else if (eraLevel >= 4) {
-    renderer.setFogColor(0x301818);
-    renderer.setFogNear(12);
-    renderer.setFogFar(55);
-    renderer.setExposure(2.4);
     postfx.setNoise(0.012);
     postfx.setScanlines(0.02);
     postfx.setColorShift(0.35);
     postfx.enabled = true;
   } else if (eraLevel >= 3) {
-    renderer.setFogColor(0x88bbee);
-    renderer.setFogNear(15);
-    renderer.setFogFar(55);
-    renderer.setExposure(2.5);
     postfx.setPixelSize(0.007);
     postfx.enabled = true;
   }
-  // Era 1-2: defaults are fine (fog 0x111118, exposure 2.0)
+  // All eras use renderer defaults (fog 0x1a1a25, exposure 2.4)
 }
 
 // ── Wire UI ──────────────────────────────────────────────
@@ -118,6 +125,17 @@ ui.onLanguageChange = (lang) => {
   mapBuilder.setLang(lang);
 };
 
+ui.onReset = () => {
+  const lang = getLanguage();
+  const msg = lang === 'ko'
+    ? '모든 진행 상황이 삭제됩니다. 정말 초기화할까요?'
+    : 'All progress will be erased. Are you sure?';
+  if (confirm(msg)) {
+    memory.reset();
+    location.reload();
+  }
+};
+
 // Click-to-play: lock pointer
 document.getElementById('click-to-play').addEventListener('click', () => {
   if (gameState.is(State.CLICK_TO_PLAY)) {
@@ -133,7 +151,7 @@ player.onLock = () => {
 };
 
 player.onUnlock = () => {
-  if (gameState.is(State.PLAYING)) {
+  if (gameState.is(State.PLAYING) && !codeInputActive) {
     gameState.set(State.PAUSED);
   }
 };
@@ -272,23 +290,31 @@ function openCodeInput() {
   if (codeInputActive) return;
   codeInputActive = true;
   codeOverlay.style.display = 'flex';
-  codeField.value = '';
-  codeField.focus();
   player.controls.unlock();
+  // Delay focus so the E keypress doesn't enter 'ㄷ' into the field
+  setTimeout(() => {
+    codeField.value = '';
+    codeField.focus();
+  }, 50);
 }
 
 function closeCodeInput() {
   codeInputActive = false;
   codeOverlay.style.display = 'none';
+  // Re-lock pointer to resume playing
+  player.lock();
 }
 
 if (codeField) {
   codeField.addEventListener('keydown', (e) => {
+    e.stopPropagation(); // Prevent game keys (Space skip, F flashlight, E interact) from firing
     if (e.code === 'Escape') {
+      e.preventDefault();
       closeCodeInput();
       return;
     }
     if (e.code === 'Enter') {
+      e.preventDefault();
       const code = codeField.value.trim();
       if (code === '7491') {
         closeCodeInput();
@@ -312,9 +338,36 @@ document.addEventListener('keydown', (e) => {
     const target = player.checkInteraction();
     if (!target) return;
 
+    // Door interaction (shorter cooldown)
+    if (target.type === 'door' && target.door) {
+      interactCooldown = 1;
+      // Remove collider from player's list before opening
+      const doorCollider = target.door.colliderMesh;
+      if (doorCollider) {
+        const ci = player.colliders.indexOf(doorCollider);
+        if (ci >= 0) player.colliders.splice(ci, 1);
+      }
+      // Remove interact mesh from player's interactables list
+      const ii = player.interactables.indexOf(target);
+      if (ii >= 0) player.interactables.splice(ii, 1);
+      doorSystem.openDoor(target.door);
+      audio.playDoorOpen();
+      return;
+    }
+
     interactCooldown = 3;
 
     // Special prop interactions
+    if (target.propId === 'flashlight_drawer') {
+      if (!inventory.has('flashlight')) {
+        inventory.add('flashlight');
+        if (target.mesh) target.mesh.visible = false;
+        narratorLine('flashlight_pickup');
+        showInventoryPopup('손전등 획득', 'Flashlight Acquired');
+      }
+      return;
+    }
+
     if (target.propId === 'keycard') {
       if (!inventory.has('keycard')) {
         inventory.add('keycard');
@@ -402,7 +455,16 @@ triggers.setActive('loop_back', false);
 // ═════════════ START ROOM ═════════════
 
 triggers.on('start_wake', () => {
-  narratorLine('start_wake');
+  // Variant-specific wake lines
+  if (currentVariant && currentVariant.id === 'SEALED_LEFT') {
+    narratorLine('variant_sealed_left_wake');
+  } else if (currentVariant && currentVariant.id === 'SEALED_RIGHT') {
+    narratorLine('variant_sealed_right_wake');
+  } else if (currentVariant && currentVariant.id === 'MIRROR') {
+    narratorLine('variant_mirror_wake');
+  } else {
+    narratorLine('start_wake');
+  }
 });
 
 // ═════════════ HALLWAY ═════════════
@@ -417,7 +479,14 @@ triggers.on('hallway_midpoint', () => {
 
 triggers.on('decision_point', () => {
   if (!gameState.hasDecision('hallway_choice')) {
-    narratorLine('decision_point');
+    // Variant-specific decision lines
+    if (currentVariant && currentVariant.id === 'SEALED_LEFT') {
+      narratorLine('variant_sealed_left_decision');
+    } else if (currentVariant && currentVariant.id === 'SEALED_RIGHT') {
+      narratorLine('variant_sealed_right_decision');
+    } else {
+      narratorLine('decision_point');
+    }
     triggers.setActive('loop_back', true);
     triggers.resetTrigger('loop_back');
   }
@@ -1003,6 +1072,9 @@ function restartGame() {
   }
   currentEndingType = null;
 
+  // Clean up variant-specific timers
+  clearVariantTimers();
+
   gameState.reset();
   tracker.reset();
   narrator.reset();
@@ -1010,6 +1082,7 @@ function restartGame() {
   triggers.setActive('loop_back', false);
   endings.hide();
   inventory.reset();
+  player.resetFlashlight();
   idleCount = 0;
   wallBumpIndex = 0;
   awarenessPoints = 0;
@@ -1021,7 +1094,8 @@ function restartGame() {
   acceptanceTriggered = false;
 
   // Set narrator mode based on era for next playthrough
-  if (memory.getEra() === 1) {
+  const newEra = memory.getEra();
+  if (newEra === 1) {
     narrator.setNarratorMode('inner');
   } else {
     narrator.setNarratorMode('dialogue');
@@ -1040,20 +1114,262 @@ function restartGame() {
   postfx.setColorShift(0);
   postfx.setBloom(false);
   postfx.enabled = false;
-  renderer.setExposure(2.0);
-  renderer.setFogColor(0x111118);
-  renderer.setFogNear(10);
-  renderer.setFogFar(55);
+  renderer.setExposure(2.4);
+  renderer.setFogColor(0x1a1a25);
+  renderer.setFogNear(12);
+  renderer.setFogFar(60);
+
+  // Rebuild map with new variant
+  mapBuilder.clear();
+  currentVariant = selectVariant(newEra, memory.lastVariant);
+  if (currentVariant) {
+    memory.lastVariant = currentVariant.id;
+    memory.save();
+  }
+  const result = mapBuilder.build(newEra, currentVariant);
+  player.setColliders(result.colliders);
+  player.setInteractables(result.interactables);
+  triggers.setZones(result.triggerZones);
+  triggers.setActive('loop_back', false);
+  activeGhosts = result.ghosts || [];
+  doorSystem = result.doorSystem;
 
   // Apply era-based atmosphere for the new era (may have advanced after ending)
-  applyEraAtmosphere(memory.getEra());
+  applyEraAtmosphere(newEra);
+
+  // Apply variant-specific effects
+  if (currentVariant) {
+    applyVariantEffects(currentVariant);
+  }
 
   // Close code input if open
   closeCodeInput();
 
-  // Back to menu
-  gameState.set(State.MENU);
+  // Remove variant HUD if exists
+  const oldHud = document.getElementById('variant-hud');
+  if (oldHud) oldHud.remove();
+
+  // Skip title — go straight to playing (auto-lock pointer if possible)
+  gameState.set(State.CLICK_TO_PLAY);
   ui.init();
+  ui.showResetButton(newEra >= 2);
+  player.lock();
+
+  console.log(`Restart: era=${newEra}, variant=${currentVariant ? currentVariant.id : 'none'}`);
+}
+
+// ── Variant System ──────────────────────────────────────────
+
+let variantTimers = [];
+let shooterState = null;
+
+function clearVariantTimers() {
+  for (const t of variantTimers) clearTimeout(t);
+  variantTimers = [];
+  if (shooterState && shooterState._onShoot) {
+    document.removeEventListener('click', shooterState._onShoot);
+  }
+  shooterState = null;
+}
+
+function applyVariantEffects(variant) {
+  if (!variant || !variant.special) return;
+
+  switch (variant.special) {
+    case 'locked_start':
+      startLockedStartSequence();
+      break;
+    case 'short_circuit':
+      // Narrator line on start
+      variantTimers.push(setTimeout(() => {
+        narratorLine('variant_short_circuit_wake');
+      }, 2000));
+      break;
+    case 'dark_run':
+      renderer.setExposure(0.3);
+      renderer.setFogNear(2);
+      renderer.setFogFar(15);
+      variantTimers.push(setTimeout(() => {
+        narratorLine('variant_dark_run_wake');
+      }, 2000));
+      break;
+    case 'decayed_map':
+      variantTimers.push(setTimeout(() => {
+        narratorLine('variant_decayed_map_wake');
+      }, 2000));
+      break;
+    case 'empty_world':
+      startEmptyWorldSequence();
+      break;
+    case 'shooter_parody':
+      startShooterParody();
+      break;
+    case 'one_room':
+      startOneRoomSequence();
+      break;
+  }
+}
+
+// ── LOCKED_START variant ──────────────────────────────
+
+function startLockedStartSequence() {
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_locked_start_1');
+  }, 10000));
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_locked_start_2');
+  }, 20000));
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_locked_start_3');
+  }, 30000));
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_locked_start_4');
+  }, 40000));
+  variantTimers.push(setTimeout(() => {
+    // Fade to black and auto-restart
+    const fade = document.createElement('div');
+    fade.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;opacity:0;transition:opacity 3s;z-index:9999;pointer-events:none';
+    document.body.appendChild(fade);
+    requestAnimationFrame(() => { fade.style.opacity = '1'; });
+    variantTimers.push(setTimeout(() => {
+      fade.remove();
+      restartGame();
+    }, 4000));
+  }, 45000));
+}
+
+// ── EMPTY_WORLD variant (era 5) ──────────────────────
+
+function startEmptyWorldSequence() {
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_empty_world_1');
+  }, 5000));
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_empty_world_2');
+  }, 12000));
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_empty_world_3');
+  }, 20000));
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_empty_world_4');
+  }, 30000));
+  variantTimers.push(setTimeout(() => {
+    // Auto-restart after conversation
+    const fade = document.createElement('div');
+    fade.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;opacity:0;transition:opacity 3s;z-index:9999;pointer-events:none';
+    document.body.appendChild(fade);
+    requestAnimationFrame(() => { fade.style.opacity = '1'; });
+    variantTimers.push(setTimeout(() => {
+      fade.remove();
+      restartGame();
+    }, 4000));
+  }, 40000));
+}
+
+// ── SHOOTER_PARODY variant (era 5) ──────────────────
+
+function startShooterParody() {
+  // Add HUD overlay
+  const hud = document.createElement('div');
+  hud.id = 'variant-hud';
+  hud.innerHTML = `
+    <div style="position:fixed;top:20px;left:20px;color:#0f0;font-family:monospace;font-size:14px;text-shadow:0 0 4px #0f0;z-index:100">
+      <div>HP: <span id="shooter-hp">100</span>/100</div>
+      <div>AMMO: <span id="shooter-ammo">∞</span></div>
+      <div>SCORE: <span id="shooter-score">0</span></div>
+    </div>
+    <div style="position:fixed;top:20px;right:20px;width:100px;height:100px;border:1px solid #0f0;opacity:0.3;z-index:100">
+      <div style="position:absolute;top:50%;left:50%;width:4px;height:4px;background:#0f0;transform:translate(-50%,-50%)"></div>
+    </div>
+  `;
+  document.body.appendChild(hud);
+
+  // Create ghost "enemies" in hallway
+  shooterState = { kills: 0, total: 4, done: false };
+
+  // Override click to "shoot"
+  const onShoot = (e) => {
+    if (!gameState.is(State.PLAYING) || !shooterState || shooterState.done) return;
+    const target = player.checkInteraction();
+    // Check if looking at a ghost
+    for (const ghost of activeGhosts) {
+      if (ghost.userData.faded || ghost.userData.shot) continue;
+      const dist = player.position.distanceTo(ghost.position);
+      if (dist < 8.0) {
+        // Check if roughly facing ghost
+        const dir = new THREE.Vector3();
+        player.camera.getWorldDirection(dir);
+        const toGhost = ghost.position.clone().sub(player.position).normalize();
+        if (dir.dot(toGhost) > 0.85) {
+          ghost.userData.shot = true;
+          fadeOutGhost(ghost);
+          shooterState.kills++;
+          // Score popup
+          const popup = document.createElement('div');
+          popup.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#ff0;font-family:monospace;font-size:24px;text-shadow:0 0 8px #ff0;z-index:100;pointer-events:none';
+          popup.textContent = `+${shooterState.kills * 100}`;
+          document.body.appendChild(popup);
+          setTimeout(() => popup.remove(), 1500);
+          const scoreEl = document.getElementById('shooter-score');
+          if (scoreEl) scoreEl.textContent = String(shooterState.kills * 100);
+          break;
+        }
+      }
+    }
+    // Check if all killed
+    if (shooterState.kills >= shooterState.total && !shooterState.done) {
+      shooterState.done = true;
+      narratorLine('variant_shooter_done');
+      variantTimers.push(setTimeout(() => {
+        narratorLine('variant_shooter_sad');
+        variantTimers.push(setTimeout(() => {
+          const fade = document.createElement('div');
+          fade.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;opacity:0;transition:opacity 3s;z-index:9999;pointer-events:none';
+          document.body.appendChild(fade);
+          requestAnimationFrame(() => { fade.style.opacity = '1'; });
+          variantTimers.push(setTimeout(() => {
+            fade.remove();
+            document.removeEventListener('click', onShoot);
+            restartGame();
+          }, 4000));
+        }, 5000));
+      }, 3000));
+    }
+  };
+  document.addEventListener('click', onShoot);
+  // Store for cleanup
+  shooterState._onShoot = onShoot;
+
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_shooter_wake');
+  }, 2000));
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_shooter_taunt');
+  }, 8000));
+}
+
+// ── ONE_ROOM variant (era 5) ──────────────────────
+
+function startOneRoomSequence() {
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_one_room_wake');
+  }, 3000));
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_one_room_explore');
+  }, 15000));
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_one_room_end');
+  }, 30000));
+  variantTimers.push(setTimeout(() => {
+    const fade = document.createElement('div');
+    fade.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;opacity:0;transition:opacity 3s;z-index:9999;pointer-events:none';
+    document.body.appendChild(fade);
+    requestAnimationFrame(() => { fade.style.opacity = '1'; });
+    variantTimers.push(setTimeout(() => {
+      fade.remove();
+      restartGame();
+    }, 4000));
+  }, 40000));
 }
 
 // ── Environmental Reactions (defiance-based) ──────────────
@@ -1088,6 +1404,9 @@ function gameLoop() {
   if (gameState.is(State.PLAYING)) {
     // Update player movement
     player.update(delta);
+
+    // Update door animations
+    doorSystem.update(delta);
 
     // Update trigger zones
     triggers.update(player.position);
@@ -1144,21 +1463,16 @@ function gameLoop() {
       audio.setAmbiance(AudioSystem.getRoomAmbianceType(room.id));
       mapBuilder.updateShadowsForRoom(room.id);
 
-      // Era 4+ overrides room fog with dark/red atmosphere
-      const currentEra = memory.getEra();
-      if (currentEra >= 5) {
-        renderer.setFogColor(0x120505);
-      } else if (currentEra >= 4) {
-        renderer.setFogColor(0x180808);
-      } else if (room.fogColor) {
+      // Per-room fog color (all eras use same brightness)
+      if (room.fogColor) {
         renderer.setFogColor(room.fogColor);
       } else {
-        renderer.setFogColor(0x111118);
+        renderer.setFogColor(0x1a1a25);
       }
 
-      // Per-room fog distance overrides (e.g. outdoor rooms)
-      if (room.fogNear != null) renderer.setFogNear(room.fogNear);
-      if (room.fogFar != null) renderer.setFogFar(room.fogFar);
+      // Per-room fog distance overrides (reset to defaults when not specified)
+      renderer.setFogNear(room.fogNear != null ? room.fogNear : 12);
+      renderer.setFogFar(room.fogFar != null ? room.fogFar : 60);
 
       // Vignette flash on first visit
       if (firstVisit) {
@@ -1202,6 +1516,13 @@ function gameLoop() {
       const lookingAt = player.checkInteraction();
       if (lookingAt && interactPrompt) {
         interactPrompt.style.display = 'block';
+        if (lookingAt.type === 'door') {
+          const lang = getLanguage();
+          interactPrompt.textContent = lang === 'ko' ? 'E키를 눌러 문 열기' : 'Press E to open door';
+        } else {
+          const lang = getLanguage();
+          interactPrompt.textContent = lang === 'ko' ? 'E키를 눌러 상호작용' : 'Press E to interact';
+        }
       } else if (interactPrompt) {
         interactPrompt.style.display = 'none';
       }
@@ -1240,6 +1561,7 @@ function gameLoop() {
 // ── Init ──────────────────────────────────────────────────
 
 ui.init();
+ui.showResetButton(memory.getEra() >= 2);
 
 const [startX, startY, startZ] = PLAYER_START.position;
 player.camera.position.set(startX, startY, startZ);
@@ -1250,6 +1572,9 @@ player.camera.position.set(startX, startY, startZ);
 document.addEventListener('keydown', (e) => {
   if (e.code === 'Space' && narrator.isBusy) {
     narrator.skip();
+  }
+  if (e.code === 'KeyF' && gameState.is(State.PLAYING) && inventory.has('flashlight')) {
+    player.toggleFlashlight();
   }
 });
 

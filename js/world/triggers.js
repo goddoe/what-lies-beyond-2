@@ -29,6 +29,18 @@ export class TriggerManager {
   }
 
   /**
+   * Replace all zones (used during map rebuild).
+   * Preserves listener registrations but resets fired state.
+   */
+  setZones(triggerZones) {
+    this.zones = triggerZones.map(z => ({
+      ...z,
+      active: true,
+    }));
+    this.activeZones.clear();
+  }
+
+  /**
    * Register a listener for a specific trigger ID.
    */
   on(triggerId, callback) {

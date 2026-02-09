@@ -23,6 +23,7 @@ export class PlaythroughMemory {
         this.secretsFound = new Set(d.secretsFound || []);
         this.narratorRevealed = d.narratorRevealed || false;
         this.fastestClear = d.fastestClear || Infinity;
+        this.lastVariant = d.lastVariant || null;
         return;
       }
     } catch (_) { /* ignore corrupt data */ }
@@ -36,6 +37,7 @@ export class PlaythroughMemory {
     this.secretsFound = new Set();
     this.narratorRevealed = false;
     this.fastestClear = Infinity;
+    this.lastVariant = null;
   }
 
   save() {
@@ -48,6 +50,7 @@ export class PlaythroughMemory {
       secretsFound: [...this.secretsFound],
       narratorRevealed: this.narratorRevealed,
       fastestClear: this.fastestClear === Infinity ? 0 : this.fastestClear,
+      lastVariant: this.lastVariant,
     };
     localStorage.setItem(this.storageKey, JSON.stringify(d));
   }

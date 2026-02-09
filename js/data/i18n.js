@@ -17,8 +17,8 @@ const STRINGS = {
     en: 'Click to start the game',
   },
   controls: {
-    ko: 'WASD 이동 | 마우스 시점 | E 상호작용 | Space 스킵 | ESC 일시정지',
-    en: 'WASD Move | Mouse Look | E Interact | Space Skip | ESC Pause',
+    ko: 'WASD 이동 | 마우스 시점 | E 상호작용 | F 손전등 | Space 스킵 | ESC 일시정지',
+    en: 'WASD Move | Mouse Look | E Interact | F Flashlight | Space Skip | ESC Pause',
   },
   paused: {
     ko: '일시정지',
@@ -39,6 +39,22 @@ const STRINGS = {
   interact: {
     ko: 'E키를 눌러 상호작용',
     en: 'Press E to interact',
+  },
+  resetAll: {
+    ko: '초기화',
+    en: 'Reset',
+  },
+  resetConfirm: {
+    ko: '모든 진행 상황이 삭제됩니다. 정말 초기화할까요?',
+    en: 'All progress will be erased. Are you sure?',
+  },
+  enterCode: {
+    ko: '보안 코드를 입력하세요',
+    en: 'Enter security code',
+  },
+  codeHint: {
+    ko: 'ESC 취소',
+    en: 'ESC to cancel',
   },
 };
 

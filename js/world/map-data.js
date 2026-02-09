@@ -110,6 +110,8 @@ export const ROOMS = [
       { type: 'basket', position: [1.5, 0, 0.5], size: [0.3, 0.35, 0.3], color: 0x444444 },
       // Wall clock (decorative)
       { type: 'clock', position: [0, 2.2, -2.8], size: [0.4, 0.4, 0.05], color: 0x888888 },
+      // Flashlight on cabinet (interactable)
+      { type: 'document', position: [2, 1.42, -1.95], size: [0.18, 0.05, 0.08], color: 0xaaaa44, id: 'flashlight_drawer' },
     ],
   }),
 
@@ -452,8 +454,8 @@ export const ROOMS = [
       // Debris piles
       { type: 'debris', position: [0, 0, 2], size: [1, 0.2, 0.8], color: 0x333322 },
       { type: 'debris', position: [-2, 0, -1], size: [0.6, 0.15, 0.5], color: 0x333322 },
-      // Old filing cabinet (broken)
-      { type: 'cabinet', position: [3, 0, 0], size: [0.6, 1.4, 0.5], color: 0x555544 },
+      // Old filing cabinet (broken, shifted north away from east door)
+      { type: 'cabinet', position: [3, 0, -3], size: [0.6, 1.4, 0.5], color: 0x555544 },
       // Dusty cobweb-like detail on ceiling
       { type: 'debris', position: [2, 2.5, -3], size: [1, 0.05, 1], color: 0x444433 },
       // Lore: experiment log entry 1
@@ -592,12 +594,12 @@ export const ROOMS = [
       { id: 'upper_office_desk', position: [0, 1, -1], size: [3, 3, 2] },
     ],
     props: [
-      // Executive desk
-      { type: 'desk', position: [0, 0, -1.5], size: [2.5, 0.8, 0.8], color: 0x8a7a5a },
-      { type: 'monitor', position: [-0.5, 0.8, -1.5], size: [0.6, 0.45, 0.05], color: 0x111111 },
-      { type: 'monitor', position: [0.5, 0.8, -1.5], size: [0.6, 0.45, 0.05], color: 0x111111 },
+      // Executive desk (shifted east to clear north door to garden path)
+      { type: 'desk', position: [1.5, 0, -1.5], size: [2.5, 0.8, 0.8], color: 0x8a7a5a },
+      { type: 'monitor', position: [1, 0.8, -1.5], size: [0.6, 0.45, 0.05], color: 0x111111 },
+      { type: 'monitor', position: [2, 0.8, -1.5], size: [0.6, 0.45, 0.05], color: 0x111111 },
       // Executive chair
-      { type: 'chair', position: [0, 0, -0.2], size: [0.65, 0.7, 0.65], color: 0x1a1a1a },
+      { type: 'chair', position: [1.5, 0, -0.2], size: [0.65, 0.7, 0.65], color: 0x1a1a1a },
       // Bookshelf
       { type: 'shelf', position: [-3.5, 0, 0], size: [0.5, 2.5, 2], color: 0x6a5a3a },
       // Certificates on wall (decorative panels)
@@ -709,8 +711,8 @@ export const ROOMS = [
       { type: 'trellis', position: [3.8, 0.5, 0], size: [0.05, 2, 3], color: 0x446644 },
       // Stone bench
       { type: 'bench', position: [0, 0, 0], size: [2, 0.4, 0.6], color: 0x888888 },
-      // Terminal (keycard activated)
-      { type: 'console', position: [0, 0, -2.5], size: [0.8, 0.9, 0.4], color: 0x445544, id: 'garden_terminal' },
+      // Terminal (keycard activated, shifted west to clear north door)
+      { type: 'console', position: [-3, 0, -1.5], size: [0.8, 0.9, 0.4], color: 0x445544, id: 'garden_terminal' },
     ],
   }),
 
@@ -826,8 +828,8 @@ export const ROOMS = [
       { type: 'shelf', position: [5, 0, 2.5], size: [0.4, 1.5, 1], color: 0x555544 },
       // Warning stripes (floor marking)
       { type: 'stripe', position: [0, 0.01, -3.5], size: [12, 0.02, 0.3], color: 0xaaaa00 },
-      // Electrical panel
-      { type: 'panel', position: [-5.8, 0.8, 0], size: [0.1, 1, 0.8], color: 0x444444 },
+      // Electrical panel (shifted south along west wall, away from west door)
+      { type: 'panel', position: [-5.8, 0.8, 3], size: [0.1, 1, 0.8], color: 0x444444 },
       // Additional workbench for enlarged room
       { type: 'bench', position: [4, 0, -2], size: [1.5, 0.9, 0.6], color: 0x555544 },
     ],
@@ -1080,8 +1082,8 @@ export const ROOMS = [
       // Exhaust pipes
       { type: 'pipe', position: [-2, 2, -1.5], size: [0.2, 0.2, 3], color: 0x555544 },
       { type: 'pipe', position: [2, 2, -1.5], size: [0.2, 0.2, 3], color: 0x555544 },
-      // Control panel
-      { type: 'panel', position: [-3.5, 0.5, 0], size: [0.15, 1.5, 1.5], color: 0x555555 },
+      // Control panel (mounted on north wall, away from west/east doors)
+      { type: 'panel', position: [0, 0.5, -2.85], size: [1.5, 1.5, 0.15], color: 0x555555 },
       // Fuel drums
       { type: 'drum', position: [3, 0, 1.5], size: [0.5, 0.8, 0.5], color: 0x884422 },
       { type: 'drum', position: [3.5, 0, 1.8], size: [0.5, 0.8, 0.5], color: 0x884422 },

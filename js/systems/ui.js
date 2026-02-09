@@ -19,6 +19,7 @@ export class UI {
     this.btnStart = document.getElementById('btn-start');
     this.btnResume = document.getElementById('btn-resume');
     this.btnRestart = document.getElementById('btn-restart');
+    this.btnReset = document.getElementById('btn-reset');
     this.btnLangKo = document.getElementById('btn-lang-ko');
     this.btnLangEn = document.getElementById('btn-lang-en');
 
@@ -26,6 +27,7 @@ export class UI {
     this.onStart = null;
     this.onResume = null;
     this.onRestart = null;
+    this.onReset = null;
     this.onLanguageChange = null;
 
     this._setupListeners();
@@ -44,6 +46,12 @@ export class UI {
     this.btnRestart.addEventListener('click', () => {
       if (this.onRestart) this.onRestart();
     });
+
+    if (this.btnReset) {
+      this.btnReset.addEventListener('click', () => {
+        if (this.onReset) this.onReset();
+      });
+    }
 
     this.btnLangKo.addEventListener('click', () => {
       setLanguage('ko');
@@ -101,6 +109,15 @@ export class UI {
    */
   showInteractPrompt(show = true) {
     this.interactPrompt.style.display = show ? 'block' : 'none';
+  }
+
+  /**
+   * Show reset button if era >= 2.
+   */
+  showResetButton(show) {
+    if (this.btnReset) {
+      this.btnReset.style.display = show ? 'block' : 'none';
+    }
   }
 
   /**
