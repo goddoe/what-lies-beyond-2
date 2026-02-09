@@ -602,10 +602,10 @@ export const ROOMS = [
       { type: 'chair', position: [1.5, 0, -0.2], size: [0.65, 0.7, 0.65], color: 0x1a1a1a },
       // Bookshelf
       { type: 'shelf', position: [-3.5, 0, 0], size: [0.5, 2.5, 2], color: 0x6a5a3a },
-      // Certificates on wall (decorative panels)
-      { type: 'frame', position: [0, 1.5, -2.8], size: [0.4, 0.3, 0.05], color: 0xaa9955 },
-      { type: 'frame', position: [1, 1.5, -2.8], size: [0.4, 0.3, 0.05], color: 0xaa9955 },
-      { type: 'frame', position: [-1, 1.5, -2.8], size: [0.4, 0.3, 0.05], color: 0xaa9955 },
+      // Certificates on wall (west wall, away from north door)
+      { type: 'frame', position: [-3.8, 1.5, -1], size: [0.05, 0.3, 0.4], color: 0xaa9955 },
+      { type: 'frame', position: [-3.8, 1.5, 0], size: [0.05, 0.3, 0.4], color: 0xaa9955 },
+      { type: 'frame', position: [-3.8, 1.5, 1], size: [0.05, 0.3, 0.4], color: 0xaa9955 },
       // Floor plant
       { type: 'plant', position: [3, 0, -2], size: [0.3, 0.8, 0.3], color: 0x3a5a3a },
     ],
@@ -694,7 +694,7 @@ export const ROOMS = [
     lightIntensity: 0.7,
     doors: [
       { wall: 'south', offset: 0, width: 2, height: 2.5 },   // from CORRIDOR_COMP_4
-      { wall: 'north', offset: 0, width: 2, height: 2.5 },   // to FALSE_ENDING_ROOM
+      { wall: 'north', offset: 0, width: 2, height: 2.5, locked: true },   // to FALSE_ENDING_ROOM (keycard required)
     ],
     triggers: [
       { id: 'garden_ante_enter', position: [0, 1, 1], size: [6, 3, 3] },

@@ -42,6 +42,7 @@
   <div id="pause-menu" class="overlay" style="display:none;">
     <div class="menu-content">
       <h2 data-i18n="paused">일시정지</h2>
+      <div id="ending-tracker" class="ending-tracker"></div>
       <button id="btn-resume" data-i18n="resume">계속하기</button>
       <button id="btn-restart" data-i18n="restart">다시 시작</button>
     </div>
@@ -73,6 +74,47 @@
       <p data-i18n="enterCode">보안 코드를 입력하세요</p>
       <input id="code-input-field" type="text" maxlength="4" autocomplete="off" />
       <p class="code-hint" data-i18n="codeHint">ESC 취소</p>
+    </div>
+  </div>
+
+  <!-- CCTV Overlay (Era 6-7) -->
+  <div id="cctv-overlay" style="display:none;">
+    <div class="cctv-header">
+      <span class="cctv-cam-id">CAM-STARTROOM</span>
+      <span class="cctv-rec">REC</span>
+    </div>
+    <div class="cctv-footer">
+      <span class="cctv-timestamp">00:00:00</span>
+      <span class="cctv-session">SESSION #7491</span>
+    </div>
+    <div class="cctv-scanlines"></div>
+  </div>
+
+  <!-- Terminal Overlay (Era 10) -->
+  <div id="terminal-overlay" style="display:none;">
+    <div class="terminal-container">
+      <div class="terminal-output"></div>
+      <div class="terminal-input-line">
+        <input class="terminal-input" type="text" autocomplete="off" spellcheck="false" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Era 10 Ending -->
+  <div id="era10-ending" style="display:none;">
+    <div class="desk-scene" style="opacity:0;">
+      <div class="desk-surface"></div>
+      <div class="right-monitor">
+        <div class="monitor-bezel">
+          <div class="chatml-log"></div>
+        </div>
+        <div class="monitor-stand"></div>
+      </div>
+    </div>
+    <div class="era10-title-screen" style="display:none;opacity:0;">
+      <h1 class="era10-title">What Lies Beyond 2</h1>
+      <p class="era10-subtitle">The observer becomes the observed.</p>
+      <button class="era10-restart-btn" style="display:none;">다시 시작</button>
     </div>
   </div>
 

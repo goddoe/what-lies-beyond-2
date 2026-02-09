@@ -10,6 +10,8 @@ export const State = {
   PLAYING: 'PLAYING',
   PAUSED: 'PAUSED',
   ENDING: 'ENDING',
+  CCTV: 'CCTV',
+  TERMINAL: 'TERMINAL',
 };
 
 export class GameState {
@@ -122,8 +124,8 @@ export class GameState {
     } else {
       this.totalIdleTime += delta;
     }
-    // Silence ending: 5 minutes (300 seconds) of total stillness
-    return !this.silenceTriggered && this.totalIdleTime >= 300;
+    // Silence ending: 1 minute (60 seconds) of total stillness
+    return !this.silenceTriggered && this.totalIdleTime >= 60;
   }
 
   /**

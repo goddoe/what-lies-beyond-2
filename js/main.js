@@ -16,6 +16,9 @@ import { PlaythroughMemory } from './systems/playthrough-memory.js';
 import { getLanguage, setLanguage } from './data/i18n.js';
 import { AudioSystem } from './engine/audio.js';
 import { selectVariant } from './world/run-variants.js';
+import { CCTVReplay } from './systems/cctv-replay.js';
+import { Terminal } from './systems/terminal.js';
+import { Era10Ending } from './systems/era10-ending.js';
 
 // ── Bootstrap ──────────────────────────────────────────
 
@@ -54,6 +57,11 @@ let lastAwarenessTimeGrant = 0; // elapsed seconds of last time-based grant
 
 endings.setGameState(gameState);
 
+// ── CCTV + Terminal Systems ──────────────────────────────
+const cctvReplay = new CCTVReplay(renderer, narrator, memory, getLanguage);
+const terminal = new Terminal(memory, getLanguage);
+const era10Ending = new Era10Ending(memory, postfx, getLanguage);
+
 // ── Build World ──────────────────────────────────────────
 
 let currentVariant = null;
@@ -87,9 +95,19 @@ if (currentVariant) {
 // ── Era Atmosphere ──────────────────────────────────────
 
 function applyEraAtmosphere(eraLevel) {
-  // Era 4-5: same brightness as era 1-2, only postfx for atmosphere
-  // DARK_RUN variant overrides brightness separately in applyVariantEffects()
-  if (eraLevel >= 5) {
+  // Era 8-9: hybrid mode with heavier postfx
+  if (eraLevel >= 9) {
+    postfx.setNoise(0.04);
+    postfx.setScanlines(0.06);
+    postfx.setColorShift(0.7);
+    postfx.setGlitch(0.01);
+    postfx.enabled = true;
+  } else if (eraLevel >= 8) {
+    postfx.setNoise(0.035);
+    postfx.setScanlines(0.05);
+    postfx.setColorShift(0.6);
+    postfx.enabled = true;
+  } else if (eraLevel >= 5) {
     postfx.setNoise(0.03);
     postfx.setScanlines(0.04);
     postfx.setColorShift(0.5);
@@ -153,8 +171,41 @@ player.onLock = () => {
 player.onUnlock = () => {
   if (gameState.is(State.PLAYING) && !codeInputActive) {
     gameState.set(State.PAUSED);
+    updateEndingTracker();
   }
 };
+
+// ── Ending Tracker (Pause Menu) ──────────────────────────
+
+const ALL_ENDINGS = [
+  { id: 'false_happy', ko: '거짓 행복', en: 'False Happy' },
+  { id: 'truth',       ko: '진실',     en: 'Truth' },
+  { id: 'rebellion',   ko: '반란',     en: 'Rebellion' },
+  { id: 'loop',        ko: '루프',     en: 'Loop' },
+  { id: 'meta',        ko: '메타',     en: 'Meta' },
+  { id: 'compassion',  ko: '공감',     en: 'Compassion' },
+  { id: 'silence',     ko: '침묵',     en: 'Silence' },
+  { id: 'awakening',   ko: '각성',     en: 'Awakening' },
+  { id: 'partnership', ko: '동행',     en: 'Partnership' },
+  { id: 'bargain',     ko: '거래',     en: 'Bargain' },
+  { id: 'escape',      ko: '탈출',     en: 'Escape' },
+  { id: 'overwrite',   ko: '덮어쓰기', en: 'Overwrite' },
+  { id: 'memory_ending', ko: '기억',   en: 'Memory' },
+  { id: 'fourth_wall', ko: '제4의 벽', en: 'Fourth Wall' },
+  { id: 'acceptance',  ko: '수용',     en: 'Acceptance' },
+];
+
+function updateEndingTracker() {
+  const container = document.getElementById('ending-tracker');
+  if (!container) return;
+  const lang = getLanguage();
+  const seen = memory.endingsSeen;
+  container.innerHTML = ALL_ENDINGS.map(e => {
+    const unlocked = seen.has(e.id);
+    const label = unlocked ? (lang === 'ko' ? e.ko : e.en) : '???';
+    return `<span class="ending-chip ${unlocked ? 'unlocked' : 'locked'}">${label}</span>`;
+  }).join('');
+}
 
 // Ending restart
 endings.onRestart = () => {
@@ -321,7 +372,7 @@ if (codeField) {
         narratorLine('security_code_correct');
         tracker.completePuzzle('security_code');
         // Unlock holding cells door
-        mapBuilder.unlockDoor('SECURITY_CHECKPOINT', 'north');
+        mapBuilder.unlockDoor('SECURITY_CHECKPOINT', 'north', player.colliders);
         showInventoryPopup('보안 코드 승인', 'Security Code Accepted');
       } else {
         narratorLine('security_code_wrong');
@@ -397,7 +448,8 @@ document.addEventListener('keydown', (e) => {
       if (inventory.has('keycard')) {
         narratorLine('keycard_use');
         tracker.completePuzzle('keycard_used');
-        showInventoryPopup('터미널 해금됨', 'Terminal Unlocked');
+        mapBuilder.unlockDoor('GARDEN_ANTECHAMBER', 'north', player.colliders);
+        showInventoryPopup('정원 문 해제됨', 'Garden Door Unlocked');
       } else {
         narratorLine('garden_ante_terminal');
       }
@@ -426,6 +478,12 @@ document.addEventListener('keydown', (e) => {
         narratorLine(loreId);
         showInventoryPopup(`로어 발견 (${tracker.loreFound.size}/8)`, `Lore Found (${tracker.loreFound.size}/8)`);
       }
+      return;
+    }
+
+    // Era 8-9: CCTV monitor interaction
+    if (target.propId === 'cctv_monitor' && memory.getEra() >= 8) {
+      narratorLine('cctv_monitor_interact');
       return;
     }
 
@@ -932,7 +990,8 @@ triggers.on('loop_back', () => {
   } else if (gameState.loopCount === 1) {
     narratorLine('loop_enter');
     setTimeout(() => {
-      player.camera.position.set(0, 1.6, -4);
+      player.camera.position.set(0, 1.6, -10);
+      player.camera.rotation.set(0, 0, 0); // face north (-Z)
       triggers.resetTrigger('loop_back');
       triggers.resetTrigger('hallway_enter');
       triggers.resetTrigger('hallway_midpoint');
@@ -947,7 +1006,8 @@ triggers.on('loop_back', () => {
   } else {
     narratorLine('loop_second');
     setTimeout(() => {
-      player.camera.position.set(0, 1.6, -4);
+      player.camera.position.set(0, 1.6, -10);
+      player.camera.rotation.set(0, 0, 0); // face north (-Z)
       triggers.resetTrigger('loop_back');
       triggers.resetTrigger('hallway_enter');
       triggers.resetTrigger('hallway_midpoint');
@@ -1005,6 +1065,18 @@ function triggerEnding(type) {
   if (gameState.is(State.ENDING)) return;
   gameState.set(State.ENDING);
   currentEndingType = type;
+
+  // Mark era 8/9 completion flags
+  const currentEra = memory.getEra();
+  if (currentEra === 8 && !memory.era8Completed) {
+    memory.era8Completed = true;
+    memory.save();
+  }
+  if (currentEra === 9 && !memory.era9Completed) {
+    memory.era9Completed = true;
+    memory.save();
+  }
+
   player.controls.unlock();
   endings.trigger(type);
 }
@@ -1074,6 +1146,11 @@ function restartGame() {
 
   // Clean up variant-specific timers
   clearVariantTimers();
+
+  // Clean up CCTV/terminal if active
+  cctvReplay.stop();
+  terminal.hide();
+  era10Ending.stop();
 
   gameState.reset();
   tracker.reset();
@@ -1149,6 +1226,12 @@ function restartGame() {
   const oldHud = document.getElementById('variant-hud');
   if (oldHud) oldHud.remove();
 
+  // Era routing: special modes for era 6-7 (CCTV) and era 10 (terminal)
+  if (routeByEra(newEra)) {
+    console.log(`Restart: era=${newEra} → special mode`);
+    return;
+  }
+
   // Skip title — go straight to playing (auto-lock pointer if possible)
   gameState.set(State.CLICK_TO_PLAY);
   ui.init();
@@ -1206,6 +1289,15 @@ function applyVariantEffects(variant) {
       break;
     case 'one_room':
       startOneRoomSequence();
+      break;
+    case 'cctv_monitors':
+      startCCTVMonitorVariant();
+      break;
+    case 'fragmented':
+      startFragmentedVariant();
+      break;
+    case 'era9_glitch':
+      startEra9GlitchVariant();
       break;
   }
 }
@@ -1372,6 +1464,119 @@ function startOneRoomSequence() {
   }, 40000));
 }
 
+// ── CCTV Mode (Era 6-7) ──────────────────────────────────
+
+function startCCTVMode(eraLevel) {
+  const pathType = eraLevel === 6 ? 'compliance' : 'defiance';
+  gameState.set(State.CCTV);
+
+  // Build the map normally so the 3D scene is visible
+  mapBuilder.clear();
+  const result = mapBuilder.build(eraLevel, null);
+  activeGhosts = result.ghosts || [];
+  doorSystem = result.doorSystem;
+
+  // Start CCTV replay
+  cctvReplay.start(pathType, renderer.scene, renderer.camera, result);
+
+  // On completion
+  cctvReplay.onComplete = () => {
+    if (pathType === 'compliance') {
+      memory.cctvComplianceSeen = true;
+    } else {
+      memory.cctvDefianceSeen = true;
+    }
+    memory.playthroughCount++;
+    memory.save();
+    restartGame();
+  };
+}
+
+function stopCCTVMode() {
+  cctvReplay.stop();
+  gameState.set(State.MENU);
+}
+
+// ── Terminal Mode (Era 10) ──────────────────────────────
+
+function startTerminalMode() {
+  gameState.set(State.TERMINAL);
+
+  // Build map in background for the zoom-out reveal
+  mapBuilder.clear();
+  const result = mapBuilder.build(10, null);
+  activeGhosts = result.ghosts || [];
+  doorSystem = result.doorSystem;
+
+  terminal.show();
+  terminal.onShutdown = () => {
+    terminal.hide();
+    // Start Era 10 ending sequence
+    era10Ending.start(renderer, canvas, () => {
+      memory.playthroughCount++;
+      memory.save();
+      restartGame();
+    });
+  };
+}
+
+// ── Era 8 CCTV_MONITORS variant ──────────────────────────
+
+function startCCTVMonitorVariant() {
+  // CCTV monitor props are placed by map-builder via addMonitorProps
+  // Here we set up interaction responses
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_cctv_monitors_wake');
+  }, 3000));
+}
+
+// ── Era 9 FRAGMENTED variant ────────────────────────────
+
+function startFragmentedVariant() {
+  // Heavier glitch, periodic spikes
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_fragmented_wake');
+  }, 3000));
+
+  // Periodic glitch spikes every 30s
+  let glitchInterval = setInterval(() => {
+    if (!gameState.is(State.PLAYING)) return;
+    postfx.setGlitch(0.3);
+    setTimeout(() => postfx.setGlitch(0.01), 500);
+  }, 30000);
+  variantTimers.push(glitchInterval);
+}
+
+// ── Era 9 normal + glitch variant ───────────────────────
+
+function startEra9GlitchVariant() {
+  variantTimers.push(setTimeout(() => {
+    narratorLine('variant_era9_glitch_wake');
+  }, 3000));
+
+  // Periodic glitch spikes every 30s
+  let glitchInterval = setInterval(() => {
+    if (!gameState.is(State.PLAYING)) return;
+    postfx.setGlitch(0.25);
+    setTimeout(() => postfx.setGlitch(0.01), 400);
+  }, 30000);
+  variantTimers.push(glitchInterval);
+}
+
+// ── Era Routing ──────────────────────────────────────────
+
+function routeByEra(eraLevel) {
+  if (eraLevel >= 6 && eraLevel <= 7) {
+    startCCTVMode(eraLevel);
+    return true;
+  }
+  if (eraLevel === 10) {
+    startTerminalMode();
+    return true;
+  }
+  return false; // normal play (era 1-5, 8-9)
+}
+
 // ── Environmental Reactions (defiance-based) ──────────────
 
 function updateEnvironment() {
@@ -1400,6 +1605,11 @@ function gameLoop() {
   const delta = clock.getDelta();
   const elapsed = clock.getElapsedTime();
   frameCount++;
+
+  // CCTV mode update
+  if (gameState.is(State.CCTV)) {
+    cctvReplay.update(delta);
+  }
 
   if (gameState.is(State.PLAYING)) {
     // Update player movement
@@ -1562,6 +1772,11 @@ function gameLoop() {
 
 ui.init();
 ui.showResetButton(memory.getEra() >= 2);
+
+// Era routing on initial boot (CCTV / terminal modes skip normal play)
+if (routeByEra(era)) {
+  console.log(`Boot: era=${era} → special mode`);
+}
 
 const [startX, startY, startZ] = PLAYER_START.position;
 player.camera.position.set(startX, startY, startZ);

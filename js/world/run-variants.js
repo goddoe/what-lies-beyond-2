@@ -138,16 +138,67 @@ const ERA_5_VARIANTS = [
   },
 ];
 
-const ALL_VARIANTS = [...ERA_4_VARIANTS, ...ERA_5_VARIANTS];
+// ── Era 8 Variants (hybrid mode 1: normal play + CCTV monitors) ─────
+
+const ERA_8_VARIANTS = [
+  {
+    id: 'CCTV_MONITORS',
+    era: 8,
+    weight: 3,
+    mapMods: {
+      addProps: [
+        { room: 'OFFICE_WING', type: 'monitor_wall', position: [-22, 1.5, -25.5], size: [0.8, 0.5, 0.05], color: 0x113322, id: 'cctv_monitor' },
+        { room: 'CONFERENCE', type: 'monitor_wall', position: [-53.5, 1.5, -20], size: [0.8, 0.5, 0.05], color: 0x113322, id: 'cctv_monitor' },
+        { room: 'MAINTENANCE', type: 'monitor_wall', position: [16.5, 1.5, -20], size: [0.8, 0.5, 0.05], color: 0x113322, id: 'cctv_monitor' },
+        { room: 'SERVER_ROOM', type: 'monitor_wall', position: [43.5, 1.5, -20], size: [0.8, 0.5, 0.05], color: 0x113322, id: 'cctv_monitor' },
+        { room: 'DATA_CENTER', type: 'monitor_wall', position: [43.5, 1.5, -44], size: [0.8, 0.5, 0.05], color: 0x113322, id: 'cctv_monitor' },
+      ],
+    },
+    special: 'cctv_monitors',
+  },
+  {
+    id: 'NORMAL_ERA8',
+    era: 8,
+    weight: 1,
+    mapMods: {},
+  },
+];
+
+// ── Era 9 Variants (hybrid mode 2: heavier glitch + broken monitors) ─
+
+const ERA_9_VARIANTS = [
+  {
+    id: 'FRAGMENTED',
+    era: 9,
+    weight: 3,
+    mapMods: {
+      removeRooms: [
+        'BREAK_ROOM', 'OBSERVATION_DECK', 'RECORDS_ROOM',
+        'VENTILATION_SHAFT', 'COOLING_ROOM', 'MONITORING_STATION',
+      ],
+    },
+    special: 'fragmented',
+  },
+  {
+    id: 'NORMAL_ERA9',
+    era: 9,
+    weight: 1,
+    mapMods: {},
+    special: 'era9_glitch',
+  },
+];
+
+const ALL_VARIANTS = [...ERA_4_VARIANTS, ...ERA_5_VARIANTS, ...ERA_8_VARIANTS, ...ERA_9_VARIANTS];
 
 /**
  * Select a variant for the given era.
- * @param {number} era - Current era (1-5)
+ * @param {number} era - Current era (1-10)
  * @param {string|null} lastVariant - ID of the last variant used (to avoid repeats)
- * @returns {object|null} Variant config, or null if era < 4
+ * @returns {object|null} Variant config, or null if era < 4 or era is 6/7/10 (special modes)
  */
 export function selectVariant(era, lastVariant = null) {
-  if (era < 4) return null;
+  // Eras 6-7 (CCTV) and 10 (terminal) are special modes, no variants
+  if (era < 4 || era === 6 || era === 7 || era === 10) return null;
 
   const pool = ALL_VARIANTS.filter(v => era >= v.era);
   if (pool.length === 0) return null;

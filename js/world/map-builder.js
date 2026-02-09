@@ -228,14 +228,28 @@ export class MapBuilder {
       });
     }
 
-    // Variant: removeDoors — remove specific doors
+    // Variant: removeDoors — remove specific doors + reciprocal doors on connected rooms
     if (mods.removeDoors) {
-      const removals = mods.removeDoors;
+      // Build full removal set: explicit + reciprocal via CONNECTIONS
+      const removalSet = new Set();
+      for (const rd of mods.removeDoors) {
+        removalSet.add(`${rd.room}_${rd.wall}`);
+        // Find reciprocal door via CONNECTIONS
+        for (const conn of CONNECTIONS) {
+          if (conn.from === rd.room && conn.wall === rd.wall) {
+            removalSet.add(`${conn.to}_${conn.toWall}`);
+          }
+          if (conn.to === rd.room && conn.toWall === rd.wall) {
+            removalSet.add(`${conn.from}_${conn.wall}`);
+          }
+        }
+      }
       activeRooms = activeRooms.map(r => {
-        const toRemove = removals.filter(rd => rd.room === r.id);
-        if (toRemove.length === 0) return r;
-        const removeWalls = new Set(toRemove.map(rd => rd.wall));
-        return { ...r, doors: r.doors.filter(d => !removeWalls.has(d.wall)) };
+        const filtered = r.doors.filter(d => !removalSet.has(`${r.id}_${d.wall}`));
+        if (filtered.length !== r.doors.length) {
+          return { ...r, doors: filtered };
+        }
+        return r;
       });
     }
 
@@ -245,6 +259,15 @@ export class MapBuilder {
         const extra = mods.addDoors.filter(ad => ad.room === r.id);
         if (extra.length === 0) return r;
         return { ...r, doors: [...r.doors, ...extra.map(ad => ({ wall: ad.wall, offset: ad.offset || 0, width: ad.width || 2, height: ad.height || 2.5 }))] };
+      });
+    }
+
+    // Variant: addProps — add extra props to existing rooms
+    if (mods.addProps) {
+      activeRooms = activeRooms.map(r => {
+        const extra = mods.addProps.filter(ap => ap.room === r.id);
+        if (extra.length === 0) return r;
+        return { ...r, props: [...r.props, ...extra.map(ap => ({ type: ap.type, position: ap.position, size: ap.size, color: ap.color, id: ap.id }))] };
       });
     }
 
@@ -308,14 +331,20 @@ export class MapBuilder {
    * @param {string} roomId
    * @param {string} wall - 'north'|'south'|'east'|'west'
    */
-  unlockDoor(roomId, wall) {
+  unlockDoor(roomId, wall, externalColliders) {
     const key = `${roomId}_${wall}_locked`;
     const meshes = this.wallMeshes.get(key);
     if (meshes) {
       for (const mesh of meshes) {
         this.group.remove(mesh);
+        // Remove from internal colliders
         const ci = this.colliders.indexOf(mesh);
         if (ci >= 0) this.colliders.splice(ci, 1);
+        // Remove from external colliders (e.g., player's list)
+        if (externalColliders) {
+          const ei = externalColliders.indexOf(mesh);
+          if (ei >= 0) externalColliders.splice(ei, 1);
+        }
         mesh.geometry.dispose();
       }
       this.wallMeshes.delete(key);
@@ -452,24 +481,28 @@ export class MapBuilder {
         for (const { wallA, wallB, match, aMin, aMax, bMin, bMax } of checks) {
           if (!match) continue;
 
-          // Only consider non-locked doors active for this era
           const aDoors = a.doors.filter(d => d.wall === wallA && (!d.eraMin || era >= d.eraMin) && !d.locked);
           const bDoors = b.doors.filter(d => d.wall === wallB && (!d.eraMin || era >= d.eraMin) && !d.locked);
 
-          if (aDoors.length === 0 || bDoors.length === 0) continue;
+          // Never skip a wall that has a locked door — it's an intentional barrier
+          const aHasLocked = a.doors.some(d => d.wall === wallA && d.locked);
+          const bHasLocked = b.doors.some(d => d.wall === wallB && d.locked);
 
           // Check perpendicular coverage: only skip if one wall fully covers the other
           const aCoversB = aMin <= bMin + TOLERANCE && aMax >= bMax - TOLERANCE;
           const bCoversA = bMin <= aMin + TOLERANCE && bMax >= aMax - TOLERANCE;
 
+          // Skip one redundant wall to prevent z-fighting.
+          // Never skip a wall with locked doors or unlocked doors (unless other side also has doors).
           if (aCoversB) {
-            // A's wall fully covers B's extent — safe to skip B's wall
-            skipWalls.add(`${b.id}_${wallB}`);
+            if (!bHasLocked && (bDoors.length === 0 || aDoors.length > 0)) {
+              skipWalls.add(`${b.id}_${wallB}`);
+            }
           } else if (bCoversA) {
-            // B's wall fully covers A's extent — safe to skip A's wall
-            skipWalls.add(`${a.id}_${wallA}`);
+            if (!aHasLocked && (aDoors.length === 0 || bDoors.length > 0)) {
+              skipWalls.add(`${a.id}_${wallA}`);
+            }
           }
-          // If neither fully covers the other, keep both walls (no skip)
         }
       }
     }

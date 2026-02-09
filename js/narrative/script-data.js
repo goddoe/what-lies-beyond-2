@@ -4033,6 +4033,46 @@ export const SCRIPT = {
     },
   },
 
+  // ═══════════════════════════════════════════════════════
+  //   ERA 8-9: CCTV MONITOR INTERACTIONS
+  // ═══════════════════════════════════════════════════════
+
+  cctv_monitor_interact: {
+    id: 'cctv_monitor_interact',
+    mood: 'curious',
+    text: {
+      ko: '이 화면... 누군가를 비추고 있어. 이 복도를 걷는 사람이 보여. 잠깐, 저건...',
+      en: 'This screen... it\'s showing someone. A person walking these corridors. Wait, that\'s...',
+    },
+  },
+
+  variant_cctv_monitors_wake: {
+    id: 'variant_cctv_monitors_wake',
+    mood: 'calm',
+    text: {
+      ko: '뭔가 달라졌어. 벽에 모니터들이 설치되어 있어. 이 건물을 감시하고 있었던 거야?',
+      en: 'Something\'s different. Monitors are mounted on the walls. Were they watching this place?',
+    },
+  },
+
+  variant_fragmented_wake: {
+    id: 'variant_fragmented_wake',
+    mood: 'desperate',
+    text: {
+      ko: '이건... 부서지고 있어. 건물이 해체되고 있는 것 같아. 완전하지 않아.',
+      en: 'This is... falling apart. The building feels like it\'s deconstructing. It\'s not complete.',
+    },
+  },
+
+  variant_era9_glitch_wake: {
+    id: 'variant_era9_glitch_wake',
+    mood: 'broken',
+    text: {
+      ko: '시뮬레이션이 불안정해. 언제 무너져도 이상하지 않아.',
+      en: 'The simulation is unstable. It could collapse at any moment.',
+    },
+  },
+
 };
 
 /**
