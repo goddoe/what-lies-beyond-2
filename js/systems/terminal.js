@@ -434,11 +434,11 @@ Or don't. That's a choice too.
   }
 
   _cmdPs() {
-    this._print('  PID  NAME                STATUS    CPU     MEM');
-    this._print('  ---  ------------------  --------  ------  ------');
+    this._print('  PID  NAME                STATUS');
+    this._print('  ---  ------------------  --------');
     for (const proc of this._processes) {
       if (this._killedPids.has(proc.pid)) continue;
-      this._print(`  ${String(proc.pid).padEnd(4)} ${proc.name.padEnd(20)}${proc.status.padEnd(10)}${proc.cpu.padEnd(8)}${proc.mem}`);
+      this._print(`  ${String(proc.pid).padEnd(4)} ${proc.name.padEnd(20)}${proc.status}`);
     }
   }
 

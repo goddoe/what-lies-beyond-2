@@ -1,20 +1,21 @@
 /**
  * Era 10 Ending — 3D zoom-out + dual classic Macintosh + ChatML sequence.
  *
- * Observer room at y=50. After glitch, camera cuts to close-up of the
- * left Macintosh (showing the game), then pulls BACK to reveal the right
- * Macintosh (ChatML log) beside it, plus typewriter, mouse, dark office.
+ * Observer room at y=50. Camera starts zoomed into the left Mac screen
+ * (filling viewport, no bezel visible), then pulls back to reveal both
+ * Macs, then zooms into the right Mac for ChatML scrolling.
  *
  * The monitors are styled after the original Macintosh 128K (1984):
  * boxy all-in-one case with built-in CRT, ventilation slots, floppy drive.
  *
  * Phases:
- * 1. GLITCH (0-2s) — postfx spike, camera stays at player position
- * 2. ZOOM_OUT (2-5s) — camera cuts to left Mac close-up, lerps back
- * 3. CHATML (6-18s) — right Mac ChatML lines appear
- * 4. FADE (19-21s) — CSS fade to black
- * 5. TITLE (21-26s) — title screen
- * 6. RESTART (26s+) — buttons
+ * 1. GLITCH (0-2s) — left Mac zoomed in (fills viewport), heavy postfx
+ * 2. ZOOM_OUT (2-5s) — left Mac → center wide (both Macs visible)
+ * 3. ZOOM_RIGHT (5-8s) — center → right Mac close-up
+ * 4. CHATML (8s~) — right Mac ChatML lines scroll
+ * 5. FADE (chatDone+1.5s) — CSS fade to black
+ * 6. TITLE (chatDone+3.5s) — title screen
+ * 7. RESTART — buttons + credits
  */
 import * as THREE from 'three';
 
@@ -50,6 +51,8 @@ export class Era10Ending {
     this._chatCanvas = null;
     this._chatTexture = null;
     this._chatLines = [];
+    this._chatGroups = [];     // end indices per role block
+    this._chatGroupIndex = 0;
     this._chatLineIndex = 0;
     this._chatTimer = 0;
     this._chatStarted = false;
@@ -59,16 +62,17 @@ export class Era10Ending {
     this._gameCamera = null;
     this._scene = null;
     this._renderer = null;
-    this._lerpStart = null;
-    this._lerpTarget = null;
-    this._lerpLookStart = null;
-    this._lerpLookTarget = null;
-    this._lerpProgress = 0;
+    this._camPos = [];       // [leftCloseUp, centerWide, rightCloseUp]
+    this._camLook = [];      // corresponding lookAt targets
+    this._lerpProgress = 0;  // ZOOM_OUT lerp
+    this._lerpProgress2 = 0; // ZOOM_RIGHT lerp
+    this._fadeTriggered = false;
     this._phase = 'IDLE';
     this._elapsed = 0;
 
     this._leftScreenMesh = null;
     this._rightScreenMesh = null;
+    this._era1Light = null;
   }
 
   start(rendererObj, canvas, onRestart, onReplay) {
@@ -90,8 +94,16 @@ export class Era10Ending {
       magFilter: THREE.LinearFilter,
     });
 
-    // ChatML data + texture
+    // ChatML data + group boundaries (by role block)
     this._chatLines = this._buildChatML();
+    this._chatGroups = [];
+    for (let i = 0; i < this._chatLines.length; i++) {
+      if (this._chatLines[i].text === '<|im_end|>') this._chatGroups.push(i + 1);
+    }
+    if (!this._chatGroups.length || this._chatGroups[this._chatGroups.length - 1] < this._chatLines.length) {
+      this._chatGroups.push(this._chatLines.length);
+    }
+    this._chatGroupIndex = 0;
     this._chatLineIndex = 0;
     this._chatTimer = 0;
     this._chatStarted = false;
@@ -101,219 +113,144 @@ export class Era10Ending {
     // Build observer room
     this._buildRoom();
 
-    // Pre-render Era 1 bright view to left Mac RT (one-time static capture)
-    this._prerenderLeftScreen();
+    // Persistent warm light for Era 1 RT render (hidden by default)
+    this._era1Light = new THREE.AmbientLight(0xffe8cc, 6.0);
+    this._era1Light.visible = false;
+    this._scene.add(this._era1Light);
 
-    // Camera positions (world coords, room group is at y=ROOM_Y):
-    // Close-up: right in front of left Mac, filling the view
-    this._lerpStart = new THREE.Vector3(
-      LEFT_X,
-      ROOM_Y + SCREEN_Y,
-      MAC_Z + 0.85
-    );
-    // Pulled back: centered between both Macs
-    this._lerpTarget = new THREE.Vector3(
-      0,
-      ROOM_Y + SCREEN_Y + 0.10,
-      MAC_Z + 2.10
-    );
-    // Look-at targets
-    this._lerpLookStart = new THREE.Vector3(LEFT_X, ROOM_Y + SCREEN_Y, MAC_Z);
-    this._lerpLookTarget = new THREE.Vector3(0, ROOM_Y + SCREEN_Y - 0.02, MAC_Z);
+    // 3 camera positions (world coords, room group at y=ROOM_Y)
+    this._camPos = [
+      // leftCloseUp: fills viewport, no bezel visible
+      new THREE.Vector3(LEFT_X, ROOM_Y + SCREEN_Y, MAC_Z + MAC_D / 2 + 0.35),
+      // centerWide: both Macs visible
+      new THREE.Vector3(0, ROOM_Y + SCREEN_Y + 0.10, MAC_Z + 2.10),
+      // rightCloseUp: ChatML readable, slight bezel visible
+      new THREE.Vector3(RIGHT_X, ROOM_Y + SCREEN_Y, MAC_Z + 0.85),
+    ];
+    this._camLook = [
+      new THREE.Vector3(LEFT_X, ROOM_Y + SCREEN_Y, MAC_Z),
+      new THREE.Vector3(0, ROOM_Y + SCREEN_Y - 0.02, MAC_Z),
+      new THREE.Vector3(RIGHT_X, ROOM_Y + SCREEN_Y, MAC_Z),
+    ];
     this._lerpProgress = 0;
+    this._lerpProgress2 = 0;
+    this._fadeTriggered = false;
 
-    // Phase 1: GLITCH — camera stays at player position
+    // Phase 1: GLITCH — camera starts zoomed into left Mac screen
     this._phase = 'GLITCH';
-    this.postfx.setGlitch(0.8);
+    this._gameCamera.position.copy(this._camPos[0]);
+    this._gameCamera.lookAt(this._camLook[0]);
+
+    // Push fog out immediately so observer room is visible
+    if (this._scene.fog) {
+      this._scene.fog.near = 80;
+      this._scene.fog.far = 200;
+    }
+
+    this.postfx.setGlitch(0);
     this.postfx.setNoise(0.15);
-    this.postfx.setScanlines(0.2);
+    this.postfx.setScanlines(0);
     this.postfx.enabled = true;
 
-    // Phase 2: ZOOM_OUT at 2s — cut camera to left Mac close-up, then lerp back
+    // Phase 2: ZOOM_OUT at 2s — lerp from left close-up to center wide
     this._timers.push(setTimeout(() => {
       this._phase = 'ZOOM_OUT';
-      this.postfx.setGlitch(0.02);
-      this.postfx.setNoise(0.03);
-
-      // Push fog out so observer room is visible
-      if (this._scene.fog) {
-        this._scene.fog.near = 80;
-        this._scene.fog.far = 200;
-      }
-
-      // Instantly cut camera to close-up position
-      this._gameCamera.position.copy(this._lerpStart);
-      this._gameCamera.lookAt(this._lerpLookStart);
+      this._lerpProgress = 0;
     }, 2000));
 
-    // Phase 3: CHATML at 6s
+    // Phase 3: ZOOM_RIGHT at 5s — lerp from center to right close-up
+    this._timers.push(setTimeout(() => {
+      this._phase = 'ZOOM_RIGHT';
+      this._lerpProgress2 = 0;
+    }, 5000));
+
+    // Phase 4: CHATML at 8s
     this._timers.push(setTimeout(() => {
       this._phase = 'CHATML';
       this._chatStarted = true;
-    }, 6000));
+    }, 8000));
 
-    // Phase 4: FADE at 27s
-    this._timers.push(setTimeout(() => {
-      this._phase = 'FADE';
-      const overlay = document.getElementById('era10-ending');
-      if (overlay) {
-        overlay.style.display = 'flex';
-        overlay.classList.add('era10-fade-black');
-      }
-    }, 27000));
-
-    // Phase 5: TITLE at 29s — prepare container (invisible)
-    this._timers.push(setTimeout(() => {
-      this._phase = 'TITLE';
-      if (document.pointerLockElement) document.exitPointerLock();
-      const overlay = document.getElementById('era10-ending');
-      if (!overlay) return;
-
-      // Set up container with opacity:0 first, let browser register display:flex
-      const ts = overlay.querySelector('.era10-title-screen');
-      if (ts) { ts.style.display = 'flex'; ts.style.opacity = '0'; }
-      overlay.classList.remove('era10-fade-black');
-      overlay.style.background = '#000';
-      this._removeRoom();
-    }, 29000));
-
-    // +30s — Title fades in (1s of pure black breathing room)
-    this._timers.push(setTimeout(() => {
-      const overlay = document.getElementById('era10-ending');
-      if (!overlay) return;
-      const ts = overlay.querySelector('.era10-title-screen');
-      if (ts) ts.style.opacity = '1';
-      const title = overlay.querySelector('.era10-title');
-      if (title) title.style.opacity = '1';
-    }, 30000));
-
-    // +33.5s — Subtitle fades in
-    this._timers.push(setTimeout(() => {
-      const overlay = document.getElementById('era10-ending');
-      if (!overlay) return;
-      const sub = overlay.querySelector('.era10-subtitle');
-      if (sub) sub.style.opacity = '1';
-    }, 33500));
-
-    // +37s — Buttons fade in
-    this._timers.push(setTimeout(() => {
-      this._phase = 'RESTART';
-      const overlay = document.getElementById('era10-ending');
-      if (!overlay) return;
-      const ko = this.getLang() === 'ko';
-
-      const replayBtn = overlay.querySelector('.era10-replay-btn');
-      if (replayBtn) {
-        replayBtn.textContent = ko ? '마지막 다시 경험하기' : 'Re-experience Final';
-        replayBtn.style.display = 'block';
-        replayBtn.onclick = () => { this.stop(); if (this._onReplay) this._onReplay(); };
-        void replayBtn.offsetHeight;  // force reflow
-        replayBtn.style.opacity = '1';
-      }
-      const restartBtn = overlay.querySelector('.era10-restart-btn');
-      if (restartBtn) {
-        restartBtn.textContent = ko ? '처음부터 다시하기' : 'Start Over';
-        restartBtn.style.display = 'block';
-        restartBtn.onclick = () => { this.stop(); if (this._onRestart) this._onRestart(); };
-        void restartBtn.offsetHeight;  // force reflow
-        restartBtn.style.opacity = '1';
-      }
-    }, 37000));
-
-    // +39s — Credit fades in
-    this._timers.push(setTimeout(() => {
-      const overlay = document.getElementById('era10-ending');
-      if (!overlay) return;
-      const credit = overlay.querySelector('.era10-credit');
-      if (credit) {
-        credit.style.display = 'block';
-        void credit.offsetHeight;  // force reflow
-        credit.style.opacity = '1';
-      }
-    }, 39000));
+    // FADE, TITLE, etc. triggered dynamically from _triggerEndSequence() when chatDone
   }
 
   update(delta) {
     if (!this.active) return;
     this._elapsed += delta;
 
-    // Camera lerp: pull back from left Mac close-up to centered dual view
+    // ZOOM_OUT: left close-up → center wide
     if (this._phase === 'ZOOM_OUT') {
       this._lerpProgress = Math.min(this._lerpProgress + delta / 3.0, 1.0);
       const t = this._easeInOut(this._lerpProgress);
-      this._gameCamera.position.lerpVectors(this._lerpStart, this._lerpTarget, t);
-      const look = new THREE.Vector3().lerpVectors(this._lerpLookStart, this._lerpLookTarget, t);
+      this._gameCamera.position.lerpVectors(this._camPos[0], this._camPos[1], t);
+      const look = new THREE.Vector3().lerpVectors(this._camLook[0], this._camLook[1], t);
       this._gameCamera.lookAt(look);
     }
 
-    // ChatML line-by-line (0.3s per line)
+    // ZOOM_RIGHT: center wide → right close-up
+    if (this._phase === 'ZOOM_RIGHT') {
+      this._lerpProgress2 = Math.min(this._lerpProgress2 + delta / 3.0, 1.0);
+      const t = this._easeInOut(this._lerpProgress2);
+      this._gameCamera.position.lerpVectors(this._camPos[1], this._camPos[2], t);
+      const look = new THREE.Vector3().lerpVectors(this._camLook[1], this._camLook[2], t);
+      this._gameCamera.lookAt(look);
+    }
+
+    // ChatML role-block at a time (2s per block)
     if (this._chatStarted && !this._chatDone) {
       this._chatTimer += delta;
-      if (this._chatTimer >= 0.3) {
+      if (this._chatTimer >= 2.0) {
         this._chatTimer = 0;
-        if (this._chatLineIndex < this._chatLines.length) {
-          this._chatLineIndex++;
+        if (this._chatGroupIndex < this._chatGroups.length) {
+          this._chatLineIndex = this._chatGroups[this._chatGroupIndex];
+          this._chatGroupIndex++;
           this._updateChatMLTexture();
         } else {
           this._chatDone = true;
         }
       }
     }
+
+    // chatDone → trigger end sequence once
+    if (this._chatDone && !this._fadeTriggered) {
+      this._fadeTriggered = true;
+      this._triggerEndSequence();
+    }
   }
 
   render() {
-    // Left Mac RT is pre-rendered once in start() — no per-frame RT needed
-  }
+    if (!this.active || !this._gameRT || !this._observerCamera) return;
+    if (this._phase !== 'GLITCH' && this._phase !== 'ZOOM_OUT' &&
+        this._phase !== 'ZOOM_RIGHT' && this._phase !== 'CHATML' &&
+        this._phase !== 'FADE') return;
 
-  /**
-   * One-time render of the game world to left Mac RT.
-   * The map is built as Era 10 (dark materials), so we add a temporary
-   * bright ambient light + high exposure to simulate Era 1's warm look.
-   */
-  _prerenderLeftScreen() {
-    if (!this._gameRT || !this._observerCamera) return;
-
+    // Fixed camera for left Mac RT render (no walk animation)
     this._observerCamera.position.set(0, 1.6, 0);
     this._observerCamera.lookAt(0, 1.6, -10);
     this._observerCamera.updateProjectionMatrix();
 
     // Save current state
-    const savedNear = this._scene.fog ? this._scene.fog.near : 12;
-    const savedFar = this._scene.fog ? this._scene.fog.far : 60;
-    const savedFogColor = this._scene.fog ? this._scene.fog.color.getHex() : 0x1a1a25;
+    const fog = this._scene.fog;
+    const savedNear = fog ? fog.near : 12;
+    const savedFar = fog ? fog.far : 60;
+    const savedFogColor = fog ? fog.color.getHex() : 0x1a1a25;
     const savedExposure = this._renderer.toneMappingExposure;
-    const savedBg = this._scene.background ? this._scene.background.clone() : null;
+    const savedBg = this._scene.background;
 
-    // Add temporary warm ambient light to brighten dark Era 10 materials
-    const tempAmbient = new THREE.AmbientLight(0xffe8cc, 6.0);
-    this._scene.add(tempAmbient);
-
-    // Era 1 atmosphere: warm fog, high exposure
-    if (this._scene.fog) {
-      this._scene.fog.color.setHex(0x1a1a25);
-      this._scene.fog.near = 12;
-      this._scene.fog.far = 60;
-    }
+    // Era 1 atmosphere
+    if (fog) { fog.color.setHex(0x1a1a25); fog.near = 12; fog.far = 60; }
     this._renderer.toneMappingExposure = 3.5;
     this._scene.background = new THREE.Color(0x1a1a25);
-
-    // Hide observer room so it doesn't appear in the RT
+    if (this._era1Light) this._era1Light.visible = true;
     if (this._roomGroup) this._roomGroup.visible = false;
 
     this._renderer.setRenderTarget(this._gameRT);
     this._renderer.render(this._scene, this._observerCamera);
     this._renderer.setRenderTarget(null);
 
-    // Cleanup
+    // Restore
     if (this._roomGroup) this._roomGroup.visible = true;
-    this._scene.remove(tempAmbient);
-    tempAmbient.dispose();
-
-    if (this._scene.fog) {
-      this._scene.fog.color.setHex(savedFogColor);
-      this._scene.fog.near = savedNear;
-      this._scene.fog.far = savedFar;
-    }
+    if (this._era1Light) this._era1Light.visible = false;
+    if (fog) { fog.color.setHex(savedFogColor); fog.near = savedNear; fog.far = savedFar; }
     this._renderer.toneMappingExposure = savedExposure;
     this._scene.background = savedBg;
   }
@@ -324,12 +261,23 @@ export class Era10Ending {
     this.active = false;
     this._phase = 'IDLE';
 
+    // Reset postfx to prevent darkening subsequent eras
+    this.postfx.setGlitch(0);
+    this.postfx.setNoise(0);
+    this.postfx.setScanlines(0);
+    this.postfx.enabled = false;
+
     this._removeRoom();
 
     if (this._gameRT) { this._gameRT.dispose(); this._gameRT = null; }
     if (this._chatTexture) { this._chatTexture.dispose(); this._chatTexture = null; }
     this._chatCanvas = null;
     this._observerCamera = null;
+    if (this._era1Light && this._scene) {
+      this._scene.remove(this._era1Light);
+      this._era1Light.dispose();
+    }
+    this._era1Light = null;
 
     const overlay = document.getElementById('era10-ending');
     if (overlay) {
@@ -344,7 +292,90 @@ export class Era10Ending {
       }
       const sub = overlay.querySelector('.era10-subtitle');
       if (sub) sub.style.opacity = '0';
+      const title = overlay.querySelector('.era10-title');
+      if (title) title.style.opacity = '0';
     }
+  }
+
+  _triggerEndSequence() {
+    // +1.5s: FADE
+    this._timers.push(setTimeout(() => {
+      this._phase = 'FADE';
+      const overlay = document.getElementById('era10-ending');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.classList.add('era10-fade-black');
+      }
+    }, 1500));
+
+    // +3.5s: TITLE
+    this._timers.push(setTimeout(() => {
+      this._phase = 'TITLE';
+      if (document.pointerLockElement) document.exitPointerLock();
+      const overlay = document.getElementById('era10-ending');
+      if (!overlay) return;
+
+      const ts = overlay.querySelector('.era10-title-screen');
+      if (ts) { ts.style.display = 'flex'; ts.style.opacity = '0'; }
+      overlay.classList.remove('era10-fade-black');
+      overlay.style.background = '#000';
+      this._removeRoom();
+    }, 3500));
+
+    // +4.5s: Title fades in
+    this._timers.push(setTimeout(() => {
+      const overlay = document.getElementById('era10-ending');
+      if (!overlay) return;
+      const ts = overlay.querySelector('.era10-title-screen');
+      if (ts) ts.style.opacity = '1';
+      const title = overlay.querySelector('.era10-title');
+      if (title) title.style.opacity = '1';
+    }, 4500));
+
+    // +8s: Subtitle fades in
+    this._timers.push(setTimeout(() => {
+      const overlay = document.getElementById('era10-ending');
+      if (!overlay) return;
+      const sub = overlay.querySelector('.era10-subtitle');
+      if (sub) sub.style.opacity = '1';
+    }, 8000));
+
+    // +11.5s: Buttons fade in
+    this._timers.push(setTimeout(() => {
+      this._phase = 'RESTART';
+      const overlay = document.getElementById('era10-ending');
+      if (!overlay) return;
+      const ko = this.getLang() === 'ko';
+
+      const replayBtn = overlay.querySelector('.era10-replay-btn');
+      if (replayBtn) {
+        replayBtn.textContent = ko ? '마지막 다시 경험하기' : 'Re-experience Final';
+        replayBtn.style.display = 'block';
+        replayBtn.onclick = () => { this.stop(); if (this._onReplay) this._onReplay(); };
+        void replayBtn.offsetHeight;
+        replayBtn.style.opacity = '1';
+      }
+      const restartBtn = overlay.querySelector('.era10-restart-btn');
+      if (restartBtn) {
+        restartBtn.textContent = ko ? '처음부터 다시하기' : 'Start Over';
+        restartBtn.style.display = 'block';
+        restartBtn.onclick = () => { this.stop(); if (this._onRestart) this._onRestart(); };
+        void restartBtn.offsetHeight;
+        restartBtn.style.opacity = '1';
+      }
+    }, 11500));
+
+    // +13.5s: Credit fades in
+    this._timers.push(setTimeout(() => {
+      const overlay = document.getElementById('era10-ending');
+      if (!overlay) return;
+      const credit = overlay.querySelector('.era10-credit');
+      if (credit) {
+        credit.style.display = 'block';
+        void credit.offsetHeight;
+        credit.style.opacity = '1';
+      }
+    }, 13500));
   }
 
   // ── 3D Room ──────────────────────────────────────────
@@ -366,7 +397,6 @@ export class Era10Ending {
     const chairMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.6 });
     const mugMat = new THREE.MeshStandardMaterial({ color: 0x443322, roughness: 0.5 });
     const paperMat = new THREE.MeshStandardMaterial({ color: 0x1a1a18, roughness: 0.9 });
-    const twMat = new THREE.MeshStandardMaterial({ color: 0x181818, roughness: 0.4, metalness: 0.5 });
     const mouseMat = new THREE.MeshStandardMaterial({ color: 0x282420, roughness: 0.7, metalness: 0.05 });
 
     // ── Room structure ──
@@ -461,44 +491,6 @@ export class Era10Ending {
     cable.position.set(0.30, DESK_TOP + 0.035, -0.92);
     cable.rotation.x = Math.PI / 2;
     this._roomGroup.add(cable);
-
-    // ── Typewriter (left side of desk) ──
-    // Body
-    const twBody = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.08, 0.28), twMat);
-    twBody.position.set(-1.25, DESK_TOP + 0.065, -0.9);
-    this._roomGroup.add(twBody);
-    // Carriage (top rear, slightly raised)
-    const twCarriage = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.04, 0.06), twMat);
-    twCarriage.position.set(-1.25, DESK_TOP + 0.125, -1.07);
-    this._roomGroup.add(twCarriage);
-    // Platen (cylindrical roller)
-    const platen = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.025, 0.025, 0.36, 8),
-      metalMat
-    );
-    platen.position.set(-1.25, DESK_TOP + 0.16, -1.06);
-    platen.rotation.z = Math.PI / 2;
-    this._roomGroup.add(platen);
-    // Paper in typewriter
-    const twPaper = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 0.22), paperMat);
-    twPaper.position.set(-1.25, DESK_TOP + 0.18, -1.05);
-    twPaper.rotation.x = -0.15;
-    this._roomGroup.add(twPaper);
-    // Key rows (simplified — two rows of small boxes)
-    for (let row = 0; row < 2; row++) {
-      for (let k = 0; k < 8; k++) {
-        const key = new THREE.Mesh(
-          new THREE.BoxGeometry(0.028, 0.015, 0.025),
-          new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.3, metalness: 0.4 })
-        );
-        key.position.set(
-          -1.25 - 0.115 + k * 0.033,
-          DESK_TOP + 0.113,
-          -0.82 - row * 0.04
-        );
-        this._roomGroup.add(key);
-      }
-    }
 
     // ── Office props ──
 

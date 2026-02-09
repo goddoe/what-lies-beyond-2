@@ -120,6 +120,8 @@ function applyEraAtmosphere(eraLevel) {
   } else if (eraLevel >= 3) {
     postfx.setPixelSize(0.007);
     postfx.enabled = true;
+  } else {
+    postfx.enabled = false;
   }
   // All eras use renderer defaults (fog 0x1a1a25, exposure 2.4)
 }
@@ -1506,11 +1508,10 @@ function startTerminalMode() {
     terminal.hide();
     // Start Era 10 ending sequence (pass renderer object for 3D scene access)
     era10Ending.start(renderer, canvas,
-      // onRestart — start from beginning
+      // onRestart — full reset, start from Era 1
       () => {
-        memory.playthroughCount++;
-        memory.save();
-        restartGame();
+        memory.reset();
+        location.reload();
       },
       // onReplay — re-experience Era 10 (terminal + ending)
       () => {
@@ -1591,6 +1592,8 @@ function updateEnvironment() {
     postfx.setScanlines(0.03);
     postfx.setNoise(0);
     postfx.enabled = true;
+  } else {
+    postfx.enabled = false;
   }
   // No exposure change — ambient-only lighting is already uniform
 }
