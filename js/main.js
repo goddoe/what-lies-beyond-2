@@ -1081,13 +1081,9 @@ function triggerEnding(type) {
   endings.trigger(type);
 }
 
-// Check compassion ending conditions
+// Check compassion ending: cooling puzzle completed
 function checkCompassionEnding() {
-  const coolingFixed = tracker.puzzlesCompleted.has('cooling_fix');
-  const rate = tracker.complianceRate;
-  const midCompliance = rate >= 0.3 && rate <= 0.7;
-  const hasHesitated = tracker.hesitations > 0;
-  return coolingFixed && midCompliance && hasHesitated;
+  return tracker.puzzlesCompleted.has('cooling_fix');
 }
 
 // Check partnership ending: balanced play + all puzzles
