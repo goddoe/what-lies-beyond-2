@@ -258,7 +258,6 @@ export class Era10Ending {
     this._phase = 'GLITCH';
     this._gameCamera.position.copy(this._camPos[0]);
     this._gameCamera.lookAt(this._camLook[0]);
-    window._era10 = this; // DEBUG — remove before release
     // Push fog out immediately so observer room is visible
     if (this._scene.fog) {
       this._scene.fog.near = 80;
@@ -1025,7 +1024,7 @@ export class Era10Ending {
           uniforms: {
             tScreen: { value: texture },
             tOverlay: { value: null },
-            brightness: { value: 3.0 },
+            brightness: { value: 1.5 },
             gridOpacity: { value: 0.0 },  // 0=no grid (GLITCH), 1=full grid (ZOOM_OUT+)
           },
           vertexShader: `
@@ -1046,7 +1045,7 @@ export class Era10Ending {
               vec3 col = tex.rgb * brightness;
               // Reinhard tone mapping — prevents blown-out cells
               col = col / (col + vec3(1.0));
-              col *= 1.4;
+              col *= 1.15;
 
               // Per-cell surveillance tint (makes each cell visually distinct)
               int cx = int(floor(vUv.x * 3.0));
@@ -1074,8 +1073,8 @@ export class Era10Ending {
 
               // CCTV overlay (cam labels, REC, timestamp)
               if (gridOpacity > 0.01) {
-                // Overlay canvas has y=0 at top, but UV y=0 at bottom → flip
-                vec2 olUv = vec2(vUv.x, 1.0 - vUv.y);
+                // CanvasTexture flipY=true handles Y flip; no UV transform needed
+                vec2 olUv = vUv;
                 vec4 ol = texture2D(tOverlay, olUv);
                 col = mix(col, ol.rgb, ol.a * gridOpacity);
               }

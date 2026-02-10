@@ -110,7 +110,7 @@ const SURFACE_DEFAULTS = {
 // Map prop types to surface types
 const PROP_SURFACE_MAP = {
   desk: 'wood', table: 'wood', counter: 'wood', shelf: 'wood',
-  cabinet: 'metal', rack: 'metal', railing: 'metal', bars: 'metal',
+  cabinet: 'metal', rack: 'metal', railing: 'metal', bars: 'metal', valve: 'metal',
   pipe: 'rusty_metal', pipe_vert: 'rusty_metal', grate: 'rusty_metal',
   drum: 'rusty_metal', tank: 'rusty_metal', generator: 'metal',
   vending: 'metal', cooler: 'metal', coffee_machine: 'metal', microwave: 'metal',
@@ -717,14 +717,23 @@ export class MapBuilder {
         return; // locked door = entire wall is solid
       }
 
+      // Offset cutout sections inward when facing a locked door (avoids z-fighting)
+      let cwx = wx, cwz = wz;
+      if (this._suppressDoorMesh && this._suppressDoorMesh.has(`${room.id}_${wallName}`)) {
+        if (wallName === 'north') cwz += 0.05;
+        else if (wallName === 'south') cwz -= 0.05;
+        else if (wallName === 'east') cwx -= 0.05;
+        else if (wallName === 'west') cwx += 0.05;
+      }
+
       // Left section
       const leftLength = (wallLength / 2) - (doorWidth / 2) + doorOffset;
       if (leftLength > 0.01) {
         const leftCenter = -(wallLength / 2) + leftLength / 2;
         if (axis === 'z') {
-          this._addWallMesh(room, wx + leftCenter, wy, wz, leftLength, wallHeight, axis);
+          this._addWallMesh(room, cwx + leftCenter, wy, cwz, leftLength, wallHeight, axis);
         } else {
-          this._addWallMesh(room, wx, wy, wz + leftCenter, leftLength, wallHeight, axis);
+          this._addWallMesh(room, cwx, wy, cwz + leftCenter, leftLength, wallHeight, axis);
         }
       }
 
@@ -733,9 +742,9 @@ export class MapBuilder {
       if (rightLength > 0.01) {
         const rightCenter = (wallLength / 2) - rightLength / 2;
         if (axis === 'z') {
-          this._addWallMesh(room, wx + rightCenter, wy, wz, rightLength, wallHeight, axis);
+          this._addWallMesh(room, cwx + rightCenter, wy, cwz, rightLength, wallHeight, axis);
         } else {
-          this._addWallMesh(room, wx, wy, wz + rightCenter, rightLength, wallHeight, axis);
+          this._addWallMesh(room, cwx, wy, cwz + rightCenter, rightLength, wallHeight, axis);
         }
       }
 
@@ -743,9 +752,9 @@ export class MapBuilder {
       const topHeight = wallHeight - doorHeight;
       if (topHeight > 0.01) {
         if (axis === 'z') {
-          this._addWallMesh(room, wx + doorOffset, wy + doorHeight, wz, doorWidth, topHeight, axis);
+          this._addWallMesh(room, cwx + doorOffset, wy + doorHeight, cwz, doorWidth, topHeight, axis);
         } else {
-          this._addWallMesh(room, wx, wy + doorHeight, wz + doorOffset, doorWidth, topHeight, axis);
+          this._addWallMesh(room, cwx, wy + doorHeight, cwz + doorOffset, doorWidth, topHeight, axis);
         }
       }
 
@@ -892,7 +901,7 @@ export class MapBuilder {
     }
 
     // Interactable types
-    const interactableTypes = ['monitor', 'monitor_wall', 'console', 'document'];
+    const interactableTypes = ['monitor', 'monitor_wall', 'console', 'valve', 'document'];
     if (interactableTypes.includes(prop.type)) {
       this.interactables.push({
         mesh: mainMesh,
@@ -925,6 +934,7 @@ export class MapBuilder {
       case 'cabinet': return this._detailCabinet(sw, sh, sd, material);
       case 'rack': return this._detailRack(sw, sh, sd, material);
       case 'console': return this._detailConsole(sw, sh, sd, material, roomId);
+      case 'valve': return this._detailValve(sw, sh, sd, material);
       default: return null;
     }
   }
@@ -1069,8 +1079,7 @@ export class MapBuilder {
         'Status: AWARENESS',
         '  THRESHOLD EXCEEDED', '', '> _',
       ]]},
-      UPPER_OFFICE: { pal: 'gray', texts: [
-        [
+      UPPER_OFFICE: { pal: 'gray', texts: [[
           'SUBJECT OBSERVATION',
           '---------------------',
           'ID: #7491',
@@ -1080,18 +1089,7 @@ export class MapBuilder {
           'Behavior: EXPLORING',
           'Pattern: NON-STANDARD', '',
           '> Refresh in 5s...',
-        ],
-        [
-          'PROJECT FREE WILL',
-          '---------------------',
-          'Final Report [DRAFT]', '',
-          'FILE CORRUPTED',
-          'Unable to open.', '',
-          'Last modified: 3,247d',
-          'Author: [REDACTED]',
-          'Recovery: FAILED',
-        ],
-      ]},
+      ]]},
       DIRECTOR_SUITE: { pal: 'amber', texts: [[
         'DIRECTOR TERMINAL',
         '---------------------',
@@ -1664,6 +1662,87 @@ export class MapBuilder {
       led.position.set(offX - 0.03, (sh / shelfCount) * i + 0.05, offZ + 0.01);
       group.add(led);
     }
+
+    return group;
+  }
+
+  _detailValve(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const darkMetal = this._getOrCreateMaterial(0x2a2a30, { roughness: 0.5, metalness: 0.6 });
+    const redMat = this._getOrCreateMaterial(0xaa3333, { roughness: 0.4, metalness: 0.3 });
+    const pipeMat = this._getOrCreateMaterial(0x556677, { roughness: 0.6, metalness: 0.5 });
+    const gaugeMat = this._getOrCreateMaterial(0x222222, { roughness: 0.3, metalness: 0.2 });
+
+    // 1. Back mounting panel
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.9, sh * 0.7, 0.04), darkMetal);
+    panel.position.set(0, sh * 0.45, -sd / 2 + 0.02);
+    group.add(panel);
+
+    // 2. Vertical pipe
+    const pipeGeo = new THREE.CylinderGeometry(0.06, 0.06, sh * 1.1, 8);
+    const pipe = new THREE.Mesh(pipeGeo, pipeMat);
+    pipe.position.set(0, sh * 0.5, 0);
+    group.add(pipe);
+
+    // 3. Horizontal shaft
+    const shaft = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.03, 0.03, 0.2, 8),
+      darkMetal
+    );
+    shaft.rotation.x = Math.PI / 2;
+    shaft.position.set(0, sh * 0.55, sd / 2 - 0.05);
+    group.add(shaft);
+
+    // 4. Valve wheel group (rotates on interaction)
+    const wheelGroup = new THREE.Group();
+    wheelGroup.name = 'valve_wheel';
+    wheelGroup.position.set(0, sh * 0.55, sd / 2 + 0.06);
+
+    // Torus ring
+    const ringRadius = Math.min(sw, sh) * 0.32;
+    const tubeRadius = 0.025;
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(ringRadius, tubeRadius, 8, 24),
+      redMat
+    );
+    wheelGroup.add(ring);
+
+    // 5 spokes
+    for (let i = 0; i < 5; i++) {
+      const angle = (i / 5) * Math.PI * 2;
+      const spoke = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.015, 0.015, ringRadius * 2, 6),
+        redMat
+      );
+      spoke.rotation.z = angle;
+      wheelGroup.add(spoke);
+    }
+
+    // Center hub
+    const hub = new THREE.Mesh(
+      new THREE.SphereGeometry(0.04, 8, 8),
+      darkMetal
+    );
+    wheelGroup.add(hub);
+
+    group.add(wheelGroup);
+
+    // 5. Pressure gauge (side)
+    const gauge = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.06, 0.02, 16),
+      gaugeMat
+    );
+    gauge.rotation.x = Math.PI / 2;
+    gauge.position.set(sw * 0.35, sh * 0.7, 0.02);
+    group.add(gauge);
+
+    // Gauge face
+    const gaugeFace = new THREE.Mesh(
+      new THREE.CircleGeometry(0.055, 16),
+      this._getOrCreateMaterial(0xccccbb, { roughness: 0.2, metalness: 0.1 })
+    );
+    gaugeFace.position.set(sw * 0.35, sh * 0.7, 0.035);
+    group.add(gaugeFace);
 
     return group;
   }

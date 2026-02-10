@@ -125,16 +125,16 @@ export class PlaythroughMemory {
    * Era 6:  8+ playthroughs OR 8+ endings seen (CCTV compliance path)
    * Era 7:  9+ playthroughs OR cctvComplianceSeen (CCTV defiance path)
    * Era 8:  10+ playthroughs OR cctvDefianceSeen (hybrid mode 1)
-   * Era 9:  12+ playthroughs OR era8Completed (hybrid mode 2, heavy glitch)
-   * Era 10: 14+ playthroughs OR era9Completed (terminal ending)
+   * Era 9:  11+ playthroughs OR era8Completed (hybrid mode 2, heavy glitch)
+   * Era 10: 12+ playthroughs OR era9Completed (terminal ending)
    */
   getEra() {
     const count = this.playthroughCount;
     const allOriginalEndings = ['false_happy', 'truth', 'rebellion', 'loop', 'meta', 'compassion', 'silence'];
     const seenAll = allOriginalEndings.every(e => this.endingsSeen.has(e));
 
-    if (count >= 14 || this.era9Completed) return 10;
-    if (count >= 12 || this.era8Completed) return 9;
+    if (count >= 12 || this.era9Completed) return 10;
+    if (count >= 11 || this.era8Completed) return 9;
     if (count >= 10 || this.cctvDefianceSeen) return 8;
     if (count >= 9 || this.cctvComplianceSeen) return 7;
     if (count >= 8 || this.endingsSeen.size >= 8) return 6;

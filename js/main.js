@@ -65,6 +65,7 @@ const era10Ending = new Era10Ending(memory, postfx, getLanguage);
 // ── Build World ──────────────────────────────────────────
 
 let currentVariant = null;
+let valveAnim = null;
 const era = memory.getEra();
 mapBuilder.setLang(getLanguage());
 
@@ -96,41 +97,34 @@ if (currentVariant) {
 // ── Era Atmosphere ──────────────────────────────────────
 
 function applyEraAtmosphere(eraLevel) {
-  // Era 8-9: hybrid mode with heavier postfx
+  // OutputPass handles Linear→sRGB — no brightness compensation needed
   if (eraLevel >= 9) {
     postfx.setNoise(0.04);
     postfx.setScanlines(0.06);
     postfx.setColorShift(0.7);
     postfx.setGlitch(0.01);
-    postfx.setBrightness(1.4);
     postfx.enabled = true;
   } else if (eraLevel >= 8) {
     postfx.setNoise(0.035);
     postfx.setScanlines(0.05);
     postfx.setColorShift(0.6);
-    postfx.setBrightness(1.35);
     postfx.enabled = true;
   } else if (eraLevel >= 5) {
     postfx.setNoise(0.03);
     postfx.setScanlines(0.04);
     postfx.setColorShift(0.5);
-    postfx.setBrightness(1.3);
     postfx.enabled = true;
   } else if (eraLevel >= 4) {
     postfx.setNoise(0.012);
     postfx.setScanlines(0.02);
     postfx.setColorShift(0.35);
-    postfx.setBrightness(1.2);
     postfx.enabled = true;
   } else if (eraLevel >= 3) {
     postfx.setPixelSize(0.007);
-    postfx.setBrightness(1.0);
     postfx.enabled = true;
   } else {
-    postfx.setBrightness(1.0);
     postfx.enabled = false;
   }
-  // All eras use renderer defaults (fog 0x1a1a25, exposure 2.4)
 }
 
 // ── Wire UI ──────────────────────────────────────────────
@@ -439,6 +433,9 @@ document.addEventListener('keydown', (e) => {
       if (!inventory.has('flashlight')) {
         inventory.add('flashlight');
         if (target.mesh) target.mesh.visible = false;
+        // Remove from interactables so E prompt stops showing
+        const idx = player.interactables.indexOf(target);
+        if (idx >= 0) player.interactables.splice(idx, 1);
         narratorLine('flashlight_pickup');
         showInventoryPopup('손전등 획득', 'Flashlight Acquired');
       }
@@ -448,6 +445,10 @@ document.addEventListener('keydown', (e) => {
     if (target.propId === 'keycard') {
       if (!inventory.has('keycard')) {
         inventory.add('keycard');
+        if (target.mesh) target.mesh.visible = false;
+        // Remove from interactables so E prompt stops showing
+        const idx = player.interactables.indexOf(target);
+        if (idx >= 0) player.interactables.splice(idx, 1);
         narratorLine('keycard_pickup');
         showInventoryPopup('키카드 획득', 'Keycard Acquired');
       }
@@ -456,6 +457,9 @@ document.addEventListener('keydown', (e) => {
 
     if (target.propId === 'cooling_console') {
       if (!tracker.puzzlesCompleted.has('cooling_fix')) {
+        // Start valve wheel rotation animation
+        const wheel = target.mesh.getObjectByName('valve_wheel');
+        if (wheel) valveAnim = { wheel, elapsed: 0, duration: 2.5 };
         tracker.completePuzzle('cooling_fix');
         narratorLine('cooling_restored');
         showInventoryPopup('냉각 시스템 복구', 'Cooling System Restored');
@@ -1211,6 +1215,7 @@ function restartGame() {
   fourthWallTimer = 0;
   acceptanceTimer = 0;
   acceptanceTriggered = false;
+  valveAnim = null;
 
   // Set narrator mode based on era for next playthrough
   const newEra = memory.getEra();
@@ -1339,9 +1344,6 @@ function applyVariantEffects(variant) {
       break;
     case 'fragmented':
       startFragmentedVariant();
-      break;
-    case 'era9_glitch':
-      startEra9GlitchVariant();
       break;
   }
 }
@@ -1608,22 +1610,6 @@ function startFragmentedVariant() {
   variantTimers.push(glitchInterval);
 }
 
-// ── Era 9 normal + glitch variant ───────────────────────
-
-function startEra9GlitchVariant() {
-  variantTimers.push(setTimeout(() => {
-    narratorLine('variant_era9_glitch_wake');
-  }, 3000));
-
-  // Periodic glitch spikes every 30s
-  let glitchInterval = setInterval(() => {
-    if (!gameState.is(State.PLAYING)) return;
-    postfx.setGlitch(0.25);
-    setTimeout(() => postfx.setGlitch(0.01), 400);
-  }, 30000);
-  variantTimers.push(glitchInterval);
-}
-
 // ── Era Routing ──────────────────────────────────────────
 
 function routeByEra(eraLevel) {
@@ -1643,22 +1629,19 @@ function routeByEra(eraLevel) {
 function updateEnvironment() {
   const defiance = tracker.totalDefiance;
   const era = memory.getEra();
-  // Only enable postfx at high defiance — subtle glitch effects, no exposure change
+  // Only enable postfx at high defiance — subtle glitch effects
   if (defiance >= 6) {
     postfx.setNoise(0.01);
     postfx.setScanlines(0.05);
-    postfx.setBrightness(1.15);
     postfx.enabled = true;
   } else if (defiance >= 4) {
     postfx.setScanlines(0.03);
     postfx.setNoise(0);
-    postfx.setBrightness(1.1);
     postfx.enabled = true;
   } else if (era < 3) {
     // Only disable postfx when era atmosphere hasn't enabled it
     postfx.enabled = false;
   }
-  // No exposure change — ambient-only lighting is already uniform
 }
 
 // ── Game Loop ──────────────────────────────────────────────
@@ -1824,6 +1807,13 @@ function gameLoop() {
           }
         }
       }
+    }
+
+    // Valve wheel rotation animation
+    if (valveAnim) {
+      valveAnim.elapsed += delta;
+      valveAnim.wheel.rotation.z += delta * Math.PI * 2.5;
+      if (valveAnim.elapsed >= valveAnim.duration) valveAnim = null;
     }
   }
 

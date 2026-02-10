@@ -576,12 +576,12 @@ export const SCRIPT = {
     id: 'upper_office_desk',
     mood: 'calm',
     text: {
-      ko: '모니터 두 대. 하나는 관찰용, 다른 하나는... 글쎄. 중요하진 않아.',
-      en: 'Two monitors. One for observation, the other... well. Not important.',
+      ko: '모니터 한 대. 관찰용인 것 같은데... 뭘 관찰하는 거지?',
+      en: 'A single monitor. Seems to be for observation... but observing what?',
     },
     innerText: {
-      ko: '모니터 두 대. 한쪽은 관찰용 같고, 나머지 하나는... 뭐지? 뭔가 중요한 건데.',
-      en: 'Two monitors. One seems for observation, the other... what? It seems important.',
+      ko: '모니터 하나. 화면에 뭔가 떠 있었던 것 같은데... 잔상만 남았다.',
+      en: 'One monitor. Something was on the screen... only an afterimage remains.',
     },
   },
 

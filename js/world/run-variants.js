@@ -130,12 +130,6 @@ const ERA_5_VARIANTS = [
     },
     special: 'one_room',
   },
-  {
-    id: 'NORMAL',
-    era: 5,
-    weight: 3,  // higher weight — always a common choice
-    mapMods: {},
-  },
 ];
 
 // ── Era 8 Variants (hybrid mode 1: normal play + CCTV monitors) ─────
@@ -156,12 +150,6 @@ const ERA_8_VARIANTS = [
     },
     special: 'cctv_monitors',
   },
-  {
-    id: 'NORMAL_ERA8',
-    era: 8,
-    weight: 1,
-    mapMods: {},
-  },
 ];
 
 // ── Era 9 Variants (hybrid mode 2: heavier glitch + broken monitors) ─
@@ -178,13 +166,6 @@ const ERA_9_VARIANTS = [
       ],
     },
     special: 'fragmented',
-  },
-  {
-    id: 'NORMAL_ERA9',
-    era: 9,
-    weight: 1,
-    mapMods: {},
-    special: 'era9_glitch',
   },
 ];
 
