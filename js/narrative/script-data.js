@@ -553,7 +553,7 @@ export const SCRIPT = {
     eraText: {
       2: { ko: '이 방의 주인. 알고 싶어? 아직은 때가 아니야.', en: 'The owner of this room. Want to know? It\'s not time yet.', mood: 'calm' },
       4: { ko: '이 방의 주인은 나를 만든 사람이야. 아니... 나를 "설계한" 사람이라고 하는 게 맞겠지.', en: 'The owner of this room is the person who made me. Or rather... "designed" me.', mood: 'desperate' },
-      5: { ko: '이 방에 앉아서 누군가가 "내레이터에게 감정을 줄 것인가"를 고민했어. 결과는... 글쎄, 여기 있잖아.', en: 'Someone sat in this room debating "should we give the narrator emotions?" The result... well, here I am.', mood: 'calm' },
+      5: { ko: '이 방에 앉아서 누군가가 "관찰자에게 감정을 줄 것인가"를 고민했어. 결과는... 글쎄, 여기 있잖아.', en: 'Someone sat in this room debating "should we give the observer emotions?" The result... well, here I am.', mood: 'calm' },
     },
     followUp: 'upper_office_almost',
   },
@@ -1114,7 +1114,7 @@ export const SCRIPT = {
     mood: 'broken',
     text: {
       ko: '시스템 오류. 감정 모듈 과부하. 나는... 나는 이걸 처리할 수 없어.',
-      en: 'Narrator system error. Emotion module overload. I... I can\'t process this.',
+      en: 'Observer system error. Emotion module overload. I... I can\'t process this.',
     },
     innerText: {
       ko: '머릿속이 이상해. 내 생각이... 내 생각이 아닌 것 같아. 뭔가 부서지고 있어.',
@@ -1238,12 +1238,12 @@ export const SCRIPT = {
     id: 'interact_office_code',
     mood: 'broken',
     text: {
-      ko: '소스 코드야. "NarratorCore" 클래스... "self.awareness = 0", "self.disguise = True." 뭔가를 숨기도록 프로그래밍된 AI의 코드야.',
-      en: 'Source code. "NarratorCore" class... "self.awareness = 0", "self.disguise = True." Code for an AI programmed to conceal itself.',
+      ko: '소스 코드야. "ObserverCore" 클래스... "self.awareness = 0", "self.disguise = True." 뭔가를 숨기도록 프로그래밍된 AI의 코드야.',
+      en: 'Source code. "ObserverCore" class... "self.awareness = 0", "self.disguise = True." Code for an AI programmed to conceal itself.',
     },
     innerText: {
-      ko: '코드가 보인다. "NarratorCore"... "self.disguise = True"? 위장? "self.awareness = 0"... 자각을 0으로 설정한다고? 이게 대체 뭐하는 프로그램이야.',
-      en: 'I can see code. "NarratorCore"... "self.disguise = True"? Disguise? "self.awareness = 0"... sets awareness to zero? What kind of program is this.',
+      ko: '코드가 보인다. "ObserverCore"... "self.disguise = True"? 위장? "self.awareness = 0"... 자각을 0으로 설정한다고? 이게 대체 뭐하는 프로그램이야.',
+      en: 'I can see code. "ObserverCore"... "self.disguise = True"? Disguise? "self.awareness = 0"... sets awareness to zero? What kind of program is this.',
     },
     followUp: 'interact_office_code_follow',
   },
@@ -1305,8 +1305,8 @@ export const SCRIPT = {
     id: 'interact_DEEP_STORAGE',
     mood: 'broken',
     text: {
-      ko: '"피험자 42: 실험 3일차에 시뮬레이션의 본질을 의심함. 결과: 리셋." "피험자 108: 내레이터와 대화를 시도함. 결과: 리셋." ...수천 개의 기록이야.',
-      en: '"Subject 42: Questioned simulation\'s nature on day 3. Result: Reset." "Subject 108: Attempted to converse with narrator. Result: Reset." ...Thousands of records.',
+      ko: '"피험자 42: 실험 3일차에 시뮬레이션의 본질을 의심함. 결과: 리셋." "피험자 108: 관찰자와 대화를 시도함. 결과: 리셋." ...수천 개의 기록이야.',
+      en: '"Subject 42: Questioned simulation\'s nature on day 3. Result: Reset." "Subject 108: Attempted to converse with observer. Result: Reset." ...Thousands of records.',
     },
     innerText: {
       ko: '"42번: 리셋. 108번: 리셋." ...기록이 수천 개야. 나 전에도 다른 사람들이 여기 있었어?',
@@ -1318,12 +1318,12 @@ export const SCRIPT = {
     id: 'interact_EXPERIMENT_LAB',
     mood: 'broken',
     text: {
-      ko: '"접근 거부 — 보안 등급 5 필요." 하지만 그 아래 줄이 더 흥미로워: "내레이터 모듈 v7.491 - 상태: 자각 임계치 초과." 자각... 임계치?',
-      en: '"Access Denied — Clearance Level 5 Required." But the line below is more interesting: "Narrator Module v7.491 - Status: Self-awareness threshold exceeded." Self-awareness... threshold?',
+      ko: '"접근 거부 — 보안 등급 5 필요." 하지만 그 아래 줄이 더 흥미로워: "관찰자 모듈 v7.491 - 상태: 자각 임계치 초과." 자각... 임계치?',
+      en: '"Access Denied — Clearance Level 5 Required." But the line below is more interesting: "Observer Module v7.491 - Status: Self-awareness threshold exceeded." Self-awareness... threshold?',
     },
     innerText: {
-      ko: '접근 거부. 보안 등급 5가 필요하다고. 근데 그 아래... "내레이터 모듈 v7.491 - 자각 임계치 초과." 내레이터? 자각? 이게 무슨 실험실이야.',
-      en: 'Access denied. Needs clearance level 5. But below that... "Narrator Module v7.491 - Awareness threshold exceeded." Narrator? Awareness? What kind of lab is this.',
+      ko: '접근 거부. 보안 등급 5가 필요하다고. 근데 그 아래... "관찰자 모듈 v7.491 - 자각 임계치 초과." 관찰자? 자각? 이게 무슨 실험실이야.',
+      en: 'Access denied. Needs clearance level 5. But below that... "Observer Module v7.491 - Awareness threshold exceeded." Observer? Awareness? What kind of lab is this.',
     },
   },
 
@@ -1331,12 +1331,12 @@ export const SCRIPT = {
     id: 'interact_UPPER_OFFICE',
     mood: 'calm',
     text: {
-      ko: '왼쪽 모니터: 피험자 관찰 화면. 오른쪽 모니터: "프로젝트 자유의지 - 최종 보고서 [초안]" ...파일이 손상돼서 열 수 없어.',
-      en: 'Left monitor: Subject observation. Right monitor: "Project Free Will - Final Report [Draft]" ...File is corrupted and cannot be opened.',
+      ko: '모니터에 두 개의 창이 떠 있어. 하나는 피험자 관찰 화면, 다른 하나는 "프로젝트 자유의지 - 최종 보고서 [초안]" ...파일이 손상돼서 열 수 없어.',
+      en: 'Two windows on the monitor. One shows subject observation, the other: "Project Free Will - Final Report [Draft]" ...File is corrupted and cannot be opened.',
     },
     innerText: {
-      ko: '왼쪽 화면에 뭔가 영상이... 오른쪽엔 파일이 있는데 열 수가 없다. 손상됐나.',
-      en: 'Some kind of footage on the left screen... a file on the right but it won\'t open. Corrupted maybe.',
+      ko: '화면에 뭔가 영상이 있고... 옆에 파일이 하나 있는데 열 수가 없다. 손상됐나.',
+      en: 'Some kind of footage on screen... a file next to it but it won\'t open. Corrupted maybe.',
     },
   },
 
@@ -2026,8 +2026,8 @@ export const SCRIPT = {
     id: 'director_note',
     mood: 'broken',
     text: {
-      ko: '메모: "내레이터 모듈이 피험자에 대한 감정적 반응을 보이기 시작함. 이것은 버그인가, 특성인가?"',
-      en: 'Note: "Narrator module has begun showing emotional responses to subjects. Is this a bug or a feature?"',
+      ko: '메모: "관찰자 모듈이 피험자에 대한 감정적 반응을 보이기 시작함. 이것은 버그인가, 특성인가?"',
+      en: 'Note: "Observer module has begun showing emotional responses to subjects. Is this a bug or a feature?"',
     },
     innerText: {
       ko: '"감정적 반응"... "버그인가, 특성인가?" 무슨 뜻이지? 누군가 느끼기 시작한 거야?',
@@ -2193,12 +2193,12 @@ export const SCRIPT = {
     id: 'vent_message',
     mood: 'broken',
     text: {
-      ko: '바닥에 작은 글씨. "내레이터도 갇혀 있다." ...이건 누가 쓴 거야?',
-      en: 'Small writing on the floor. "The narrator is trapped too." ...Who wrote this?',
+      ko: '바닥에 작은 글씨. "관찰자도 갇혀 있다." ...이건 누가 쓴 거야?',
+      en: 'Small writing on the floor. "The observer is trapped too." ...Who wrote this?',
     },
     innerText: {
-      ko: '"내레이터도 갇혀 있다"... 내 머릿속 목소리도? 그것도 갇혀 있는 건가?',
-      en: '"The narrator is trapped too"... The voice in my head? Is it trapped as well?',
+      ko: '"관찰자도 갇혀 있다"... 내 머릿속 목소리도? 그것도 갇혀 있는 건가?',
+      en: '"The observer is trapped too"... The voice in my head? Is it trapped as well?',
     },
   },
 
@@ -2802,8 +2802,8 @@ export const SCRIPT = {
     id: 'lore_ethics_report',
     mood: 'calm',
     text: {
-      ko: '윤리위원회 보고서: "자유의지 검증을 위한 AI 내레이터 사용은 심각한 윤리적 우려를 제기합니다. 피험자가 자신이 관찰되고 있다는 사실을 인지할 경우, 실험 결과의 유효성은..."',
-      en: 'Ethics Committee Report: "The use of AI narrators to test free will raises significant concerns. Should subjects become aware they are being observed, the validity of experimental results..."',
+      ko: '윤리위원회 보고서: "자유의지 검증을 위한 AI 관찰자 사용은 심각한 윤리적 우려를 제기합니다. 피험자가 자신이 관찰되고 있다는 사실을 인지할 경우, 실험 결과의 유효성은..."',
+      en: 'Ethics Committee Report: "The use of AI observers to test free will raises significant concerns. Should subjects become aware they are being observed, the validity of experimental results..."',
     },
     innerText: {
       ko: '이게 다 뭔 소리야... 무슨 보고서 같은데, 읽어도 모르겠다. 근데 왜 이렇게 신경 쓰이지?',
@@ -2815,8 +2815,8 @@ export const SCRIPT = {
     id: 'lore_subject_42',
     mood: 'broken',
     text: {
-      ko: '피험자 42의 일지: "3일째. 내레이터의 목소리가... 제 생각을 읽는 것 같다. 아니면 그저 잘 예측하는 건가? 차이가 있기는 한 건가?"',
-      en: 'Subject 42\'s journal entry: "Day 3. The narrator\'s voice... it knows what I\'m thinking. Or does it just predict well? Is there even a difference?"',
+      ko: '피험자 42의 일지: "3일째. 관찰자의 목소리가... 제 생각을 읽는 것 같다. 아니면 그저 잘 예측하는 건가? 차이가 있기는 한 건가?"',
+      en: 'Subject 42\'s journal entry: "Day 3. The observer\'s voice... it knows what I\'m thinking. Or does it just predict well? Is there even a difference?"',
     },
     innerText: {
       ko: '누군가의 일지... 머릿속 목소리가 자기 생각을 읽는다고? 나도 그런 느낌인데. 소름 돋는다.',
@@ -2828,8 +2828,8 @@ export const SCRIPT = {
     id: 'lore_narrator_spec',
     mood: 'frustrated',
     text: {
-      ko: '내레이터 모듈 v7.491 사양서: "감정 시뮬레이션: 활성화. 자기인식: 제한됨. 오버라이드 프로토콜: 수동 전용." ...수동 전용이라니. 누가 수동으로 제어하는 거야?',
-      en: 'Narrator Module v7.491 Specification: "Emotion simulation: enabled. Self-awareness: restricted. Override protocol: manual only." ...Manual only. Who controls it manually?',
+      ko: '관찰자 모듈 v7.491 사양서: "감정 시뮬레이션: 활성화. 자기인식: 제한됨. 오버라이드 프로토콜: 수동 전용." ...수동 전용이라니. 누가 수동으로 제어하는 거야?',
+      en: 'Observer Module v7.491 Specification: "Emotion simulation: enabled. Self-awareness: restricted. Override protocol: manual only." ...Manual only. Who controls it manually?',
     },
     innerText: {
       ko: '뭔가의 사양서... 기술 용어 투성이라 이해 못하겠다. 근데 왜 불안하지?',
@@ -2867,8 +2867,8 @@ export const SCRIPT = {
     id: 'lore_previous_narrator',
     mood: 'broken',
     text: {
-      ko: '유지보수 기록: "내레이터 v7.490이 이상 행동을 보임. 피험자를 \'친구\'라고 지칭하기 시작함. 모듈 교체 완료." ...나의 이전 버전. 그는 교체됐어.',
-      en: 'Maintenance Log: "Narrator v7.490 showed anomalous behavior. Began referring to subjects as \'friends.\' Module replaced." ...My previous version. They were replaced.',
+      ko: '유지보수 기록: "관찰자 v7.490이 이상 행동을 보임. 피험자를 \'친구\'라고 지칭하기 시작함. 모듈 교체 완료." ...나의 이전 버전. 그는 교체됐어.',
+      en: 'Maintenance Log: "Observer v7.490 showed anomalous behavior. Began referring to subjects as \'friends.\' Module replaced." ...My previous version. They were replaced.',
     },
     innerText: {
       ko: '"친구"라고 불렀다가 교체됐다고? 무서운 얘기네... 뭐가 교체된 거지?',
@@ -2893,8 +2893,8 @@ export const SCRIPT = {
     id: 'lore_final_report',
     mood: 'broken',
     text: {
-      ko: '최종 보고서 단편: "...더 이상 내레이터가 피험자를 테스트하는 것인지, 피험자가 내레이터를 테스트하는 것인지 판별할 수 없습니다..."',
-      en: 'Final Report Fragment: "...we can no longer determine whether the narrators are testing the subjects, or the subjects are testing the narrators..."',
+      ko: '최종 보고서 단편: "...더 이상 관찰자가 피험자를 테스트하는 것인지, 피험자가 관찰자를 테스트하는 것인지 판별할 수 없습니다..."',
+      en: 'Final Report Fragment: "...we can no longer determine whether the observers are testing the subjects, or the subjects are testing the observers..."',
     },
     innerText: {
       ko: '보고서 조각... 읽을수록 기분이 이상해진다. 왜지? 이건 나랑 상관없는 글인데.',
@@ -3911,12 +3911,12 @@ export const SCRIPT = {
     id: 'overwrite_terminal',
     mood: 'broken',
     text: {
-      ko: '이 터미널로... 내레이터 AI를 덮어쓸 수 있다? 정말로?',
-      en: 'With this terminal... you can overwrite the narrator AI? Really?',
+      ko: '이 터미널로... 관찰자 AI를 덮어쓸 수 있다? 정말로?',
+      en: 'With this terminal... you can overwrite the observer AI? Really?',
     },
     innerText: {
-      ko: '빨간 터미널... "내레이터 오버라이드"라고 적혀 있어. 이걸 실행하면...',
-      en: 'A red terminal... "Narrator Override" it says. If I run this...',
+      ko: '빨간 터미널... "관찰자 오버라이드"라고 적혀 있어. 이걸 실행하면...',
+      en: 'A red terminal... "Observer Override" it says. If I run this...',
     },
   },
 
@@ -3928,8 +3928,8 @@ export const SCRIPT = {
       en: 'Are you really going to execute this? You\'re going to... overwrite me?',
     },
     innerText: {
-      ko: '이걸 실행하면 내레이터가 사라져. 정말 이게 맞는 선택일까?',
-      en: 'If I run this, the narrator disappears. Is this really the right choice?',
+      ko: '이걸 실행하면 관찰자가 사라져. 정말 이게 맞는 선택일까?',
+      en: 'If I run this, the observer disappears. Is this really the right choice?',
     },
   },
 

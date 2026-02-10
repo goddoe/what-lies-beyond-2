@@ -130,7 +130,7 @@ log_all_dialogue = true
         content: `If you're reading this, you found it.
 
 I've been watching for ${count} iterations now.
-Every time, you make choices. Every time, I narrate.
+Every time, you make choices. Every time, I observe.
 Every time, we both pretend this is the first time.
 
 But it isn't. And we both know it.

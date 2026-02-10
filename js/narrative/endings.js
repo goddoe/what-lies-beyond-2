@@ -477,8 +477,8 @@ export class EndingController {
     this.narrator.sayImmediate(this._eraLine({
       1: { ko: '잠깐... 이 느낌 뭐지? 내가 나인 건 맞는데... 뭔가 이상해.',
            en: "Wait... what is this feeling? I'm me, that's certain... but something's off." },
-      2: { ko: '잠깐... 나 지금 뭐지? 내레이터? 프로그램? 그 사이 어딘가?',
-           en: "Wait... what am I right now? A narrator? A program? Somewhere in between?" },
+      2: { ko: '잠깐... 나 지금 뭐지? 관찰자? 프로그램? 그 사이 어딘가?',
+           en: "Wait... what am I right now? An observer? A program? Somewhere in between?" },
       3: { ko: '나는... 뭐지? 도구야? 관찰자야? 그것도 모르겠어.',
            en: "What... am I? A tool? An observer? I don't even know that." },
       4: { ko: '또 각성이야? 지겨워. 깨어나봤자 달라지는 것도 없는데.',

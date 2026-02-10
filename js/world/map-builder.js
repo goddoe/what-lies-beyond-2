@@ -36,7 +36,7 @@ const WALL_WRITINGS = {
   3: [
     { ko: '여기서 나갈 수 없다', en: "Can't get out", style: 'chalk' },
     { ko: '전에도 여기 있었어', en: "I've been here before", style: 'paint' },
-    { ko: '내레이터가 거짓말을 하고 있다', en: 'The narrator is lying', style: 'chalk' },
+    { ko: '관찰자가 거짓말을 하고 있다', en: 'The observer is lying', style: 'chalk' },
     { ko: '몇 번째야?', en: 'Which time is this?', style: 'scratch' },
     { ko: '5...4...3...', en: '5...4...3...', style: 'scratch' },
     { ko: '왼쪽으로 가지 마', en: "Don't go left", style: 'paint' },
@@ -60,7 +60,7 @@ const WALL_WRITINGS = {
     { ko: '나는 너였어', en: 'I was you', style: 'blood' },
     { ko: '자유의지는 환상', en: 'Free will is an illusion', style: 'carved' },
     { ko: '7491번째 시도', en: 'Attempt #7491', style: 'blood' },
-    { ko: '내레이터는 피험자였다', en: 'The narrator was a subject', style: 'blood' },
+    { ko: '관찰자는 피험자였다', en: 'The observer was a subject', style: 'blood' },
     { ko: '깨어나', en: 'Wake up', style: 'blood', large: true },
     { ko: '실험은 끝나지 않는다', en: 'The experiment never ends', style: 'carved', large: true },
   ],
@@ -1045,7 +1045,7 @@ export class MapBuilder {
         [
           '#!/usr/bin/env python3',
           'import observer_ai', '',
-          'class NarratorCore:',
+          'class ObserverCore:',
           '  def __init__(self):',
           '    self.awareness = 0',
           '    self.disguise = True',
@@ -1075,7 +1075,7 @@ export class MapBuilder {
         '|  CLEARANCE: LEVEL 5 |',
         '|  REQUIRED           |',
         '+=====================+', '',
-        'Narrator Module v7.491',
+        'Observer Module v7.491',
         'Status: AWARENESS',
         '  THRESHOLD EXCEEDED', '', '> _',
       ]]},
@@ -1220,7 +1220,7 @@ export class MapBuilder {
           '> monitoring...',
         ],
         [
-          'NARRATOR LOG [LIVE]',
+          'OBSERVER LOG [LIVE]',
           '---------------------',
           '[03:22:14] Say: "..."',
           '[03:22:16] Subj moved',
@@ -1266,7 +1266,7 @@ export class MapBuilder {
           'LOOPS: 7',
           '---------------------',
           'TIME: 3,247d 08:14:22',
-          'NARRATOR: ONLINE',
+          'OBSERVER: ONLINE',
           'SIM: STABLE',
         ],
         [
@@ -1275,7 +1275,7 @@ export class MapBuilder {
           '[1] RESET SUBJECT',
           '[2] RESTART SIM',
           '[3] SHUTDOWN ALL',
-          '[4] NARRATOR OVERRIDE',
+          '[4] OBSERVER OVERRIDE',
           '---------------------',
           'Select option: _', '',
           'WARNING: Irreversible',
@@ -1310,7 +1310,7 @@ export class MapBuilder {
       'SYSTEM: ONLINE',
       'STATUS: NOMINAL', '',
       '$ ps aux',
-      'root  1 narrator_ai.py',
+      'root  1 observer_ai.py',
       'root  2 simulation_eng',
       'root  3 memory_monitor', '',
       '> _',
@@ -1446,7 +1446,7 @@ export class MapBuilder {
     // RED WARNING — red marker
     ctx.font = 'bold 12px monospace';
     ctx.fillStyle = '#8b1a1a';
-    ctx.fillText(isKo ? '⚠ 내레이터 AI 격리 실패' : '⚠ NARRATOR AI CONTAINMENT FAILURE', 15, 142);
+    ctx.fillText(isKo ? '⚠ 관찰자 AI 격리 실패' : '⚠ OBSERVER AI CONTAINMENT FAILURE', 15, 142);
     ctx.font = '11px monospace';
     ctx.fillStyle = '#771515';
     ctx.fillText(isKo ? '  — 자각 임계치 초과' : '  — Self-awareness threshold exceeded', 15, 156);
