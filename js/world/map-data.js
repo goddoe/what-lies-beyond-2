@@ -255,7 +255,7 @@ export const ROOMS = [
     ],
     props: [
       // Coffee machine + counter (north wall, west side)
-      { type: 'coffee_machine', position: [-2, 0, -2], size: [0.4, 0.6, 0.3], color: 0x222222 },
+      { type: 'coffee_machine', position: [-2, 0.9, -2.3], size: [0.4, 0.6, 0.3], color: 0x222222 },
       { type: 'counter', position: [-2, 0, -2.3], size: [1.5, 0.9, 0.5], color: 0x8a7a5a },
       // Microwave on counter
       { type: 'microwave', position: [-1, 0.9, -2.3], size: [0.35, 0.25, 0.3], color: 0xcccccc },
@@ -385,16 +385,16 @@ export const ROOMS = [
       { type: 'window', position: [0, 0.8, 3.8], size: [6, 1.8, 0.05], color: 0x0a0a20 },
       // Railing in front of window
       { type: 'railing', position: [0, 0, 2.5], size: [6, 1, 0.1], color: 0x555566 },
-      // Small console/desk
-      { type: 'console', position: [-2.5, 0, 0], size: [1.2, 0.9, 0.6], color: 0x333344 },
-      { type: 'monitor', position: [-2.5, 0.9, 0], size: [0.6, 0.55, 0.35], color: 0x111122 },
+      // Desk + monitor workstation
+      { type: 'desk', position: [-2.5, 0, 0], size: [1.2, 0.75, 0.6], color: 0x333344 },
+      { type: 'monitor', position: [-2.5, 0.75, 0], size: [0.6, 0.55, 0.35], color: 0x111122 },
       // Bench seating
       { type: 'bench', position: [2.5, 0, 0], size: [0.5, 0.4, 2], color: 0x3a3a4a },
       // Floor light accents
       { type: 'led', position: [-3, 0.05, 2.5], size: [0.1, 0.02, 4], color: 0x2244aa },
       { type: 'led', position: [3, 0.05, 2.5], size: [0.1, 0.02, 4], color: 0x2244aa },
-      // Lore: architect's note (beside monitor on console)
-      { type: 'document', position: [-1.9, 0.91, 0.1], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_architects_note' },
+      // Lore: architect's note (beside monitor on desk)
+      { type: 'document', position: [-1.9, 0.76, 0.1], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_architects_note' },
     ],
   }),
 
@@ -1252,10 +1252,11 @@ export const ROOMS = [
     props: [
       // Wall of monitors (north wall)
       { type: 'monitor_wall', position: [0, 0.5, -3.8], size: [7, 2.5, 0.1], color: 0x111122 },
-      // Operator desk row
-      { type: 'console', position: [-2, 0, -1], size: [1.5, 0.9, 0.6], color: 0x1a1a2a },
-      { type: 'console', position: [0, 0, -1], size: [1.5, 0.9, 0.6], color: 0x1a1a2a },
-      { type: 'console', position: [2, 0, -1], size: [1.5, 0.9, 0.6], color: 0x1a1a2a },
+      // Operator desk + consoles on desk
+      { type: 'desk', position: [0, 0, -1], size: [7, 0.75, 0.7], color: 0x222233 },
+      { type: 'console', position: [-2, 0.75, -1], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
+      { type: 'console', position: [0, 0.75, -1], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
+      { type: 'console', position: [2, 0.75, -1], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
       // Operator chairs
       { type: 'chair', position: [-2, 0, 0.5], size: [0.5, 0.5, 0.5], color: 0x222222 },
       { type: 'chair', position: [0, 0, 0.5], size: [0.5, 0.5, 0.5], color: 0x222222 },
@@ -1264,7 +1265,7 @@ export const ROOMS = [
       { type: 'led', position: [-3.5, 0.05, 0], size: [0.1, 0.02, 6], color: 0x2244aa },
       { type: 'led', position: [3.5, 0.05, 0], size: [0.1, 0.02, 6], color: 0x2244aa },
       // Lore: previous narrator maintenance log
-      { type: 'document', position: [-2, 0.91, -1], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_previous_narrator' },
+      { type: 'document', position: [-2, 0.76, -1], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_previous_narrator' },
     ],
   }),
 
@@ -1365,12 +1366,14 @@ export const ROOMS = [
       // Side monitors
       { type: 'monitor_wall', position: [-6.5, 0.5, -2], size: [0.1, 2, 4], color: 0x111122 },
       { type: 'monitor_wall', position: [6.5, 0.5, -2], size: [0.1, 2, 4], color: 0x111122 },
-      // Console row
-      { type: 'console', position: [-4, 0, -2], size: [1.5, 0.9, 0.6], color: 0x1a1a2a },
-      { type: 'console', position: [-2, 0, -2], size: [1.5, 0.9, 0.6], color: 0x1a1a2a },
-      { type: 'console', position: [0, 0, -2], size: [1.5, 0.9, 0.6], color: 0x1a1a2a },
-      { type: 'console', position: [2, 0, -2], size: [1.5, 0.9, 0.6], color: 0x1a1a2a },
-      { type: 'console', position: [4, 0, -2], size: [1.5, 0.9, 0.6], color: 0x1a1a2a },
+      // Operator desk row + consoles on desks
+      { type: 'desk', position: [-3, 0, -2], size: [4, 0.75, 0.7], color: 0x222233 },
+      { type: 'desk', position: [3, 0, -2], size: [4, 0.75, 0.7], color: 0x222233 },
+      { type: 'console', position: [-4, 0.75, -2], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
+      { type: 'console', position: [-2, 0.75, -2], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
+      { type: 'console', position: [0, 0.75, -2], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
+      { type: 'console', position: [2, 0.75, -2], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
+      { type: 'console', position: [4, 0.75, -2], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
       // Operator chair (facing consoles)
       { type: 'chair', position: [0, 0, 1], size: [0.6, 0.6, 0.6], color: 0x222222, rotY: Math.PI },
       // Floor lights (guide path)

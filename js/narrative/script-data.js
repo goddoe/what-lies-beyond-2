@@ -1238,12 +1238,12 @@ export const SCRIPT = {
     id: 'interact_SERVER_ROOM',
     mood: 'frustrated',
     text: {
-      ko: '서버 상태: 가동 중. CPU 97.3%, GPU 99.8%. 한 명을 시뮬레이션하는 데 GPU까지 한계로 돌리고 있어.',
-      en: 'Server status: Online. CPU 97.3%, GPU 99.8%. Maxing out even the GPU—just to simulate one subject.',
+      ko: '9세대 XPU 2,048장 클러스터. 102조 파라미터 모델을 한 명한테 돌리고 있어. 한 명의 자유의지를 시뮬레이션하는 비용이 이 정도야.',
+      en: 'XPU-9 cluster, 2,048 units. Running a 102-trillion parameter model for one subject. That\'s the cost of simulating one person\'s free will.',
     },
     innerText: {
-      ko: 'CPU 97.3%, GPU 99.8%... GPU까지 풀로 돌아가고 있어. 이 기계들이 대체 뭘 처리하는 거야?',
-      en: 'CPU 97.3%, GPU 99.8%... Even the GPU is running full blast. What are these machines processing?',
+      ko: 'XPU... 2,048장? 102조 파라미터? 이 기계 전부가 뭔가 하나를 시뮬레이션하고 있어. 대체 뭘 돌리는 거야?',
+      en: 'XPU... 2,048 units? 102 trillion parameters? All these machines simulating something. What are they running?',
     },
   },
 
