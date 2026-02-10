@@ -1,5 +1,5 @@
 /**
- * CCTV Replay System — Era 6-7.
+ * CCTV Replay System — Era 6.
  *
  * Replays player's compliance or defiance path from a fixed ceiling camera perspective.
  * An articulated character figure walks predefined waypoints while narrator comments.

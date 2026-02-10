@@ -911,8 +911,8 @@ export class MapBuilder {
       });
     }
 
-    // Whiteboard text overlay (Era 6+, OFFICE_WING only)
-    if (prop.type === 'whiteboard' && this.era >= 6 && roomId === 'OFFICE_WING') {
+    // Whiteboard text overlay (Era 5+, OFFICE_WING only)
+    if (prop.type === 'whiteboard' && this.era >= 5 && roomId === 'OFFICE_WING') {
       const wbMat = this._generateWhiteboardTexture();
       const plane = new THREE.Mesh(new THREE.PlaneGeometry(sw * 0.92, sh * 0.92), wbMat);
       // Position on the front face (+Z side) of the whiteboard

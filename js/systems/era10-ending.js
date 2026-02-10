@@ -1,5 +1,5 @@
 /**
- * Era 10 Ending — 3D zoom-out + dual classic Macintosh + ChatML sequence.
+ * Era 9 Ending — 3D zoom-out + dual classic Macintosh + ChatML sequence.
  *
  * Observer room at y=50. Camera starts zoomed into the left Mac screen
  * (filling viewport, no bezel visible), then pulls back to reveal both

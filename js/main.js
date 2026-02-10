@@ -99,26 +99,26 @@ if (currentVariant) {
 function applyEraAtmosphere(eraLevel) {
   // OutputPass handles Linear→sRGB — no brightness compensation needed
   // colorShift: subtle base value — intermittent spikes applied in game loop
-  if (eraLevel >= 9) {
+  if (eraLevel >= 8) {
     postfx.setNoise(0.04);
-    postfx.setScanlines(0.06);
-    postfx.setColorShift(0.08);
+    postfx.setScanlines(0.02);
+    postfx.setColorShift(0.015);
     postfx.setGlitch(0.01);
     postfx.enabled = true;
-  } else if (eraLevel >= 8) {
+  } else if (eraLevel >= 7) {
     postfx.setNoise(0.035);
-    postfx.setScanlines(0.05);
-    postfx.setColorShift(0.06);
+    postfx.setScanlines(0.016);
+    postfx.setColorShift(0.012);
     postfx.enabled = true;
   } else if (eraLevel >= 5) {
     postfx.setNoise(0.03);
-    postfx.setScanlines(0.04);
-    postfx.setColorShift(0.04);
+    postfx.setScanlines(0.012);
+    postfx.setColorShift(0.008);
     postfx.enabled = true;
   } else if (eraLevel >= 4) {
     postfx.setNoise(0.012);
-    postfx.setScanlines(0.02);
-    postfx.setColorShift(0.02);
+    postfx.setScanlines(0.008);
+    postfx.setColorShift(0.005);
     postfx.enabled = true;
   } else if (eraLevel >= 3) {
     postfx.setPixelSize(0.007);
@@ -1121,14 +1121,14 @@ function triggerEnding(type) {
   gameState.set(State.ENDING);
   currentEndingType = type;
 
-  // Mark era 8/9 completion flags
+  // Mark hybrid era completion flags
   const currentEra = memory.getEra();
-  if (currentEra === 8 && !memory.era8Completed) {
-    memory.era8Completed = true;
+  if (currentEra === 7 && !memory.hybrid1Completed) {
+    memory.hybrid1Completed = true;
     memory.save();
   }
-  if (currentEra === 9 && !memory.era9Completed) {
-    memory.era9Completed = true;
+  if (currentEra === 8 && !memory.hybrid2Completed) {
+    memory.hybrid2Completed = true;
     memory.save();
   }
 
@@ -1276,7 +1276,7 @@ function restartGame() {
   const oldHud = document.getElementById('variant-hud');
   if (oldHud) oldHud.remove();
 
-  // Era routing: special modes for era 6-7 (CCTV) and era 10 (terminal)
+  // Era routing: special modes for era 6 (CCTV) and era 9 (terminal)
   if (routeByEra(newEra)) {
     console.log(`Restart: era=${newEra} → special mode`);
     return;
@@ -1511,10 +1511,10 @@ function startOneRoomSequence() {
   }, 40000));
 }
 
-// ── CCTV Mode (Era 6-7) ──────────────────────────────────
+// ── CCTV Mode (Era 6) ────────────────────────────────────
 
-function startCCTVMode(eraLevel) {
-  const pathType = eraLevel === 6 ? 'compliance' : 'defiance';
+function startCCTVMode() {
+  const pathType = Math.random() < 0.5 ? 'compliance' : 'defiance';
   gameState.set(State.CCTV);
   player.controls.unlock();
 
@@ -1527,7 +1527,7 @@ function startCCTVMode(eraLevel) {
   // Build the map normally so the 3D scene is visible
   mapBuilder.clear();
   mapBuilder.collectedLore = memory.loreCollected;
-  const result = mapBuilder.build(eraLevel, null);
+  const result = mapBuilder.build(6, null);
   activeGhosts = result.ghosts || [];
   doorSystem = result.doorSystem;
 
@@ -1536,11 +1536,7 @@ function startCCTVMode(eraLevel) {
 
   // On completion
   cctvReplay.onComplete = () => {
-    if (pathType === 'compliance') {
-      memory.cctvComplianceSeen = true;
-    } else {
-      memory.cctvDefianceSeen = true;
-    }
+    memory.cctvSeen = true;
     memory.playthroughCount++;
     memory.save();
     restartGame();
@@ -1552,7 +1548,7 @@ function stopCCTVMode() {
   gameState.set(State.MENU);
 }
 
-// ── Terminal Mode (Era 10) ──────────────────────────────
+// ── Terminal Mode (Era 9) ────────────────────────────────
 
 function startTerminalMode() {
   gameState.set(State.TERMINAL);
@@ -1561,7 +1557,7 @@ function startTerminalMode() {
   // Build map in background for the zoom-out reveal
   mapBuilder.clear();
   mapBuilder.collectedLore = memory.loreCollected;
-  const result = mapBuilder.build(10, null);
+  const result = mapBuilder.build(9, null);
   activeGhosts = result.ghosts || [];
   doorSystem = result.doorSystem;
 
@@ -1584,7 +1580,7 @@ function startTerminalMode() {
   };
 }
 
-// ── Era 8 CCTV_MONITORS variant ──────────────────────────
+// ── Era 7 CCTV_MONITORS variant ──────────────────────────
 
 function startCCTVMonitorVariant() {
   // CCTV monitor props are placed by map-builder via addMonitorProps
@@ -1594,7 +1590,7 @@ function startCCTVMonitorVariant() {
   }, 3000));
 }
 
-// ── Era 9 FRAGMENTED variant ────────────────────────────
+// ── Era 8 FRAGMENTED variant ────────────────────────────
 
 function startFragmentedVariant() {
   // Heavier glitch, periodic spikes
@@ -1614,15 +1610,15 @@ function startFragmentedVariant() {
 // ── Era Routing ──────────────────────────────────────────
 
 function routeByEra(eraLevel) {
-  if (eraLevel >= 6 && eraLevel <= 7) {
-    startCCTVMode(eraLevel);
+  if (eraLevel === 6) {
+    startCCTVMode();
     return true;
   }
-  if (eraLevel === 10) {
+  if (eraLevel === 9) {
     startTerminalMode();
     return true;
   }
-  return false; // normal play (era 1-5, 8-9)
+  return false; // normal play (era 1-5, 7-8)
 }
 
 // ── Environmental Reactions (defiance-based) ──────────────
@@ -1633,10 +1629,10 @@ function updateEnvironment() {
   // Only enable postfx at high defiance — subtle glitch effects
   if (defiance >= 6) {
     postfx.setNoise(0.01);
-    postfx.setScanlines(0.05);
+    postfx.setScanlines(0.015);
     postfx.enabled = true;
   } else if (defiance >= 4) {
-    postfx.setScanlines(0.03);
+    postfx.setScanlines(0.01);
     postfx.setNoise(0);
     postfx.enabled = true;
   } else if (era < 3) {
@@ -1828,16 +1824,16 @@ function gameLoop() {
   if (postfx.enabled && era >= 4) {
     // Base colorShift is subtle (set by applyEraAtmosphere)
     // Spike: random bursts lasting ~0.3s, every 8-15 seconds
-    const spikeChance = era >= 8 ? 0.003 : era >= 5 ? 0.002 : 0.001; // per frame
+    const spikeChance = era >= 7 ? 0.003 : era >= 5 ? 0.002 : 0.001; // per frame
     if (!postfx._colorSpike && Math.random() < spikeChance) {
-      const peakShift = era >= 9 ? 0.5 : era >= 8 ? 0.4 : era >= 5 ? 0.3 : 0.2;
+      const peakShift = era >= 8 ? 0.03 : era >= 7 ? 0.025 : era >= 5 ? 0.02 : 0.015;
       postfx._colorSpike = { peak: peakShift, remaining: 0.25 + Math.random() * 0.15 };
     }
     if (postfx._colorSpike) {
       postfx._colorSpike.remaining -= delta;
       if (postfx._colorSpike.remaining <= 0) {
         // Restore base value
-        const base = era >= 9 ? 0.08 : era >= 8 ? 0.06 : era >= 5 ? 0.04 : 0.02;
+        const base = era >= 8 ? 0.015 : era >= 7 ? 0.012 : era >= 5 ? 0.008 : 0.005;
         postfx.setColorShift(base);
         postfx._colorSpike = null;
       } else {

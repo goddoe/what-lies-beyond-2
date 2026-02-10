@@ -111,7 +111,7 @@ export const ROOMS = [
       // Wall clock (decorative)
       { type: 'clock', position: [0, 2.2, -2.8], size: [0.4, 0.4, 0.05], color: 0x888888 },
       // Flashlight on cabinet (interactable)
-      { type: 'document', position: [2, 1.42, -1.95], size: [0.18, 0.05, 0.08], color: 0xaaaa44, id: 'flashlight_drawer' },
+      { type: 'document', position: [2, 1.38, -2.2], size: [0.18, 0.05, 0.08], color: 0xaaaa44, id: 'flashlight_drawer' },
     ],
   }),
 

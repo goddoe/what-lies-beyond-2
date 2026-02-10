@@ -132,12 +132,12 @@ const ERA_5_VARIANTS = [
   },
 ];
 
-// ── Era 8 Variants (hybrid mode 1: normal play + CCTV monitors) ─────
+// ── Era 7 Variants (hybrid mode 1: normal play + CCTV monitors) ─────
 
-const ERA_8_VARIANTS = [
+const ERA_7_VARIANTS = [
   {
     id: 'CCTV_MONITORS',
-    era: 8,
+    era: 7,
     weight: 3,
     mapMods: {
       addProps: [
@@ -152,12 +152,12 @@ const ERA_8_VARIANTS = [
   },
 ];
 
-// ── Era 9 Variants (hybrid mode 2: heavier glitch + broken monitors) ─
+// ── Era 8 Variants (hybrid mode 2: heavier glitch + broken monitors) ─
 
-const ERA_9_VARIANTS = [
+const ERA_8_VARIANTS = [
   {
     id: 'FRAGMENTED',
-    era: 9,
+    era: 8,
     weight: 3,
     mapMods: {
       removeRooms: [
@@ -169,7 +169,7 @@ const ERA_9_VARIANTS = [
   },
 ];
 
-const ALL_VARIANTS = [...ERA_4_VARIANTS, ...ERA_5_VARIANTS, ...ERA_8_VARIANTS, ...ERA_9_VARIANTS];
+const ALL_VARIANTS = [...ERA_4_VARIANTS, ...ERA_5_VARIANTS, ...ERA_7_VARIANTS, ...ERA_8_VARIANTS];
 
 /**
  * Select a variant for the given era.
@@ -178,8 +178,8 @@ const ALL_VARIANTS = [...ERA_4_VARIANTS, ...ERA_5_VARIANTS, ...ERA_8_VARIANTS, .
  * @returns {object|null} Variant config, or null if era < 4 or era is 6/7/10 (special modes)
  */
 export function selectVariant(era, lastVariant = null) {
-  // Eras 6-7 (CCTV) and 10 (terminal) are special modes, no variants
-  if (era < 4 || era === 6 || era === 7 || era === 10) return null;
+  // Era 6 (CCTV) and 9 (terminal) are special modes, no variants
+  if (era < 4 || era === 6 || era === 9) return null;
 
   const pool = ALL_VARIANTS.filter(v => era >= v.era);
   if (pool.length === 0) return null;

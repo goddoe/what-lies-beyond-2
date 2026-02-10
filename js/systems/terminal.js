@@ -1,5 +1,5 @@
 /**
- * Terminal emulator for Era 10.
+ * Terminal emulator for Era 9.
  *
  * Virtual filesystem with ls, cat, cd, ps, kill, pkill, help, clear, whoami, pwd.
  * Killing observer_ai.py (PID 1) triggers shutdown sequence.
@@ -73,7 +73,7 @@ export class Terminal {
 > Subject profile: ${this.memory.getPlayerProfile()}
 > Observer revealed: ${this.memory.narratorRevealed ? 'YES' : 'NO'}
 >
-> [NOTE] Subject has reached Era 10.
+> [NOTE] Subject has reached Era 9.
 > [NOTE] Observer AI requesting introspection cycle.
 > [WARN] observer_ai.py self-reference depth exceeding threshold.
 > [WARN] Recursive self-model detected in observer_ai.py
