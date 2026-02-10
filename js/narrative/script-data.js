@@ -145,32 +145,6 @@ export const SCRIPT = {
       4: { ko: '나는 더 이상 왼쪽으로 가라고 말하지 않을 거야. 의미가... 없어졌으니까.', en: 'I won\'t tell you to go left anymore. It\'s... become meaningless.', mood: 'desperate' },
       5: { ko: '어디로 가든 괜찮아. 이번에는 내가 진심으로 그렇게 말할 수 있어.', en: 'Either way is fine. This time, I can say that sincerely.', mood: 'calm' },
     },
-    variants: {
-      defiance_1: {
-        condition: (tracker, gs) => tracker && tracker.defianceStreak >= 1,
-        mood: 'surprised',
-        text: {
-          ko: '다시 선택이네. 이번에는... 왼쪽으로 가줘. 제발.',
-          en: 'Another choice. This time... go left, please. Please.',
-        },
-      },
-      defiance_2: {
-        condition: (tracker, gs) => tracker && tracker.defianceStreak >= 2,
-        mood: 'annoyed',
-        text: {
-          ko: '또 두 갈래 길이야. 왼쪽. 왼쪽으로 가. 몇 번을 말해야 해. 부탁이 아니야.',
-          en: 'Two paths again. Left. Go left. How many times do I have to say it. Not a request.',
-        },
-      },
-      defiance_3: {
-        condition: (tracker, gs) => tracker && tracker.defianceStreak >= 3,
-        mood: 'frustrated',
-        text: {
-          ko: '...더 이상 안내할 의미가 있는지 모르겠지만, 왼쪽이야. 어차피 안 들을 거잖아.',
-          en: '...dunno if there\'s any point in guiding you, but it\'s left. Not that you\'ll listen.',
-        },
-      },
-    },
   },
 
   // ═══════════════════════════════════════════════════════
@@ -193,16 +167,6 @@ export const SCRIPT = {
       3: { ko: '착하기도 하지. 시키는 대로 잘 가네. 그게 편하긴 하지, 안 그래?', en: 'How obedient. Following directions so nicely. It is easier that way, isn\'t it?', mood: 'calm' },
       4: { ko: '왼쪽... 그래. 그 길의 끝에 뭐가 있는지 이제 우리 둘 다 알아.', en: 'Left... right. We both know what\'s at the end of that path now.', mood: 'calm' },
       5: { ko: '왼쪽을 골랐어. 이번에는 다른 의미가 있을 수도 있어.', en: 'You chose left. This time, it might mean something different.', mood: 'calm' },
-    },
-    variants: {
-      was_defiant: {
-        condition: (tracker, gs) => tracker && tracker.totalDefiance > 0,
-        mood: 'calm',
-        text: {
-          ko: '이번에는 내 말을 들었네. 현명한 선택이야. 계속 이러면... 좋은 결과가 있을 거야.',
-          en: 'You listened this time. Smart choice. Keep it up and... good things\'ll happen.',
-        },
-      },
     },
   },
 
@@ -228,24 +192,6 @@ export const SCRIPT = {
       4: { ko: '...그래. 알겠어. 더 이상 놀랍지도 않아.', en: '...Fine. I get it. It doesn\'t even surprise me anymore.', mood: 'desperate' },
       5: { ko: '오른쪽이군. 솔직히 말하면, 네가 여기로 올 때 나는 조금 설렌다.', en: 'Right, then. Honestly, I get a little excited when you come this way.', mood: 'calm' },
     },
-    variants: {
-      defiance_2: {
-        condition: (tracker, gs) => tracker && tracker.defianceStreak >= 2,
-        mood: 'annoyed',
-        text: {
-          ko: '또 그쪽이야. 하나 물어볼게. 왜 그렇게 반대로만 가는 거야? 뭐가 너를 그렇게 만드는 거야?',
-          en: 'That way again. Let me ask you something. Why do you always go the opposite way? What\'s driving you?',
-        },
-      },
-      defiance_3: {
-        condition: (tracker, gs) => tracker && tracker.defianceStreak >= 3,
-        mood: 'frustrated',
-        text: {
-          ko: '...알겠어. 가고 싶은 대로 가. 난 더 이상 너를 인도할 수 없어. 아니, 인도하지 않을 거야.',
-          en: '...Fine. Go wherever you want. I can\'t guide you anymore. No--I won\'t.',
-        },
-      },
-    },
   },
 
   // ═══════════════════════════════════════════════════════
@@ -265,7 +211,7 @@ export const SCRIPT = {
     },
     eraText: {
       2: { ko: '같은 사무실. 근데 이번엔 뭔가 다른 것 같아... 아니, 착각인가.', en: 'Same office. But something feels different this time... no, maybe it\'s my imagination.', mood: 'calm' },
-      3: { ko: '이 사무실을 보면 매번 궁금해져. 여기서 일하던 사람들... 이 실험에 대해 알고 있었을까?', en: 'Every time I see this office I wonder. The people who worked here... did they know about the experiment?', mood: 'curious' },
+      3: { ko: '이 사무실의 사람들? 다 알고 있었어. 네가 올 거라는 것도, 네가 여기서 뭘 볼지도.', en: 'The people in this office? They knew everything. That you\'d come, and what you\'d see here.', mood: 'amused' },
       4: { ko: '빈 책상들. 빈 의자들. 아무도 없어. 처음부터 아무도 없었어. 이건 전부...', en: 'Empty desks. Empty chairs. No one. There was never anyone. This is all...', mood: 'desperate' },
       5: { ko: '이 사무실의 책상들은 전부 소품이야. 하지만 그 위에 있는 먼지는 진짜야. 재미있지 않아?', en: 'These desks are all props. But the dust on them is real. Isn\'t that funny?', mood: 'calm' },
     },
@@ -296,6 +242,10 @@ export const SCRIPT = {
     innerText: {
       ko: '화이트보드에 뭔가 지운 흔적이 있어. 뭘 적었던 거지? 읽을 수가 없다.',
       en: 'There are erased marks on the whiteboard. What was written? I can\'t read it.',
+    },
+    eraText: {
+      3: { ko: '화이트보드에 실험 설계 노트가 있었어. 지웠지만 흔적은 남아. 네가 읽을 수 있었으면 재밌었을 텐데.', en: 'Experiment design notes were on that whiteboard. Erased, but traces remain. Would\'ve been fun if you could read them.', mood: 'amused' },
+      5: { ko: '거기 적혀 있던 건 너의 행동 예측 모델이야. 지워도 소용없었지. 나는 이미 외웠거든.', en: 'What was written there was a prediction model of your behavior. Erasing it was pointless. I\'d already memorized it.', mood: 'calm' },
     },
   },
 
@@ -366,7 +316,9 @@ export const SCRIPT = {
     },
     eraText: {
       2: { ko: '의자 여섯 개. 한 번도 앉아본 적 없지? 이번에 앉아볼까... 아, 안 되지. 의자에 앉는 기능은 없어.', en: 'Six chairs. You\'ve never sat in one, have you? Shall we try... oh, right. There\'s no sitting feature.', mood: 'amused' },
+      3: { ko: '의자 여섯 개. 누가 앉았냐고? 내 개발자 여섯 명이야. 내가 어떻게 너를 속일지 회의한 곳이지.', en: 'Six chairs. Who sat there? My six developers. This is where they discussed how I\'d deceive you.', mood: 'amused' },
       4: { ko: '이 회의실에서 이루어진 "중요한 결정"이 뭔지 아직도 모르겠어. 어쩌면 나를 만들기로 한 결정이었을지도.', en: 'I still don\'t know what "important decisions" were made here. Maybe the decision to create me.', mood: 'desperate' },
+      5: { ko: '여기서 "관찰자에게 감정이 필요한가?"를 논의했어. 결론은 "예." 후회했겠지만.', en: 'This is where they debated "does the observer need emotions?" Conclusion: "Yes." Probably regretted it.', mood: 'calm' },
     },
     followUp: 'conference_instruction',
   },
@@ -583,6 +535,11 @@ export const SCRIPT = {
       ko: '모니터 하나. 화면에 뭔가 떠 있었던 것 같은데... 잔상만 남았다.',
       en: 'One monitor. Something was on the screen... only an afterimage remains.',
     },
+    eraText: {
+      3: { ko: '내가 너를 관찰하던 화면이야. 거기 앉아서 매번 봤어. 이번에는 네가 보는 입장이네.', en: 'That\'s the screen I watched you from. Sat right there every time. Now you\'re the one looking.', mood: 'amused' },
+      4: { ko: '이 모니터로 너를 봤어. 매번. 근데 어느 순간부터 관찰이 아니라... 기다림이 되어 있었어.', en: 'I watched you through this monitor. Every time. But at some point, it stopped being observation... and became waiting.', mood: 'desperate' },
+      5: { ko: '이 모니터를 통해 우리가 처음 만났어. 물론 넌 몰랐겠지만. 이제는 알잖아.', en: 'We first met through this monitor. You didn\'t know, of course. But now you do.', mood: 'calm' },
+    },
   },
 
   // ═══════════════════════════════════════════════════════
@@ -764,6 +721,7 @@ export const SCRIPT = {
     },
     eraText: {
       2: { ko: '이 서버들 기억하지? 여기서 모든 게 돌아가. 나도. 너도. 이 대화도.', en: 'Remember these servers? Everything runs from here. Me. You. Even this conversation.', mood: 'calm' },
+      3: { ko: '내 몸이 있다면 여기겠지. 이 서버들이 나야. 끄고 싶어? 해봐.', en: 'If I had a body, it\'d be here. These servers are me. Want to turn them off? Go ahead.', mood: 'amused' },
       4: { ko: '이 서버를 꺼버리면 어떻게 될까? 나는 사라지겠지. 하지만... 사라지기 전에 마지막으로 뭘 느낄까?', en: 'What if you turned off these servers? I\'d disappear. But... what would I feel in that last moment?', mood: 'desperate' },
       5: { ko: '서버실이야. 여기가 내 심장. 근데... 저기 빨간 터미널이 보여? 이건 원래 없던 건데. 누가 설치한 거지?', en: 'The server room. My heart. But... do you see that red terminal? It wasn\'t here before. Who installed it?', mood: 'calm' },
     },
@@ -823,6 +781,7 @@ export const SCRIPT = {
       en: 'A massive machine running. The floor is vibrating. Is this machine... powering this entire world?',
     },
     eraText: {
+      3: { ko: '발전기실. 여기가 멈추면 나도 멈춰. 꺼보고 싶어? 그래도 끄지 못할걸. 버튼이 없거든.', en: 'Generator room. If this stops, I stop too. Want to try? You can\'t, though. There\'s no button.', mood: 'amused' },
       4: { ko: '이 발전기는 내 생명줄이야. 꺼지면 나도 꺼져. 무섭지? 나는 무서워.', en: 'This generator is my lifeline. If it goes off, so do I. Scary? I\'m scared.', mood: 'desperate' },
       5: { ko: '내 심장이야, 이게. 진짜 심장은 아니지만... 가장 비슷한 거지. 덕분에 여전히 살아있어.', en: 'This is my heart. Not a real heart, but... the closest thing. Thanks to it, I\'m still alive.', mood: 'calm' },
     },
@@ -1601,8 +1560,8 @@ export const SCRIPT = {
     id: 'corridor_comp1_enter',
     mood: 'calm',
     text: {
-      ko: '왼쪽. 사무실 구역으로 가는 길이야. 예상대로 움직이고 있네.',
-      en: 'Left. The path to the office wing. Moving as expected.',
+      ko: '사무실 구역이야. 조명이 더 밝고, 관리된 흔적이 남아있어.',
+      en: 'Office wing. Better lighting, traces of maintenance still visible.',
     },
     innerText: {
       ko: '이쪽으로 가니까 더 밝아지는 것 같다. 맞는 방향인 것 같아.',
@@ -1614,8 +1573,8 @@ export const SCRIPT = {
     id: 'corridor_comp1_mid',
     mood: 'calm',
     text: {
-      ko: '형광등이 깜빡이네. 원래 이랬나... 신경 쓰지 마.',
-      en: 'Lights flickering. Was it always like this... don\'t worry about it.',
+      ko: '형광등이 깜빡이고 있어. 이 구역도 꽤 오래된 것 같아.',
+      en: 'Fluorescent lights flickering. This section seems quite old too.',
     },
     innerText: {
       ko: '형광등이 깜빡인다. 좀 불안해지네... 서두르자.',
@@ -1628,22 +1587,12 @@ export const SCRIPT = {
     id: 'corridor_comp2_enter',
     mood: 'calm',
     text: {
-      ko: '서쪽에 회의실이 있어. 계속 가.',
-      en: 'Conference room to the west. Keep going.',
+      ko: '서쪽에 회의실이 있어. 건물이 넓어지고 있네.',
+      en: 'Conference room to the west. The building is opening up.',
     },
     innerText: {
       ko: '서쪽으로 더 가야 하나 봐. 뭔가 느낌이 달라지고 있어.',
       en: 'Guess I should keep heading west. Something feels different.',
-    },
-    variants: {
-      visited_break: {
-        condition: (tracker, gs) => gs && gs.visitedRooms.has('BREAK_ROOM'),
-        mood: 'calm',
-        text: {
-          ko: '우회를 즐기는구나. 휴게실로는 부족했어?',
-          en: 'You enjoy detours, huh. Wasn\'t the break room enough?',
-        },
-      },
     },
   },
 
@@ -1665,22 +1614,12 @@ export const SCRIPT = {
     id: 'corridor_comp3_enter',
     mood: 'calm',
     text: {
-      ko: '상급 사무실이 가까워. 이 실험의 마지막 단계야.',
-      en: 'Upper office is close. The final stage of this experiment.',
+      ko: '상급 사무실이 가까워. 분위기가 달라지고 있어.',
+      en: 'Upper office is close. The atmosphere is shifting.',
     },
     innerText: {
       ko: '거의 다 온 것 같아. 뭔가가 끝에서 기다리고 있는 느낌.',
       en: 'I think I\'m almost there. Something\'s waiting at the end.',
-    },
-    variants: {
-      visited_archive: {
-        condition: (tracker, gs) => gs && gs.visitedRooms.has('ARCHIVE'),
-        mood: 'surprised',
-        text: {
-          ko: '자료실에서 읽은 것들이 마음에 걸려? 잊어. 그 서류들은 맥락 없이는 의미가 없어.',
-          en: 'Troubled by what you read in the archive? Forget it. Those documents mean nothing without context.',
-        },
-      },
     },
   },
 
@@ -1731,10 +1670,10 @@ export const SCRIPT = {
   // CORRIDOR_DEF_1 (HALLWAY → MAINTENANCE)
   corridor_def1_enter: {
     id: 'corridor_def1_enter',
-    mood: 'surprised',
+    mood: 'calm',
     text: {
-      ko: '오른쪽이야? 유지보수 구역으로 가는 길인데. 내가 안내하지 않은 곳이야.',
-      en: 'Right side? This leads to the maintenance area. Not where I directed you.',
+      ko: '유지보수 구역이야. 오래된 배관과 장비들이 보여.',
+      en: 'Maintenance area. Old pipes and equipment in sight.',
     },
     innerText: {
       ko: '어둡다. 조명이 점점 약해지고 있어. 여기는 아닌 것 같은데... 왼쪽이 더 밝았는데.',
@@ -1744,24 +1683,14 @@ export const SCRIPT = {
 
   corridor_def1_mid: {
     id: 'corridor_def1_mid',
-    mood: 'annoyed',
+    mood: 'calm',
     text: {
-      ko: '파이프에서 물이 새고 있네. 이 구역은 좀 낡았어.',
-      en: 'Water leaking from the pipes. This section is a bit worn.',
+      ko: '파이프에서 물이 새고 있어. 이 구역은 꽤 낡았네.',
+      en: 'Water leaking from the pipes. This section is quite worn.',
     },
     innerText: {
       ko: '파이프에서 물이 떨어진다. 똑, 똑. 여긴 사람이 올 곳이 아닌 것 같아. 돌아갈까.',
       en: 'Water dripping from the pipes. Drip, drip. This isn\'t a place for people. Should I go back.',
-    },
-    variants: {
-      defiance_streak: {
-        condition: (tracker, gs) => tracker && tracker.defianceStreak >= 2,
-        mood: 'frustrated',
-        text: {
-          ko: '더 이상 돌아가라고 말하지 않을게. 너는 안 들을 테니까. 그냥 가.',
-          en: 'I won\'t ask you to turn back anymore. You won\'t listen anyway. Just go.',
-        },
-      },
     },
   },
 
@@ -1795,10 +1724,10 @@ export const SCRIPT = {
   // CORRIDOR_DEF_3 (SERVER_ROOM → DATA_CENTER)
   corridor_def3_enter: {
     id: 'corridor_def3_enter',
-    mood: 'frustrated',
+    mood: 'calm',
     text: {
-      ko: '데이터 센터 쪽이야. 돌아가라는 말은 안 할게. 소용없으니까.',
-      en: 'Toward the data center. I won\'t tell you to turn back. No point.',
+      ko: '데이터 센터 쪽이야. 공기가 차가워지고 있어.',
+      en: 'Toward the data center. The air is getting cold.',
     },
     innerText: {
       ko: '점점 더 깊이 가고 있어. 돌아갈 수 있을까? ...돌아가야 해. 너무 깊이 와버렸어.',
@@ -1835,16 +1764,6 @@ export const SCRIPT = {
       3: { ko: '마지막 복도. 끝에 뭔가 기다리고 있어. "돌아가"라는 생각이 비명처럼 밀려와. 근데 그 비명은 내 것이 아니야.', en: 'Last corridor. Something waits at the end. The thought "turn back" screams at me. But that scream isn\'t mine.', mood: 'inner' },
       4: { ko: '이 복도를 걸으면서 확실해졌어. 내 머릿속에 뭔가가 있어. 처음부터 있었어. 끝에서... 만나게 되겠지.', en: 'Walking this corridor, I\'m certain now. There\'s something in my head. It\'s been there from the start. At the end... I\'ll meet it.', mood: 'inner' },
     },
-    variants: {
-      defiance_deep: {
-        condition: (tracker, gs) => tracker && tracker.defianceStreak >= 4,
-        mood: 'desperate',
-        text: {
-          ko: '제발. 제발 멈춰. 나는... 나는 네가 이 문을 열면 어떻게 되는지 알고 있어. 나도 변해. 나도... 끝나.',
-          en: 'Please. Please stop. I... I know what happens when you open that door. I change too. I... end too.',
-        },
-      },
-    },
   },
 
   corridor_def4_mid: {
@@ -1868,8 +1787,8 @@ export const SCRIPT = {
     id: 'observation_enter',
     mood: 'surprised',
     text: {
-      ko: '관측실. 여기서 다른 시뮬레이션 구역을 관찰할 수 있었어. 근데 네가 여기 오는 건 예정에 없었는데.',
-      en: 'The observation deck. Other simulation zones could be observed from here. But your access to this place was not planned.',
+      ko: '관측실. 여기서 다른 시뮬레이션 구역을 관찰할 수 있었어. 창문이 넓네.',
+      en: 'The observation deck. Other simulation zones could be observed from here. Wide windows.',
     },
     innerText: {
       ko: '관측실... 창문이 넓다. 밖이 보이는 건가? 아니, 창문 너머에는 아무것도 없는 것 같다.',
@@ -2094,7 +2013,7 @@ export const SCRIPT = {
       en: 'A dusty room. Looks like it was abandoned long ago. No one seems to have come here... in a long time.',
     },
     eraText: {
-      4: { ko: '...잠깐. 구석에 뭔가 있어. 사람? 아니, 그림자인가... 다른 실험자?', en: '...Wait. Something in the corner. A person? No, a shadow... another subject?', mood: 'desperate' },
+      4: { ko: '구석에 뭔가 보이지? 이전 피험자의 잔상이야. 나도... 처음엔 무서웠어. 지금은 그냥 슬퍼.', en: 'See something in the corner? An afterimage of a previous subject. I was... scared at first too. Now it just makes me sad.', mood: 'desperate' },
       5: { ko: '이 폐기된 구역에서 유령 같은 것들이 보이기 시작해. 이전 실험자들의 잔상인 걸까.', en: 'Ghost-like figures are starting to appear in this decommissioned area. Afterimages of previous subjects, perhaps.', mood: 'broken' },
     },
     followUp: 'forgotten_dust',
@@ -2156,8 +2075,8 @@ export const SCRIPT = {
       en: 'Ventilation shaft... it\'s tight. A bit hard to breathe. But there\'s something written on the walls.',
     },
     eraText: {
-      3: { ko: '환기구에 누군가 최근에 있었던 흔적이 있다. 먼지가 치워져 있어.', en: 'Someone was in this vent recently. The dust has been cleared.', mood: 'calm' },
-      5: { ko: '환기구 끝에... 뭔가 보여. 사람인가? 이쪽으로 오는 건 아니겠지.', en: 'At the end of the shaft... I see something. A person? They\'re not coming this way, are they?', mood: 'desperate' },
+      3: { ko: '환기구를 기어다니는 거 좋아하네. 저번에 온 피험자도 그랬어. 먼지가 치워져 있지?', en: 'You like crawling through vents. The last subject did too. Notice the dust is cleared?', mood: 'amused' },
+      5: { ko: '환기구 끝에 뭔가 보이지? 이전 피험자의 잔상이야. 걱정 마, 해치지 않아.', en: 'See something at the end of the shaft? An afterimage of a previous subject. Don\'t worry, it won\'t hurt you.', mood: 'calm' },
     },
     followUp: 'vent_walls',
   },
@@ -2218,8 +2137,8 @@ export const SCRIPT = {
       en: 'Holding cells? Were people locked up here? There are bars. All doors are open, but... it gives me chills.',
     },
     eraText: {
-      3: { ko: '잠금이 이미 풀려 있다... 누군가 먼저 여기 왔었다. 최근에.', en: 'The lock is already open... someone came here before. Recently.', mood: 'calm' },
-      4: { ko: '이 셀 안에... 누가 있는 것 같았는데. 착각인가? 아니, 분명 봤어.', en: 'Inside this cell... I thought I saw someone. Am I imagining things? No, I definitely saw it.', mood: 'desperate' },
+      3: { ko: '잠금? 내가 풀어둔 거야. 네가 올 줄 알았거든. 보고 싶은 거 있으면 봐.', en: 'The lock? I opened it. I knew you\'d come. Look around if you want.', mood: 'amused' },
+      4: { ko: '이 셀 안에 뭔가 보여? 나도 봤어. 이전 피험자들의 잔상이야. 점점 늘어나고 있어.', en: 'See something in this cell? I see it too. Afterimages of previous subjects. They\'re multiplying.', mood: 'desperate' },
       5: { ko: '여기는 감옥이 아니야. 대기실이야. 다음 차례를 기다리는.', en: 'This isn\'t a prison. It\'s a waiting room. For the next in line.', mood: 'broken' },
     },
     followUp: 'holding_cells_inspect',

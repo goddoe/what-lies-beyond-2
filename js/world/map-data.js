@@ -840,10 +840,10 @@ export const ROOMS = [
       { type: 'pipe', position: [-3, 2.2, 0], size: [0.12, 0.12, 8], color: 0x666655 },
       { type: 'pipe', position: [3, 2.4, 0], size: [0.12, 0.12, 8], color: 0x666655 },
       { type: 'pipe_vert', position: [-5.5, 1.2, -3], size: [0.12, 2.4, 0.12], color: 0x666655 },
-      // Storage boxes
-      { type: 'box', position: [-2, 0, 2.5], size: [0.8, 0.8, 0.8], color: 0x555544 },
-      { type: 'box', position: [-1.5, 0, 3], size: [0.6, 0.6, 0.6], color: 0x555544 },
-      { type: 'box', position: [-1, 0.6, 2.5], size: [0.5, 0.5, 0.5], color: 0x555544 },
+      // Supply crates near vent entrance
+      { type: 'crate', position: [-2, 0, 2.5], size: [0.8, 0.6, 0.6], color: 0x6a5a3a },
+      { type: 'crate', position: [-1.1, 0, 2.7], size: [0.6, 0.5, 0.5], color: 0x5a4a30 },
+      { type: 'crate', position: [-1.8, 0.6, 2.5], size: [0.5, 0.4, 0.5], color: 0x6a5a3a },
       // Tool shelf
       { type: 'shelf', position: [5, 0, 2.5], size: [0.4, 1.5, 1], color: 0x555544 },
       // Warning stripes (floor marking)
@@ -1071,7 +1071,7 @@ export const ROOMS = [
       // Temperature gauges (small wall items)
       { type: 'panel', position: [-3.8, 1.2, 0], size: [0.1, 0.6, 0.4], color: 0x444455 },
       // Cooling valve wheel (interactable)
-      { type: 'valve', position: [0, 0, 2], size: [0.8, 0.8, 0.4], color: 0x334455, id: 'cooling_console' },
+      { type: 'valve', position: [0, 0, 2], size: [0.8, 0.8, 0.4], color: 0x334455, id: 'cooling_console', rotY: Math.PI },
       // Grated floor
       { type: 'grate', position: [0, 0.01, 0], size: [6, 0.02, 4], color: 0x333344 },
     ],
@@ -1100,9 +1100,9 @@ export const ROOMS = [
     props: [
       // Main generator unit
       { type: 'generator', position: [0, 0, -1.5], size: [3, 2, 2], color: 0x444433 },
-      // Exhaust pipes
-      { type: 'pipe', position: [-2, 2, -1.5], size: [0.2, 0.2, 3], color: 0x555544 },
-      { type: 'pipe', position: [2, 2, -1.5], size: [0.2, 0.2, 3], color: 0x555544 },
+      // Exhaust pipes (ceiling-mounted)
+      { type: 'pipe', position: [-2, 2.6, -1.5], size: [0.15, 0.15, 3], color: 0x555544 },
+      { type: 'pipe', position: [2, 2.6, -1.5], size: [0.15, 0.15, 3], color: 0x555544 },
       // Control panel (mounted on north wall, away from west/east doors)
       { type: 'panel', position: [0, 0.5, -2.85], size: [1.5, 1.5, 0.15], color: 0x555555 },
       // Fuel drums

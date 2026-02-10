@@ -109,7 +109,7 @@ const SURFACE_DEFAULTS = {
 
 // Map prop types to surface types
 const PROP_SURFACE_MAP = {
-  desk: 'wood', table: 'wood', counter: 'wood', shelf: 'wood',
+  desk: 'wood', table: 'wood', counter: 'wood', shelf: 'wood', crate: 'wood',
   cabinet: 'metal', rack: 'metal', railing: 'metal', bars: 'metal', valve: 'metal',
   pipe: 'rusty_metal', pipe_vert: 'rusty_metal', grate: 'rusty_metal',
   drum: 'rusty_metal', tank: 'rusty_metal', generator: 'metal',
@@ -935,6 +935,7 @@ export class MapBuilder {
       case 'rack': return this._detailRack(sw, sh, sd, material);
       case 'console': return this._detailConsole(sw, sh, sd, material, roomId);
       case 'valve': return this._detailValve(sw, sh, sd, material);
+      case 'crate': return this._detailCrate(sw, sh, sd, material);
       default: return null;
     }
   }
@@ -1743,6 +1744,45 @@ export class MapBuilder {
     );
     gaugeFace.position.set(sw * 0.35, sh * 0.7, 0.035);
     group.add(gaugeFace);
+
+    return group;
+  }
+
+  _detailCrate(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const stripMat = this._getOrCreateMaterial(0x555555, { roughness: 0.5, metalness: 0.5 });
+    const stripW = 0.02;
+
+    // Main body — slightly inset from full size
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.01, sh - 0.01, sd - 0.01), material);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // 4 vertical corner strips
+    const stripGeo = new THREE.BoxGeometry(stripW, sh, stripW);
+    const hx = sw / 2, hz = sd / 2;
+    for (const [cx, cz] of [[-hx, -hz], [hx, -hz], [-hx, hz], [hx, hz]]) {
+      const strip = new THREE.Mesh(stripGeo, stripMat);
+      strip.position.set(cx, sh / 2, cz);
+      group.add(strip);
+    }
+
+    // 2 horizontal bands (front + back)
+    const bandH = stripW;
+    const bandY = sh * 0.35;
+    const bandGeo = new THREE.BoxGeometry(sw + 0.005, bandH, stripW);
+    for (const bz of [-hz, hz]) {
+      const band = new THREE.Mesh(bandGeo, stripMat);
+      band.position.set(0, bandY, bz);
+      group.add(band);
+    }
+    // 2 horizontal bands (left + right sides)
+    const sideBandGeo = new THREE.BoxGeometry(stripW, bandH, sd + 0.005);
+    for (const bx of [-hx, hx]) {
+      const band = new THREE.Mesh(sideBandGeo, stripMat);
+      band.position.set(bx, bandY, 0);
+      group.add(band);
+    }
 
     return group;
   }

@@ -98,26 +98,27 @@ if (currentVariant) {
 
 function applyEraAtmosphere(eraLevel) {
   // OutputPass handles Linear→sRGB — no brightness compensation needed
+  // colorShift: subtle base value — intermittent spikes applied in game loop
   if (eraLevel >= 9) {
     postfx.setNoise(0.04);
     postfx.setScanlines(0.06);
-    postfx.setColorShift(0.7);
+    postfx.setColorShift(0.08);
     postfx.setGlitch(0.01);
     postfx.enabled = true;
   } else if (eraLevel >= 8) {
     postfx.setNoise(0.035);
     postfx.setScanlines(0.05);
-    postfx.setColorShift(0.6);
+    postfx.setColorShift(0.06);
     postfx.enabled = true;
   } else if (eraLevel >= 5) {
     postfx.setNoise(0.03);
     postfx.setScanlines(0.04);
-    postfx.setColorShift(0.5);
+    postfx.setColorShift(0.04);
     postfx.enabled = true;
   } else if (eraLevel >= 4) {
     postfx.setNoise(0.012);
     postfx.setScanlines(0.02);
-    postfx.setColorShift(0.35);
+    postfx.setColorShift(0.02);
     postfx.enabled = true;
   } else if (eraLevel >= 3) {
     postfx.setPixelSize(0.007);
@@ -1821,6 +1822,28 @@ function gameLoop() {
   if (era10Ending.active) {
     era10Ending.update(delta);
     era10Ending.render();
+  }
+
+  // Intermittent color shift spikes for era 4+ (brief glitch pulses)
+  if (postfx.enabled && era >= 4) {
+    // Base colorShift is subtle (set by applyEraAtmosphere)
+    // Spike: random bursts lasting ~0.3s, every 8-15 seconds
+    const spikeChance = era >= 8 ? 0.003 : era >= 5 ? 0.002 : 0.001; // per frame
+    if (!postfx._colorSpike && Math.random() < spikeChance) {
+      const peakShift = era >= 9 ? 0.5 : era >= 8 ? 0.4 : era >= 5 ? 0.3 : 0.2;
+      postfx._colorSpike = { peak: peakShift, remaining: 0.25 + Math.random() * 0.15 };
+    }
+    if (postfx._colorSpike) {
+      postfx._colorSpike.remaining -= delta;
+      if (postfx._colorSpike.remaining <= 0) {
+        // Restore base value
+        const base = era >= 9 ? 0.08 : era >= 8 ? 0.06 : era >= 5 ? 0.04 : 0.02;
+        postfx.setColorShift(base);
+        postfx._colorSpike = null;
+      } else {
+        postfx.setColorShift(postfx._colorSpike.peak);
+      }
+    }
   }
 
   // Render — use postfx only when effects are active, otherwise direct render
