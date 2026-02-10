@@ -761,6 +761,7 @@ export class MapBuilder {
 
     if (detailed) {
       detailed.position.set(ox + px, oy + py, oz + pz);
+      if (prop.rotY) detailed.rotation.y = prop.rotY;
       this.group.add(detailed);
       // Use the first child or group bounding box for collider
       mainMesh = detailed;
@@ -770,6 +771,7 @@ export class MapBuilder {
         const colliderGeo = new THREE.BoxGeometry(sw, sh, sd);
         const colliderMesh = new THREE.Mesh(colliderGeo);
         colliderMesh.position.set(ox + px, oy + py + sh / 2, oz + pz);
+        if (prop.rotY) colliderMesh.rotation.y = prop.rotY;
         colliderMesh.visible = false;
         this.group.add(colliderMesh);
         this.colliders.push(colliderMesh);
@@ -778,6 +780,7 @@ export class MapBuilder {
       const geo = new THREE.BoxGeometry(sw, sh, sd);
       mainMesh = new THREE.Mesh(geo, mat);
       mainMesh.position.set(ox + px, oy + py + sh / 2, oz + pz);
+      if (prop.rotY) mainMesh.rotation.y = prop.rotY;
       // no shadow
       // shadows disabled for performance
       this.group.add(mainMesh);
@@ -812,6 +815,7 @@ export class MapBuilder {
       case 'monitor_wall': return this._detailMonitor(sw, sh, sd, material);
       case 'cabinet': return this._detailCabinet(sw, sh, sd, material);
       case 'rack': return this._detailRack(sw, sh, sd, material);
+      case 'console': return this._detailConsole(sw, sh, sd, material);
       default: return null;
     }
   }
@@ -967,6 +971,68 @@ export class MapBuilder {
       led.position.set(offX - 0.03, (sh / shelfCount) * i + 0.05, offZ + 0.01);
       group.add(led);
     }
+
+    return group;
+  }
+
+  _detailConsole(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const caseMat = this._getOrCreateMaterial(0x2a2822, { roughness: 0.6, metalness: 0.1 });
+    const darkMat = this._getOrCreateMaterial(0x111111, { roughness: 0.8, metalness: 0.0 });
+
+    // ── Main case body ──
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), caseMat);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // ── Recessed screen area (dark inset) ──
+    const recessW = sw * 0.72;
+    const recessH = sh * 0.47;
+    const screenY = sh * 0.62;
+    const recess = new THREE.Mesh(
+      new THREE.BoxGeometry(recessW, recessH, 0.03),
+      darkMat
+    );
+    recess.position.set(0, screenY, sd / 2 - 0.01);
+    group.add(recess);
+
+    // ── Emissive screen ──
+    const screenW = recessW - 0.04;
+    const screenH = recessH - 0.04;
+    const screen = new THREE.Mesh(
+      new THREE.PlaneGeometry(screenW, screenH),
+      material
+    );
+    screen.position.set(0, screenY, sd / 2 + 0.015);
+    group.add(screen);
+
+    // ── Ventilation slots (top front, 5 lines) ──
+    const ventY = sh - 0.06;
+    for (let i = 0; i < 5; i++) {
+      const vent = new THREE.Mesh(
+        new THREE.BoxGeometry(sw * 0.5, 0.004, 0.005),
+        darkMat
+      );
+      vent.position.set(0, ventY - i * 0.015, sd / 2 + 0.003);
+      group.add(vent);
+    }
+
+    // ── Floppy disk slot (below screen) ──
+    const floppyY = screenY - recessH / 2 - 0.06;
+    const floppy = new THREE.Mesh(
+      new THREE.BoxGeometry(sw * 0.2, 0.006, 0.005),
+      darkMat
+    );
+    floppy.position.set(sw * 0.15, floppyY, sd / 2 + 0.003);
+    group.add(floppy);
+
+    // ── Base/foot (slightly wider) ──
+    const foot = new THREE.Mesh(
+      new THREE.BoxGeometry(sw + 0.04, 0.025, sd + 0.04),
+      caseMat
+    );
+    foot.position.set(0, 0.0125, 0);
+    group.add(foot);
 
     return group;
   }

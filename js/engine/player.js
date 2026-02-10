@@ -120,9 +120,16 @@ export class Player {
     this.interactRaycaster.far = this.interactDistance;
 
     const meshes = this.interactables.map(i => i.mesh);
-    const hits = this.interactRaycaster.intersectObjects(meshes, false);
+    const hits = this.interactRaycaster.intersectObjects(meshes, true);
     if (hits.length > 0) {
-      return this.interactables.find(i => i.mesh === hits[0].object) || null;
+      const hitObj = hits[0].object;
+      return this.interactables.find(i => {
+        if (i.mesh === hitObj) return true;
+        // Check if hit object is a child of a Group interactable
+        let p = hitObj.parent;
+        while (p) { if (p === i.mesh) return true; p = p.parent; }
+        return false;
+      }) || null;
     }
     return null;
   }
