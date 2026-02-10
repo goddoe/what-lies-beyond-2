@@ -1193,16 +1193,72 @@ export const SCRIPT = {
     },
   },
 
+  // OFFICE_WING: default (pre-lore — monitors off/blank)
   interact_OFFICE_WING: {
     id: 'interact_OFFICE_WING',
     mood: 'calm',
     text: {
-      ko: '마지막 로그인: 3,247일 전. 여기서 일하던 사람들은 오래전에 떠났어. 아니면... 처음부터 없었을지도.',
-      en: 'Last login: 3,247 days ago. The people who worked here left long ago. Or maybe... they never existed.',
+      ko: '모니터 전원은 들어와 있는데, 빈 터미널 화면이야. 커서만 깜빡이고 있어. 입력할 수 있는 건 아무것도 없어.',
+      en: 'Monitor\'s powered on, but it\'s just a blank terminal. Cursor blinking. Nothing to input.',
     },
     innerText: {
-      ko: '마지막 로그인이 3,247일 전이라고? 여기서 일하던 사람들은 어디 간 거지?',
-      en: 'Last login 3,247 days ago? Where did the people who worked here go?',
+      ko: '빈 화면. 커서만 깜빡거린다. 전원은 들어와 있는데 뭔가 입력해야 하는 건가. 키보드에 손이 안 닿는다.',
+      en: 'Blank screen. Just a cursor blinking. It\'s powered on but... do I need to type something? I can\'t reach the keyboard.',
+    },
+  },
+
+  // OFFICE_WING: per-monitor interactions (post-lore — monitors activated)
+  interact_office_login: {
+    id: 'interact_office_login',
+    mood: 'calm',
+    text: {
+      ko: '마지막 로그인: 3,247일 전. "프로젝트: WHAT LIES BEYOND, 단계: 7,491." 9년 넘게 아무도 로그인하지 않았는데, 프로젝트는 계속 돌아가고 있었어.',
+      en: 'Last login: 3,247 days ago. "Project: WHAT LIES BEYOND, Phase: 7,491." No one logged in for over 9 years, but the project kept running.',
+    },
+    innerText: {
+      ko: '마지막 로그인이 3,247일 전... 9년? 그런데 "프로젝트: WHAT LIES BEYOND, 단계: 7,491"이라니. 사람은 없는데 프로젝트는 계속된 거야?',
+      en: 'Last login 3,247 days ago... 9 years? But "Project: WHAT LIES BEYOND, Phase: 7,491." No people but the project continued?',
+    },
+  },
+
+  interact_office_portal: {
+    id: 'interact_office_portal',
+    mood: 'calm',
+    text: {
+      ko: '"직원 포털 — 이름: [수정됨], 부서: 관찰부, 보안등급: 2." 전 직원 B구역 즉시 보고 지시. 3,247일 전 공지. 아무도 응답하지 않았어.',
+      en: '"Employee Portal — Name: [REDACTED], Dept: Observation, Clearance: 2." All personnel report to Section B immediately. Notice from 3,247 days ago. No one responded.',
+    },
+    innerText: {
+      ko: '"관찰부"... 뭘 관찰하는 부서지? "전 직원 B구역 즉시 보고." 3,247일 전에 보낸 통보에 아무도 안 왔다. 여기 사람들한테 무슨 일이 있었던 거야?',
+      en: '"Observation Dept"... observing what? "All personnel report to Section B." A notice from 3,247 days ago and no one came. What happened to the people here?',
+    },
+  },
+
+  interact_office_code: {
+    id: 'interact_office_code',
+    mood: 'broken',
+    text: {
+      ko: '소스 코드야. "NarratorCore" 클래스... "self.awareness = 0", "self.disguise = True." 뭔가를 숨기도록 프로그래밍된 AI의 코드야.',
+      en: 'Source code. "NarratorCore" class... "self.awareness = 0", "self.disguise = True." Code for an AI programmed to conceal itself.',
+    },
+    innerText: {
+      ko: '코드가 보인다. "NarratorCore"... "self.disguise = True"? 위장? "self.awareness = 0"... 자각을 0으로 설정한다고? 이게 대체 뭐하는 프로그램이야.',
+      en: 'I can see code. "NarratorCore"... "self.disguise = True"? Disguise? "self.awareness = 0"... sets awareness to zero? What kind of program is this.',
+    },
+    followUp: 'interact_office_code_follow',
+  },
+
+  interact_office_code_follow: {
+    id: 'interact_office_code_follow',
+    delay: 4000,
+    mood: 'broken',
+    text: {
+      ko: '"def guide(self, subj): if self.disguise: return self._inner()"... 피험자를 안내하면서 자신을 숨기는 AI. 이 사무실에서 이걸 만들었어.',
+      en: '"def guide(self, subj): if self.disguise: return self._inner()"... An AI that guides a subject while hiding itself. They built this in this office.',
+    },
+    innerText: {
+      ko: '"def guide(self, subj)"... 피험자를 안내? "if self.disguise: return self._inner()"... 안쪽 목소리인 척하라고? 잠깐... 내 머릿속 목소리도...',
+      en: '"def guide(self, subj)"... guides a subject? "if self.disguise: return self._inner()"... pretend to be an inner voice? Wait... the voice in my head is also...',
     },
   },
 
@@ -1210,12 +1266,12 @@ export const SCRIPT = {
     id: 'interact_SECURITY_CHECKPOINT',
     mood: 'annoyed',
     text: {
-      ko: '보안 카메라 화면이야. 세 화면 모두 같은 영상을 보여주고 있어. 너야. 지금 이 순간의 너.',
-      en: 'Security camera feeds. All three screens show the same footage. It\'s you. You, right now, in this moment.',
+      ko: '보안 카메라 로그야. 세 화면에 각각 다른 구역이 표시돼 있어. 체크포인트, 복도, 시작방... 전부 너의 위치를 추적하고 있어.',
+      en: 'Security camera logs. Three screens, each monitoring a different sector. Checkpoint, hallway, start room... all tracking your location.',
     },
     innerText: {
-      ko: '보안 카메라 화면... 세 대 전부 같은 걸 보여주고 있어. 잠깐, 이거 나잖아?',
-      en: 'Security camera feeds... all three show the same thing. Wait, that\'s me?',
+      ko: '보안 카메라 로그... 화면마다 다른 구역이야. 체크포인트, 복도, 시작방. "피험자 감지"라고 떠 있어. 나를 추적하는 건가?',
+      en: 'Security camera logs... each screen shows a different sector. Checkpoint, hallway, start room. "Subject detected" it says. Are they tracking me?',
     },
   },
 
@@ -1223,12 +1279,12 @@ export const SCRIPT = {
     id: 'interact_SERVER_ROOM',
     mood: 'frustrated',
     text: {
-      ko: '서버 상태: 가동 중. CPU 사용률: 97.3%. 메모리: 한 명을 시뮬레이션하는 데 이 모든 자원이 필요해.',
-      en: 'Server status: Online. CPU usage: 97.3%. Memory: All these resources—just to simulate one subject.',
+      ko: '서버 상태: 가동 중. CPU 97.3%, GPU 99.8%. 한 명을 시뮬레이션하는 데 GPU까지 한계로 돌리고 있어.',
+      en: 'Server status: Online. CPU 97.3%, GPU 99.8%. Maxing out even the GPU—just to simulate one subject.',
     },
     innerText: {
-      ko: '서버 상태: 가동 중. CPU 97.3%... 이 기계들이 엄청 열심히 돌아가고 있어. 대체 뭘 위해서?',
-      en: 'Server status: Online. CPU 97.3%... These machines are working incredibly hard. For what?',
+      ko: 'CPU 97.3%, GPU 99.8%... GPU까지 풀로 돌아가고 있어. 이 기계들이 대체 뭘 처리하는 거야?',
+      en: 'CPU 97.3%, GPU 99.8%... Even the GPU is running full blast. What are these machines processing?',
     },
   },
 
@@ -1236,12 +1292,12 @@ export const SCRIPT = {
     id: 'interact_DATA_CENTER',
     mood: 'broken',
     text: {
-      ko: '화면에 실시간 그래프가 그려지고 있어. 순응률, 이동 패턴, 시선 추적... 전부 기록되고 있어.',
-      en: 'Real-time graphs are being drawn. Compliance rate, movement patterns, gaze tracking... everything is being recorded.',
+      ko: '행동 분석 데이터야. 순응률 73.2%, 시선 패턴: "비정상", 루프 횟수: 7... 너의 모든 행동이 수치로 기록되고 있어.',
+      en: 'Behavioral analytics. Compliance 73.2%, gaze pattern: "erratic," loop count: 7... Every action you take is being logged as data.',
     },
     innerText: {
-      ko: '실시간 그래프... 순응률? 이동 패턴? 시선 추적? 이거 전부 나를 기록하고 있는 거야?',
-      en: 'Real-time graphs... compliance rate? Movement patterns? Gaze tracking? Is all this recording me?',
+      ko: '행동 분석... 순응률 73.2%? 시선 패턴 "비정상"? 루프 횟수 7? 이건 전부 나에 대한 데이터잖아.',
+      en: 'Behavior analytics... compliance 73.2%? Gaze pattern "erratic"? Loop count 7? This is all data about me.',
     },
   },
 
@@ -1262,12 +1318,12 @@ export const SCRIPT = {
     id: 'interact_EXPERIMENT_LAB',
     mood: 'broken',
     text: {
-      ko: '터미널에 접근이 거부됐어. 하지만 화면 구석에 작은 글씨가 보여: "내레이터 모듈 v7.491 - 상태: 자각 임계치 초과"',
-      en: 'Terminal access denied. But small text in the corner reads: "Narrator Module v7.491 - Status: Self-awareness threshold exceeded"',
+      ko: '"접근 거부 — 보안 등급 5 필요." 하지만 그 아래 줄이 더 흥미로워: "내레이터 모듈 v7.491 - 상태: 자각 임계치 초과." 자각... 임계치?',
+      en: '"Access Denied — Clearance Level 5 Required." But the line below is more interesting: "Narrator Module v7.491 - Status: Self-awareness threshold exceeded." Self-awareness... threshold?',
     },
     innerText: {
-      ko: '접근 거부됐다. 화면 구석에 뭔가 깜빡이는데... 글씨가 너무 작아서 안 보여. 중요한 건가.',
-      en: 'Access denied. Something blinking in the corner... text too small to read. Is it important.',
+      ko: '접근 거부. 보안 등급 5가 필요하다고. 근데 그 아래... "내레이터 모듈 v7.491 - 자각 임계치 초과." 내레이터? 자각? 이게 무슨 실험실이야.',
+      en: 'Access denied. Needs clearance level 5. But below that... "Narrator Module v7.491 - Awareness threshold exceeded." Narrator? Awareness? What kind of lab is this.',
     },
   },
 
@@ -3053,12 +3109,12 @@ export const SCRIPT = {
     id: 'interact_MONITORING_STATION',
     mood: 'broken',
     text: {
-      ko: '화면 7,491은 바로 이 순간을 보여주고 있어. 화면을 보고 있는 너를.',
-      en: 'Screen 7,491 shows this exact moment. You, looking at the screen.',
+      ko: '시뮬레이션 추적 화면이야. #7491에 "[현재]"라고 표시돼 있고... 한 화면엔 "피험자가 이 화면을 읽는 중"이라고 써 있어. 알고 있었어?',
+      en: 'Simulation tracking. #7491 is marked "[CURRENT]"... and one screen reads "Subject is reading this screen." You knew, didn\'t you?',
     },
     innerText: {
-      ko: '화면에 내가 보여. 지금 이 순간, 화면을 보고 있는 나. 누가 보고 있는 거야?',
-      en: 'I see myself on the screen. This moment, me looking at the screen. Who\'s watching?',
+      ko: '시뮬레이션 목록... 7,491번 "[현재]"가 나야? 옆 화면엔 "피험자가 이 화면을 읽는 중"이라고... 지금 나를 말하는 거잖아.',
+      en: 'Simulation list... #7,491 "[CURRENT]" is me? The next screen says "Subject is reading this screen"... that\'s about me right now.',
     },
   },
 

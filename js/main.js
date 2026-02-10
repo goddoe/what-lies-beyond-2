@@ -70,6 +70,7 @@ mapBuilder.setLang(getLanguage());
 
 // Initial variant selection for era 4+
 currentVariant = selectVariant(era, memory.lastVariant);
+mapBuilder.collectedLore = memory.loreCollected;
 const buildResult = mapBuilder.build(era, currentVariant);
 player.setColliders(buildResult.colliders);
 player.setInteractables(buildResult.interactables);
@@ -101,26 +102,32 @@ function applyEraAtmosphere(eraLevel) {
     postfx.setScanlines(0.06);
     postfx.setColorShift(0.7);
     postfx.setGlitch(0.01);
+    postfx.setBrightness(1.4);
     postfx.enabled = true;
   } else if (eraLevel >= 8) {
     postfx.setNoise(0.035);
     postfx.setScanlines(0.05);
     postfx.setColorShift(0.6);
+    postfx.setBrightness(1.35);
     postfx.enabled = true;
   } else if (eraLevel >= 5) {
     postfx.setNoise(0.03);
     postfx.setScanlines(0.04);
     postfx.setColorShift(0.5);
+    postfx.setBrightness(1.3);
     postfx.enabled = true;
   } else if (eraLevel >= 4) {
     postfx.setNoise(0.012);
     postfx.setScanlines(0.02);
     postfx.setColorShift(0.35);
+    postfx.setBrightness(1.2);
     postfx.enabled = true;
   } else if (eraLevel >= 3) {
     postfx.setPixelSize(0.007);
+    postfx.setBrightness(1.0);
     postfx.enabled = true;
   } else {
+    postfx.setBrightness(1.0);
     postfx.enabled = false;
   }
   // All eras use renderer defaults (fog 0x1a1a25, exposure 2.4)
@@ -174,6 +181,7 @@ player.onUnlock = () => {
   if (gameState.is(State.PLAYING) && !codeInputActive) {
     gameState.set(State.PAUSED);
     updateEndingTracker();
+    updateLoreTracker();
   }
 };
 
@@ -207,6 +215,22 @@ function updateEndingTracker() {
     const label = unlocked ? (lang === 'ko' ? e.ko : e.en) : '???';
     return `<span class="ending-chip ${unlocked ? 'unlocked' : 'locked'}">${label}</span>`;
   }).join('');
+}
+
+function updateLoreTracker() {
+  const container = document.getElementById('lore-tracker');
+  if (!container) return;
+  const lang = getLanguage();
+  const count = memory.loreCollected.size;
+  if (count === 0) {
+    container.textContent = '';
+    return;
+  }
+  const complete = count >= 8;
+  container.className = 'lore-tracker' + (complete ? ' lore-complete' : '');
+  container.textContent = complete
+    ? (lang === 'ko' ? `◆ 로어 수집 완료 (${count}/8) ◆` : `◆ Lore Complete (${count}/8) ◆`)
+    : (lang === 'ko' ? `로어 ${count}/8` : `Lore ${count}/8`);
 }
 
 // Ending restart
@@ -447,12 +471,18 @@ document.addEventListener('keydown', (e) => {
     }
 
     if (target.propId === 'garden_terminal') {
-      if (inventory.has('keycard')) {
+      if (inventory.has('keycard') && !tracker.puzzlesCompleted.has('keycard_used')) {
         narratorLine('keycard_use');
         tracker.completePuzzle('keycard_used');
+        // Unlock the keycard door — makes it interactable (E key to open), stays closed
         mapBuilder.unlockDoor('GARDEN_ANTECHAMBER', 'north', player.colliders);
-        showInventoryPopup('정원 문 해제됨', 'Garden Door Unlocked');
-      } else {
+        // Add the new door interactable to player's list
+        const newDoorInteractable = mapBuilder.interactables[mapBuilder.interactables.length - 1];
+        if (newDoorInteractable && newDoorInteractable.type === 'door') {
+          player.interactables.push(newDoorInteractable);
+        }
+        showInventoryPopup('정원 문 해제됨 — E키로 열기', 'Garden Door Unlocked — Press E to open');
+      } else if (!inventory.has('keycard')) {
         narratorLine('garden_ante_terminal');
       }
       return;
@@ -472,13 +502,21 @@ document.addEventListener('keydown', (e) => {
     }
 
     // Lore document interactions
-    if (target.type === 'document' && target.propId) {
+    if (target.type === 'document' && target.propId && target.propId.startsWith('lore_')) {
       const loreId = target.propId;
-      if (!tracker.loreFound.has(loreId)) {
+      if (!memory.loreCollected.has(loreId)) {
+        memory.collectLore(loreId);
         tracker.findLore(loreId);
         addAwareness(2, 'lore');
         narratorLine(loreId);
-        showInventoryPopup(`로어 발견 (${tracker.loreFound.size}/8)`, `Lore Found (${tracker.loreFound.size}/8)`);
+        // Remove mesh from scene and interactables
+        if (target.mesh) {
+          target.mesh.visible = false;
+          if (target.mesh.parent) target.mesh.parent.remove(target.mesh);
+        }
+        const ii = player.interactables.indexOf(target);
+        if (ii >= 0) player.interactables.splice(ii, 1);
+        showInventoryPopup(`로어 발견 (${memory.loreCollected.size}/8)`, `Lore Found (${memory.loreCollected.size}/8)`);
       }
       return;
     }
@@ -489,6 +527,17 @@ document.addEventListener('keydown', (e) => {
       return;
     }
 
+    // Prop-specific interaction (e.g. per-monitor in OFFICE_WING after lore completion)
+    const lang = getLanguage();
+    if (target.propId && memory.allLoreCollected) {
+      const propScript = `interact_${target.propId}`;
+      const propLine = getLine(propScript, tracker, lang, gameState, memory, awarenessLevel);
+      if (propLine) {
+        narratorLine(propScript);
+        return;
+      }
+    }
+
     // Room-specific or type-based interaction
     const roomScript = `interact_${target.room}`;
     const typeMap = {
@@ -497,7 +546,6 @@ document.addEventListener('keydown', (e) => {
       'monitor_wall': 'interact_monitor_wall',
     };
 
-    const lang = getLanguage();
     const roomLine = getLine(roomScript, tracker, lang, gameState, memory, awarenessLevel);
     if (roomLine) {
       narratorLine(roomScript);
@@ -1184,6 +1232,7 @@ function restartGame() {
   postfx.setPixelSize(0);
   postfx.setColorShift(0);
   postfx.setBloom(false);
+  postfx.setBrightness(1.0);
   postfx.enabled = false;
   renderer.setExposure(2.4);
   renderer.setFogColor(0x1a1a25);
@@ -1197,6 +1246,7 @@ function restartGame() {
     memory.lastVariant = currentVariant.id;
     memory.save();
   }
+  mapBuilder.collectedLore = memory.loreCollected;
   const result = mapBuilder.build(newEra, currentVariant);
   player.setColliders(result.colliders);
   player.setInteractables(result.interactables);
@@ -1473,6 +1523,7 @@ function startCCTVMode(eraLevel) {
 
   // Build the map normally so the 3D scene is visible
   mapBuilder.clear();
+  mapBuilder.collectedLore = memory.loreCollected;
   const result = mapBuilder.build(eraLevel, null);
   activeGhosts = result.ghosts || [];
   doorSystem = result.doorSystem;
@@ -1506,6 +1557,7 @@ function startTerminalMode() {
 
   // Build map in background for the zoom-out reveal
   mapBuilder.clear();
+  mapBuilder.collectedLore = memory.loreCollected;
   const result = mapBuilder.build(10, null);
   activeGhosts = result.ghosts || [];
   doorSystem = result.doorSystem;
@@ -1595,10 +1647,12 @@ function updateEnvironment() {
   if (defiance >= 6) {
     postfx.setNoise(0.01);
     postfx.setScanlines(0.05);
+    postfx.setBrightness(1.15);
     postfx.enabled = true;
   } else if (defiance >= 4) {
     postfx.setScanlines(0.03);
     postfx.setNoise(0);
+    postfx.setBrightness(1.1);
     postfx.enabled = true;
   } else if (era < 3) {
     // Only disable postfx when era atmosphere hasn't enabled it

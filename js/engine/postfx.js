@@ -14,6 +14,7 @@ const GlitchScanlineShader = {
     noiseIntensity: { value: 0.0 },
     pixelSize: { value: 0.0 },
     colorShift: { value: 0.0 },
+    brightness: { value: 1.0 },
   },
   vertexShader: /* glsl */ `
     varying vec2 vUv;
@@ -30,6 +31,7 @@ const GlitchScanlineShader = {
     uniform float noiseIntensity;
     uniform float pixelSize;
     uniform float colorShift;
+    uniform float brightness;
     varying vec2 vUv;
 
     float random(vec2 st) {
@@ -74,6 +76,9 @@ const GlitchScanlineShader = {
         vec3 c = gl_FragColor.rgb;
         gl_FragColor.rgb = mix(c, vec3(c.g, c.b, c.r), colorShift);
       }
+
+      // Brightness compensation (counteracts darkening from scanlines/effects)
+      gl_FragColor.rgb *= brightness;
     }
   `,
 };
@@ -123,6 +128,10 @@ export class PostFX {
   setColorShift(amount) {
     this.glitchPass.uniforms.colorShift.value = amount;
     if (amount > 0) this.enabled = true;
+  }
+
+  setBrightness(value) {
+    this.glitchPass.uniforms.brightness.value = value;
   }
 
   update(time) {

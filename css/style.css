@@ -9,7 +9,7 @@ body {
   background: #000;
   font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
   color: #fff;
-  cursor: none;
+  cursor: default;
 }
 
 #game-canvas {
@@ -142,6 +142,21 @@ body {
   color: rgba(180, 220, 255, 0.9);
   border-color: rgba(180, 220, 255, 0.35);
   text-shadow: 0 0 6px rgba(140, 180, 255, 0.3);
+}
+
+/* Lore Tracker (Pause Menu) */
+.lore-tracker {
+  text-align: center;
+  margin: 0.6em 0 1em;
+  font-size: 0.8rem;
+  color: rgba(220, 190, 100, 0.85);
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 6px rgba(200, 170, 60, 0.2);
+}
+
+.lore-tracker.lore-complete {
+  color: rgba(255, 215, 80, 1);
+  text-shadow: 0 0 10px rgba(255, 200, 40, 0.4);
 }
 
 .controls-hint {

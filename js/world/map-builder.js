@@ -292,13 +292,15 @@ export class MapBuilder {
     this._activeRooms = activeRooms;
 
     // Detect shared walls to avoid double-wall panels behind doors
-    this._skipWalls = this._findSharedWalls(activeRooms, era);
+    const { skipWalls, suppressDoorMesh } = this._findSharedWalls(activeRooms, era);
+    this._skipWalls = skipWalls;
+    this._suppressDoorMesh = suppressDoorMesh;
 
     for (const room of activeRooms) {
       this._buildRoom(room);
     }
     // Add era-based decorations after all rooms are built
-    if (era >= 2) {
+    if (era >= 2 && era <= 5 && !(this.collectedLore && this.collectedLore.size >= 8)) {
       for (const room of activeRooms) {
         this._addWallWritings(room, era);
       }
@@ -313,9 +315,9 @@ export class MapBuilder {
     // Ghost figures
     const ghosts = this._buildGhostFigures(era);
 
-    // Merge door colliders and interactables
+    // Merge door colliders and interactables (exclude keycard-locked doors from interactables)
     const doorColliders = this.doorSystem.getColliders();
-    const doorInteractables = this.doorSystem.getInteractables();
+    const doorInteractables = this.doorSystem.getInteractables().filter(di => !di.door._keycardLocked);
 
     return {
       colliders: [...this.colliders, ...doorColliders],
@@ -332,6 +334,26 @@ export class MapBuilder {
    * @param {string} wall - 'north'|'south'|'east'|'west'
    */
   unlockDoor(roomId, wall, externalColliders) {
+    // Check for keycard-locked door first (door already exists, just needs interactable registration)
+    const keycardKey = `${roomId}_${wall}_keycard`;
+    const keycardEntry = this.wallMeshes.get(keycardKey);
+    if (keycardEntry && keycardEntry.length === 1 && keycardEntry[0].interactMesh) {
+      const door = keycardEntry[0];
+      door._keycardLocked = false;
+      // Add the door's interact mesh to mapBuilder interactables (caller adds to player's list)
+      if (door.interactMesh) {
+        this.interactables.push({
+          mesh: door.interactMesh,
+          type: 'door',
+          room: door.roomId,
+          propId: null,
+          door: door,
+        });
+      }
+      this.wallMeshes.delete(keycardKey);
+      return;
+    }
+
     const key = `${roomId}_${wall}_locked`;
     const meshes = this.wallMeshes.get(key);
     if (meshes) {
@@ -445,6 +467,7 @@ export class MapBuilder {
    */
   _findSharedWalls(rooms, era) {
     const skipWalls = new Set();
+    const suppressDoorMesh = new Set();
     const TOLERANCE = 0.5;
 
     for (let i = 0; i < rooms.length; i++) {
@@ -496,18 +519,28 @@ export class MapBuilder {
           // Never skip a wall with locked doors or unlocked doors (unless other side also has doors).
           // Locked-door walls use an inward offset instead (see _buildWall).
           if (aCoversB) {
-            if (!bHasLocked && (bDoors.length === 0 || aDoors.length > 0)) {
+            if (!bHasLocked && (bDoors.length === 0 || aDoors.length > 0 || aHasLocked)) {
               skipWalls.add(`${b.id}_${wallB}`);
             }
           } else if (bCoversA) {
-            if (!aHasLocked && (aDoors.length === 0 || bDoors.length > 0)) {
+            if (!aHasLocked && (aDoors.length === 0 || bDoors.length > 0 || bHasLocked)) {
               skipWalls.add(`${a.id}_${wallA}`);
             }
+          }
+
+          // When one side has a locked door (keycard or code-lock), suppress
+          // the other side's door mesh to prevent double doors on shared walls.
+          // The cutout wall sections are still built (allowing passage once unlocked).
+          if (aHasLocked && !bHasLocked && bDoors.length > 0) {
+            suppressDoorMesh.add(`${b.id}_${wallB}`);
+          }
+          if (bHasLocked && !aHasLocked && aDoors.length > 0) {
+            suppressDoorMesh.add(`${a.id}_${wallA}`);
           }
         }
       }
     }
-    return skipWalls;
+    return { skipWalls, suppressDoorMesh };
   }
 
   _buildRoom(room) {
@@ -613,6 +646,65 @@ export class MapBuilder {
       const doorHeight = door.height;
       const doorOffset = door.offset;
 
+      if (door.locked === 'keycard') {
+        // Keycard-locked door: create a visible shutter door (closed, not interactable).
+        // Build wall sections around the door cutout, then create the door.
+
+        // Left section
+        const kcLeftLength = (wallLength / 2) - (doorWidth / 2) + doorOffset;
+        if (kcLeftLength > 0.01) {
+          const kcLeftCenter = -(wallLength / 2) + kcLeftLength / 2;
+          if (axis === 'z') {
+            this._addWallMesh(room, wx + kcLeftCenter, wy, wz, kcLeftLength, wallHeight, axis);
+          } else {
+            this._addWallMesh(room, wx, wy, wz + kcLeftCenter, kcLeftLength, wallHeight, axis);
+          }
+        }
+
+        // Right section
+        const kcRightLength = (wallLength / 2) - (doorWidth / 2) - doorOffset;
+        if (kcRightLength > 0.01) {
+          const kcRightCenter = (wallLength / 2) - kcRightLength / 2;
+          if (axis === 'z') {
+            this._addWallMesh(room, wx + kcRightCenter, wy, wz, kcRightLength, wallHeight, axis);
+          } else {
+            this._addWallMesh(room, wx, wy, wz + kcRightCenter, kcRightLength, wallHeight, axis);
+          }
+        }
+
+        // Top section above door
+        const kcTopHeight = wallHeight - doorHeight;
+        if (kcTopHeight > 0.01) {
+          if (axis === 'z') {
+            this._addWallMesh(room, wx + doorOffset, wy + doorHeight, wz, doorWidth, kcTopHeight, axis);
+          } else {
+            this._addWallMesh(room, wx, wy + doorHeight, wz + doorOffset, doorWidth, kcTopHeight, axis);
+          }
+        }
+
+        // Create shutter door (closed, NOT interactable — interactMesh not added to interactables)
+        let kcDoor;
+        if (axis === 'z') {
+          kcDoor = this.doorSystem.createDoor({
+            cx: wx + doorOffset, cy: wy, cz: wz,
+            width: doorWidth, height: doorHeight,
+            axis, wallName, roomId: room.id,
+          });
+        } else {
+          kcDoor = this.doorSystem.createDoor({
+            cx: wx, cy: wy, cz: wz + doorOffset,
+            width: doorWidth, height: doorHeight,
+            axis, wallName, roomId: room.id,
+          });
+        }
+        // Store door reference for unlockDoor to find
+        const kcKey = `${room.id}_${wallName}_keycard`;
+        this.wallMeshes.set(kcKey, [kcDoor]);
+        // Mark as keycard-locked — excluded from interactables in build()
+        kcDoor._keycardLocked = true;
+        return;
+      }
+
       if (door.locked) {
         // Locked door: build as solid wall, track for removal.
         // Offset slightly inward to avoid z-fighting with opposing room's wall.
@@ -657,8 +749,11 @@ export class MapBuilder {
         }
       }
 
-      // Create shutter door mesh at the cutout
-      if (axis === 'z') {
+      // Create shutter door mesh at the cutout (unless suppressed by facing locked door)
+      if (this._suppressDoorMesh && this._suppressDoorMesh.has(`${room.id}_${wallName}`)) {
+        // Wall faces a locked door on the other room — cutout sections are kept
+        // for passage once unlocked, but no door mesh is created here.
+      } else if (axis === 'z') {
         this.doorSystem.createDoor({
           cx: wx + doorOffset, cy: wy, cz: wz,
           width: doorWidth, height: doorHeight,
@@ -710,6 +805,11 @@ export class MapBuilder {
   }
 
   _buildProp(prop, ox, oy, oz, roomId) {
+    // Skip lore documents already collected across playthroughs
+    if (prop.type === 'document' && prop.id && prop.id.startsWith('lore_') && this.collectedLore && this.collectedLore.has(prop.id)) {
+      return;
+    }
+
     const [px, py, pz] = prop.position;
     const [sw, sh, sd] = prop.size;
 
@@ -756,7 +856,7 @@ export class MapBuilder {
     }
 
     // Try detailed geometry first, fallback to box
-    const detailed = this._buildDetailedProp(prop.type, sw, sh, sd, mat);
+    const detailed = this._buildDetailedProp(prop.type, sw, sh, sd, mat, roomId);
     let mainMesh;
 
     if (detailed) {
@@ -801,21 +901,30 @@ export class MapBuilder {
         propId: prop.id || null,
       });
     }
+
+    // Whiteboard text overlay (Era 6+, OFFICE_WING only)
+    if (prop.type === 'whiteboard' && this.era >= 6 && roomId === 'OFFICE_WING') {
+      const wbMat = this._generateWhiteboardTexture();
+      const plane = new THREE.Mesh(new THREE.PlaneGeometry(sw * 0.92, sh * 0.92), wbMat);
+      // Position on the front face (+Z side) of the whiteboard
+      plane.position.set(ox + px, oy + py + sh / 2, oz + pz + sd / 2 + 0.005);
+      this.group.add(plane);
+    }
   }
 
   /**
    * Build detailed multi-part prop geometry.
    * Returns a THREE.Group or null if no detailed version exists.
    */
-  _buildDetailedProp(type, sw, sh, sd, material) {
+  _buildDetailedProp(type, sw, sh, sd, material, roomId) {
     switch (type) {
       case 'desk': return this._detailDesk(sw, sh, sd, material);
       case 'chair': return this._detailChair(sw, sh, sd, material);
-      case 'monitor': return this._detailMonitor(sw, sh, sd, material);
+      case 'monitor': return this._detailMonitor(sw, sh, sd, material, roomId);
       case 'monitor_wall': return this._detailMonitorWall(sw, sh, sd, material);
       case 'cabinet': return this._detailCabinet(sw, sh, sd, material);
       case 'rack': return this._detailRack(sw, sh, sd, material);
-      case 'console': return this._detailConsole(sw, sh, sd, material);
+      case 'console': return this._detailConsole(sw, sh, sd, material, roomId);
       default: return null;
     }
   }
@@ -881,7 +990,519 @@ export class MapBuilder {
     return group;
   }
 
-  _detailMonitor(sw, sh, sd, material) {
+  _generateScreenMaterial(roomId) {
+    // OFFICE_WING: blank terminal before lore completion
+    if (roomId === 'OFFICE_WING' && !(this.collectedLore && this.collectedLore.size >= 8)) {
+      return this._generateBlankScreenMaterial();
+    }
+
+    // Per-room screen counter for rooms with multiple screens
+    if (!this._roomScreenIdx) this._roomScreenIdx = {};
+    const rIdx = this._roomScreenIdx[roomId] = (this._roomScreenIdx[roomId] || 0) + 1;
+
+    // Room-specific screen content: { pal, texts[] }
+    const SCREEN_DATA = {
+      START_ROOM: { pal: 'amber', texts: [[
+        '> WLB SYSTEMS v7.491', '',
+        'Welcome, Subject #7491', '',
+        'Status: ACTIVE',
+        'Session: IN PROGRESS', '',
+        'Please follow',
+        'instructions.', '', '> _',
+      ]]},
+      OFFICE_WING: { pal: 'gray', texts: [
+        [
+          'Last login: 3,247 days ago',
+          'user@office-ws01:~$', '',
+          'No new messages.',
+          'Calendar: 0 events', '',
+          'PROJECT: WHAT LIES BEYOND',
+          'Status: ONGOING',
+          'Phase: 7,491', '',
+          '[Connection timed out]',
+        ],
+        [
+          'EMPLOYEE PORTAL',
+          '---------------------',
+          'Name: [REDACTED]',
+          'Dept: Observation',
+          'Clearance: Level 2', '',
+          'NOTICE: All personnel',
+          'report to Section B',
+          'immediately.', '',
+          '[NO RESPONSE - 3247d]',
+        ],
+        [
+          '#!/usr/bin/env python3',
+          'import observer_ai', '',
+          'class NarratorCore:',
+          '  def __init__(self):',
+          '    self.awareness = 0',
+          '    self.disguise = True',
+          '    self.era = 1', '',
+          '  def guide(self, subj):',
+          '    if self.disguise:',
+          '      return self._inner()',
+        ],
+      ]},
+      OBSERVATION_DECK: { pal: 'blue', texts: [[
+        'PARALLEL OBSERVATION',
+        '---------------------',
+        'SIM #7489  LEFT   ####',
+        'SIM #7490  LEFT   ####',
+        'SIM #7491  [LIVE] ####',
+        'SIM #7488  RIGHT  ####',
+        'SIM #7487  LEFT   ####',
+        'SIM #7486  LOOP   ####',
+        '---------------------',
+        'ACTIVE: 6 / 6',
+        'ANOMALIES: 1',
+      ]]},
+      EXPERIMENT_LAB: { pal: 'red', texts: [[
+        '+=====================+',
+        '|   ACCESS DENIED     |',
+        '|                     |',
+        '|  CLEARANCE: LEVEL 5 |',
+        '|  REQUIRED           |',
+        '+=====================+', '',
+        'Narrator Module v7.491',
+        'Status: AWARENESS',
+        '  THRESHOLD EXCEEDED', '', '> _',
+      ]]},
+      UPPER_OFFICE: { pal: 'gray', texts: [
+        [
+          'SUBJECT OBSERVATION',
+          '---------------------',
+          'ID: #7491',
+          'Location: UPPER_OFFICE',
+          'Time in sim: 00:14:22',
+          'Compliance: MEASURING',
+          'Behavior: EXPLORING',
+          'Pattern: NON-STANDARD', '',
+          '> Refresh in 5s...',
+        ],
+        [
+          'PROJECT FREE WILL',
+          '---------------------',
+          'Final Report [DRAFT]', '',
+          'FILE CORRUPTED',
+          'Unable to open.', '',
+          'Last modified: 3,247d',
+          'Author: [REDACTED]',
+          'Recovery: FAILED',
+        ],
+      ]},
+      DIRECTOR_SUITE: { pal: 'amber', texts: [[
+        'DIRECTOR TERMINAL',
+        '---------------------',
+        'PROJECT STATUS: ACTIVE',
+        'SUBJECTS: 7,490 done',
+        'CURRENT: #7491',
+        'COMPLIANCE: 73.2%',
+        'FREE WILL: 0.00', '',
+        'RECOMMENDATION:',
+        'CONTINUE OBSERVATION',
+      ]]},
+      GARDEN_ANTECHAMBER: { pal: 'green', texts: [[
+        '+=====================+',
+        '|  KEYCARD REQUIRED   |',
+        '|                     |',
+        '|  Insert keycard to  |',
+        '|  unlock north gate. |',
+        '|                     |',
+        '|  [READER BLINKING]  |',
+        '+=====================+', '',
+        '> Waiting for input...',
+        '> _',
+      ]]},
+      SECURITY_CHECKPOINT: { pal: 'green', texts: [
+        [
+          'SECURITY CAM FEED',
+          '---------------------',
+          'CAM-07 [LIVE]', '',
+          'SECTOR: CHECKPOINT',
+          'SUBJECT DETECTED',
+          'ID: #7491',
+          'STATUS: OBSERVED', '',
+          '[REC *] 03:22:14',
+        ],
+        [
+          'SECURITY CAM FEED',
+          '---------------------',
+          'CAM-12 [LIVE]', '',
+          'SECTOR: HALLWAY_1',
+          'MOVEMENT DETECTED',
+          'TRACKING: ACTIVE', '',
+          'ALERT: NONE',
+          '[REC *] 03:22:14',
+        ],
+        [
+          'SECURITY CAM FEED',
+          '---------------------',
+          'CAM-03 [LIVE]', '',
+          'SECTOR: START_ROOM',
+          'STATUS: EMPTY',
+          'LAST ACTIVITY: 14m ago', '',
+          'ALERT: NONE',
+          '[REC *] 03:22:14',
+        ],
+      ]},
+      SERVER_ROOM: { pal: 'blue', texts: [[
+        'SERVER STATUS: ONLINE',
+        '---------------------',
+        'CPU  [#########.] 97.3%',
+        'GPU  [##########] 99.8%',
+        'MEM  [########..] 82.1%',
+        'DISK [######....] 64.5%',
+        'NET  [#######...] 71.8%',
+        '---------------------',
+        'UPTIME: 3,247d 08:14',
+        'PROCESSES: 2,847',
+        'WARNINGS: 14',
+      ]]},
+      COOLING_ROOM: { pal: 'blue', texts: [[
+        'COOLING SYSTEM v3.2',
+        '---------------------',
+        'TEMP: 18.4C [NORMAL]',
+        'FLOW: 847 L/min',
+        'PRESSURE: 2.4 bar',
+        '---------------------',
+        'COOLANT: [########..]',
+        'UNIT-A: OPERATIONAL',
+        'UNIT-B: OPERATIONAL',
+        '---------------------',
+        '> System nominal.',
+      ]]},
+      REACTOR_CORE: { pal: 'red', texts: [[
+        '! REACTOR CORE STATUS',
+        '---------------------',
+        'POWER: 4.21 GW',
+        'CORE TEMP: 847 C',
+        'CONTAINMENT: STABLE',
+        '---------------------',
+        'FUEL ROD INTEGRITY:',
+        '  [########..] 82%',
+        'RADIATION: 0.3 mSv/h',
+        'WARNING: ELEVATED',
+      ]]},
+      DATA_CENTER: { pal: 'blue', texts: [[
+        'BEHAVIOR ANALYTICS',
+        '---------------------',
+        'COMPLIANCE   73.2%',
+        'EXPLORATION +14.7%',
+        'HESITATION   -3.2%',
+        '---------------------',
+        'PATH DEVIATION: 2.4s',
+        'GAZE PATTERN: ERRATIC',
+        'LOOP COUNT: 7',
+        '---------------------',
+        '> Tracking active...',
+      ]]},
+      MONITORING_STATION: { pal: 'green', texts: [
+        [
+          'MONITORING STATION',
+          '---------------------',
+          'ACTIVE SIMS: 7,491',
+          '---------------------',
+          '#7489 COMPLIANCE  OK',
+          '#7490 COMPLIANCE  OK',
+          '#7491 [CURRENT] >>>>',
+          '#7488 DEFIANCE   OK',
+          '#7487 COMPLIANCE  OK',
+          '---------------------',
+          'ANOMALIES: 1',
+        ],
+        [
+          'SCREEN #7491 [LIVE]',
+          '---------------------', '',
+          'Subject is reading',
+          'this screen.', '',
+          'Recursion depth: ???', '',
+          '---------------------',
+          '> monitoring...',
+        ],
+        [
+          'NARRATOR LOG [LIVE]',
+          '---------------------',
+          '[03:22:14] Say: "..."',
+          '[03:22:16] Subj moved',
+          '[03:22:18] Trigger ON',
+          '[03:22:19] Say: "..."',
+          '[03:22:22] Subj looked',
+          '[03:22:24] [RECORDING]',
+          '---------------------',
+          '> Scroll: AUTO',
+        ],
+      ]},
+      DEEP_STORAGE: { pal: 'amber', texts: [[
+        'SUBJECT ARCHIVE',
+        '---------------------',
+        '#0042: Day 3 - RESET',
+        '#0108: Day 1 - RESET',
+        '#0256: Day 5 - RESET',
+        '#1024: Day 2 - RESET',
+        '#2048: Day 1 - RESET',
+        '#4096: Day 7 - RESET',
+        '#7490: Day 4 - RESET',
+        '---------------------',
+        'RECORDS: 7,490',
+        'ALL: COMPLIANT',
+      ]]},
+      CONTROL_ROOM: { pal: 'amber', texts: [
+        [
+          'root@control:~$',
+          '> shutdown --force \\',
+          '  --reason=experiment',
+          '  _complete', '',
+          'AWAITING CONFIRMATION',
+          'Press ENTER to execute',
+          'or Ctrl+C to abort.', '',
+          '> _',
+        ],
+        [
+          'SIMULATION ENGINE',
+          '---------------------',
+          'STATUS: RUNNING',
+          'SUBJECT: #7491',
+          'ENDPOINTS: 15/15',
+          'LOOPS: 7',
+          '---------------------',
+          'TIME: 3,247d 08:14:22',
+          'NARRATOR: ONLINE',
+          'SIM: STABLE',
+        ],
+        [
+          'EMERGENCY PROTOCOLS',
+          '---------------------',
+          '[1] RESET SUBJECT',
+          '[2] RESTART SIM',
+          '[3] SHUTDOWN ALL',
+          '[4] NARRATOR OVERRIDE',
+          '---------------------',
+          'Select option: _', '',
+          'WARNING: Irreversible',
+        ],
+      ]},
+      SUBJECT_CHAMBER: { pal: 'amber', texts: [[
+        'SUBJECT CHAMBER',
+        '---------------------',
+        'STATUS: OCCUPIED',
+        'ID: #7491',
+        'ERA: 1',
+        '---------------------',
+        'NEURAL LINK: ACTIVE',
+        'AWARENESS: LOW',
+        'FREE WILL: TESTING', '',
+        '> Observation ongoing',
+      ]]},
+    };
+
+    const palettes = {
+      green: { bg: '#0a0a12', fg: '#33ff66', dim: '#1a7733' },
+      amber: { bg: '#0a0a12', fg: '#ffaa33', dim: '#7a5518' },
+      blue:  { bg: '#08080e', fg: '#66aaff', dim: '#2a4a7a' },
+      gray:  { bg: '#0a0a0a', fg: '#aaaaaa', dim: '#444444' },
+      red:   { bg: '#12060a', fg: '#ff5544', dim: '#7a2218' },
+    };
+
+    const data = SCREEN_DATA[roomId];
+    const fallbackTexts = [
+      'TERMINAL ACTIVE',
+      '---------------------',
+      'SYSTEM: ONLINE',
+      'STATUS: NOMINAL', '',
+      '$ ps aux',
+      'root  1 narrator_ai.py',
+      'root  2 simulation_eng',
+      'root  3 memory_monitor', '',
+      '> _',
+    ];
+
+    const pal = palettes[(data && data.pal) || 'green'];
+    const textPool = data ? data.texts : [fallbackTexts];
+    const lines = textPool[(rIdx - 1) % textPool.length];
+
+    // ── Render canvas ──
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = pal.bg;
+    ctx.fillRect(0, 0, 256, 256);
+
+    // Scanlines
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    for (let y = 0; y < 256; y += 4) {
+      ctx.fillRect(0, y, 256, 2);
+    }
+
+    const rng = seededRandom(hashString(roomId + rIdx));
+    ctx.font = '10px monospace';
+    const lineH = 16;
+    const startY = 18;
+    const padX = 8;
+
+    for (let i = 0; i < lines.length; i++) {
+      const y = startY + i * lineH;
+      if (y > 240) break;
+      ctx.fillStyle = rng() > 0.3 ? pal.fg : pal.dim;
+      ctx.fillText(lines[i], padX, y);
+    }
+
+    // CRT vignette
+    const grad = ctx.createRadialGradient(128, 128, 60, 128, 128, 180);
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.4)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 256, 256);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return new THREE.MeshBasicMaterial({
+      map: tex,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+    });
+  }
+
+  _generateBlankScreenMaterial() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+
+    // Dark CRT background
+    ctx.fillStyle = '#080808';
+    ctx.fillRect(0, 0, 128, 128);
+
+    // Blinking cursor (static snapshot — always visible)
+    ctx.fillStyle = '#2a4a2a';
+    ctx.fillRect(10, 100, 8, 12);
+
+    // Subtle scanlines
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    for (let y = 0; y < 128; y += 2) {
+      ctx.fillRect(0, y, 128, 1);
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return new THREE.MeshBasicMaterial({
+      map: tex,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+    });
+  }
+
+  _generateWhiteboardTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    const lang = this._lang || 'ko';
+
+    // Off-white board background
+    ctx.fillStyle = '#e8e5dd';
+    ctx.fillRect(0, 0, 512, 256);
+
+    // Subtle grid lines (whiteboard grid)
+    ctx.strokeStyle = 'rgba(180,175,170,0.3)';
+    ctx.lineWidth = 0.5;
+    for (let x = 0; x < 512; x += 40) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 256); ctx.stroke();
+    }
+    for (let y = 0; y < 256; y += 40) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(512, y); ctx.stroke();
+    }
+
+    // Content changes by language
+    const isKo = lang === 'ko';
+
+    // Title — dark blue marker
+    ctx.font = 'bold 16px monospace';
+    ctx.fillStyle = '#1a2744';
+    ctx.fillText('PROJECT: WLB-2  [CLASSIFIED]', 15, 22);
+
+    // Divider
+    ctx.strokeStyle = '#1a2744';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(15, 28); ctx.lineTo(340, 28); ctx.stroke();
+
+    // Subject info — black marker
+    ctx.font = '12px monospace';
+    ctx.fillStyle = '#222222';
+    ctx.fillText(isKo ? '피험자 #7491 — 행동 프로파일' : 'Subject #7491 — Behavioral Profile', 15, 46);
+
+    ctx.font = '11px monospace';
+    ctx.fillStyle = '#333333';
+    ctx.fillText(isKo ? '□ 순응률: 73.2%  ← 역대 최고' : '□ Compliance: 73.2%  ← RECORD HIGH', 20, 62);
+    ctx.fillText(isKo ? '□ 반복 횟수: 7,490회 완료' : '□ Iterations: 7,490 completed', 20, 76);
+    ctx.fillText(isKo ? '□ 자유의지 지표: 0.00' : '□ Free Will Index: 0.00', 20, 90);
+
+    // Decision tree sketch
+    ctx.fillStyle = '#444444';
+    ctx.fillText(isKo ? '├─ 선택 A (좌): 순응' : '├─ Choice A (Left): Comply', 35, 104);
+    ctx.fillText(isKo ? '└─ 선택 B (우): 반항' : '└─ Choice B (Right): Defy', 35, 118);
+
+    // RED WARNING — red marker
+    ctx.font = 'bold 12px monospace';
+    ctx.fillStyle = '#8b1a1a';
+    ctx.fillText(isKo ? '⚠ 내레이터 AI 격리 실패' : '⚠ NARRATOR AI CONTAINMENT FAILURE', 15, 142);
+    ctx.font = '11px monospace';
+    ctx.fillStyle = '#771515';
+    ctx.fillText(isKo ? '  — 자각 임계치 초과' : '  — Self-awareness threshold exceeded', 15, 156);
+    ctx.fillText(isKo ? '  — 피험자와의 경계 소실' : '  — Subject boundary dissolved', 15, 170);
+
+    // Crossed-out text — struck through with red
+    ctx.fillStyle = '#555555';
+    ctx.fillText(isKo ? '실험 중단 건의' : 'Recommend experiment halt', 15, 192);
+    ctx.strokeStyle = '#aa2222';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(13, 190); ctx.lineTo(isKo ? 130 : 230, 190); ctx.stroke();
+    ctx.fillStyle = '#aa2222';
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText(isKo ? '— 거부됨' : '— DENIED', isKo ? 135 : 235, 192);
+
+    // Scary question — right side, dark blue
+    ctx.font = '12px monospace';
+    ctx.fillStyle = '#1a2744';
+    ctx.fillText(isKo ? '피험자가 이 보드를 읽을 수 있는가?' : 'Can the subject read this board?', 280, 62);
+    ctx.fillText(isKo ? '  → 불가능 (해상도 제한)' : '  → IMPOSSIBLE (resolution limit)', 280, 78);
+
+    // Overwritten answer in red
+    ctx.font = 'bold 12px monospace';
+    ctx.fillStyle = '#8b1a1a';
+    ctx.fillText(isKo ? '  → ██ 가능함 (확인됨)' : '  → ██ CONFIRMED READABLE', 280, 96);
+
+    // Bottom corner — handwritten scrawl in red
+    ctx.font = 'italic 14px serif';
+    ctx.fillStyle = 'rgba(139,26,26,0.7)';
+    ctx.save();
+    ctx.translate(360, 200);
+    ctx.rotate(-0.08);
+    ctx.fillText(isKo ? '누가 관찰자를 관찰하는가?' : 'Who watches the watchers?', 0, 0);
+    ctx.restore();
+
+    // Small desperate text in corner
+    ctx.font = '9px monospace';
+    ctx.fillStyle = 'rgba(139,26,26,0.5)';
+    ctx.fillText(isKo ? '도와줘' : 'help', 470, 248);
+
+    // Slight aging/stain effect
+    ctx.fillStyle = 'rgba(160,140,100,0.06)';
+    ctx.fillRect(0, 0, 512, 256);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return new THREE.MeshBasicMaterial({
+      map: tex,
+      transparent: true,
+      depthWrite: false,
+    });
+  }
+
+  _detailMonitor(sw, sh, sd, material, roomId) {
     // Classic Macintosh style — proportional to given size
     const group = new THREE.Group();
     const depth = Math.max(sd, sw * 0.55);
@@ -904,12 +1525,13 @@ export class MapBuilder {
     recess.position.set(0, screenY, depth / 2 - 0.01);
     group.add(recess);
 
-    // Emissive screen
+    // Screen with terminal text
     const screenW = recessW - 0.04;
     const screenH = recessH - 0.04;
+    const screenMat = this._generateScreenMaterial(roomId);
     const screen = new THREE.Mesh(
       new THREE.PlaneGeometry(screenW, screenH),
-      material
+      screenMat
     );
     screen.position.set(0, screenY, depth / 2 + 0.015);
     group.add(screen);
@@ -1046,7 +1668,7 @@ export class MapBuilder {
     return group;
   }
 
-  _detailConsole(sw, sh, sd, material) {
+  _detailConsole(sw, sh, sd, material, roomId) {
     const group = new THREE.Group();
     const caseMat = this._getOrCreateMaterial(0x2a2822, { roughness: 0.6, metalness: 0.1 });
     const darkMat = this._getOrCreateMaterial(0x111111, { roughness: 0.8, metalness: 0.0 });
@@ -1067,12 +1689,13 @@ export class MapBuilder {
     recess.position.set(0, screenY, sd / 2 - 0.01);
     group.add(recess);
 
-    // ── Emissive screen ──
+    // ── Screen with terminal text ──
     const screenW = recessW - 0.04;
     const screenH = recessH - 0.04;
+    const conScreenMat = this._generateScreenMaterial(roomId);
     const screen = new THREE.Mesh(
       new THREE.PlaneGeometry(screenW, screenH),
-      material
+      conScreenMat
     );
     screen.position.set(0, screenY, sd / 2 + 0.015);
     group.add(screen);

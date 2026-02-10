@@ -28,6 +28,7 @@ export class PlaythroughMemory {
         this.cctvDefianceSeen = d.cctvDefianceSeen || false;
         this.era8Completed = d.era8Completed || false;
         this.era9Completed = d.era9Completed || false;
+        this.loreCollected = new Set(d.loreCollected || []);
         return;
       }
     } catch (_) { /* ignore corrupt data */ }
@@ -46,6 +47,7 @@ export class PlaythroughMemory {
     this.cctvDefianceSeen = false;
     this.era8Completed = false;
     this.era9Completed = false;
+    this.loreCollected = new Set();
   }
 
   save() {
@@ -63,6 +65,7 @@ export class PlaythroughMemory {
       cctvDefianceSeen: this.cctvDefianceSeen,
       era8Completed: this.era8Completed,
       era9Completed: this.era9Completed,
+      loreCollected: [...this.loreCollected],
     };
     localStorage.setItem(this.storageKey, JSON.stringify(d));
   }
@@ -99,6 +102,16 @@ export class PlaythroughMemory {
   findSecret(secretId) {
     this.secretsFound.add(secretId);
     this.save();
+  }
+
+  collectLore(loreId) {
+    this.loreCollected.add(loreId);
+    this.save();
+  }
+
+  /** Backward-compatible getter: true when all 8 lore documents collected. */
+  get allLoreCollected() {
+    return this.loreCollected.size >= 8;
   }
 
   /**

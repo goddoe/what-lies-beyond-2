@@ -2,61 +2,111 @@
  * CCTV Replay System — Era 6-7.
  *
  * Replays player's compliance or defiance path from a fixed ceiling camera perspective.
- * A silhouette character walks predefined waypoints while narrator comments.
+ * An articulated character figure walks predefined waypoints while narrator comments.
  */
 import * as THREE from 'three';
 
 // ── Waypoint Paths ──────────────────────────────────────
 // Each waypoint: { pos: [x,y,z], room: 'ROOM_ID', pause?: ms }
-// Derived from map-data room origins
+// Coordinates derived from map-data room origins and actual door positions.
+// Paths follow door-to-door routes, navigating around large obstacles.
 
 const COMPLIANCE_PATH = [
-  { pos: [0, 0, 0], room: 'START_ROOM', pause: 2000 },
-  { pos: [0, 0, -4], room: 'HALLWAY_1' },
+  // START_ROOM: wake up at desk
+  { pos: [-1.5, 0, -0.5], room: 'START_ROOM', pause: 2000 },
+  { pos: [0, 0, -2.5], room: 'START_ROOM' },
+
+  // HALLWAY_1: walk south→north, decision point at z=-21, choose left
+  { pos: [0, 0, -5], room: 'HALLWAY_1' },
   { pos: [0, 0, -14], room: 'HALLWAY_1' },
-  { pos: [0, 0, -21], room: 'HALLWAY_1', pause: 1500 },
-  { pos: [-4, 0, -21], room: 'CORRIDOR_COMP_1' },
-  { pos: [-9, 0, -21], room: 'CORRIDOR_COMP_1' },
-  { pos: [-16, 0, -21], room: 'OFFICE_WING' },
+  { pos: [0, 0, -20], room: 'HALLWAY_1', pause: 1500 },
+  { pos: [-1.5, 0, -21], room: 'HALLWAY_1' },
+
+  // CORRIDOR_COMP_1
+  { pos: [-5, 0, -21], room: 'CORRIDOR_COMP_1' },
+  { pos: [-14, 0, -21], room: 'CORRIDOR_COMP_1' },
+
+  // OFFICE_WING: desks at z=-24 and z=-20, walk center z=-21
+  { pos: [-17, 0, -21], room: 'OFFICE_WING' },
   { pos: [-23, 0, -21], room: 'OFFICE_WING', pause: 2000 },
-  { pos: [-30, 0, -21], room: 'CORRIDOR_COMP_2' },
-  { pos: [-37, 0, -21], room: 'CORRIDOR_COMP_2' },
-  { pos: [-43, 0, -21], room: 'CONFERENCE' },
-  { pos: [-49, 0, -21], room: 'CONFERENCE', pause: 1000 },
+  { pos: [-29, 0, -21], room: 'OFFICE_WING' },
+
+  // CORRIDOR_COMP_2
+  { pos: [-31, 0, -21], room: 'CORRIDOR_COMP_2' },
+  { pos: [-43, 0, -21], room: 'CORRIDOR_COMP_2' },
+
+  // CONFERENCE: table at center (-49,-21, size 4×1.8), go north side to exit north
+  { pos: [-45, 0, -21], room: 'CONFERENCE' },
+  { pos: [-46.5, 0, -23.5], room: 'CONFERENCE' },
+  { pos: [-49, 0, -25], room: 'CONFERENCE', pause: 1000 },
+
+  // CORRIDOR_COMP_3
   { pos: [-49, 0, -27], room: 'CORRIDOR_COMP_3' },
-  { pos: [-49, 0, -33], room: 'CORRIDOR_COMP_3' },
-  { pos: [-49, 0, -38], room: 'UPPER_OFFICE' },
-  { pos: [-49, 0, -43], room: 'UPPER_OFFICE', pause: 1500 },
-  { pos: [-49, 0, -48], room: 'CORRIDOR_COMP_4' },
-  { pos: [-49, 0, -53], room: 'CORRIDOR_COMP_4' },
-  { pos: [-49, 0, -60], room: 'GARDEN_ANTECHAMBER' },
-  { pos: [-49, 0, -63], room: 'GARDEN_ANTECHAMBER', pause: 2000 },
+  { pos: [-49, 0, -39], room: 'CORRIDOR_COMP_3' },
+
+  // UPPER_OFFICE: exec desk at world x=-47.5, z=-44.5 — pass west side
+  { pos: [-49, 0, -41], room: 'UPPER_OFFICE' },
+  { pos: [-50.5, 0, -43], room: 'UPPER_OFFICE', pause: 1500 },
+  { pos: [-49, 0, -45.5], room: 'UPPER_OFFICE' },
+
+  // CORRIDOR_COMP_4
+  { pos: [-49, 0, -47], room: 'CORRIDOR_COMP_4' },
+  { pos: [-49, 0, -59], room: 'CORRIDOR_COMP_4' },
+
+  // GARDEN_ANTECHAMBER: approach terminal, use keycard, then door opens
+  { pos: [-49, 0, -61], room: 'GARDEN_ANTECHAMBER' },
+  { pos: [-51, 0, -64], room: 'GARDEN_ANTECHAMBER', pause: 3000 },
+  { pos: [-49, 0, -65.5], room: 'GARDEN_ANTECHAMBER', pause: 2000 },
+
+  // FALSE_ENDING_ROOM: walk to garden center
   { pos: [-49, 0, -68], room: 'FALSE_ENDING_ROOM' },
   { pos: [-49, 0, -72], room: 'FALSE_ENDING_ROOM', pause: 3000 },
 ];
 
 const DEFIANCE_PATH = [
-  { pos: [0, 0, 0], room: 'START_ROOM', pause: 2000 },
-  { pos: [0, 0, -4], room: 'HALLWAY_1' },
+  // START_ROOM
+  { pos: [-1.5, 0, -0.5], room: 'START_ROOM', pause: 2000 },
+  { pos: [0, 0, -2.5], room: 'START_ROOM' },
+
+  // HALLWAY_1: decide right
+  { pos: [0, 0, -5], room: 'HALLWAY_1' },
   { pos: [0, 0, -14], room: 'HALLWAY_1' },
-  { pos: [0, 0, -21], room: 'HALLWAY_1', pause: 1500 },
-  { pos: [4, 0, -21], room: 'CORRIDOR_DEF_1' },
-  { pos: [9, 0, -21], room: 'CORRIDOR_DEF_1' },
-  { pos: [16, 0, -21], room: 'MAINTENANCE' },
+  { pos: [0, 0, -20], room: 'HALLWAY_1', pause: 1500 },
+  { pos: [1.5, 0, -21], room: 'HALLWAY_1' },
+
+  // CORRIDOR_DEF_1
+  { pos: [5, 0, -21], room: 'CORRIDOR_DEF_1' },
+  { pos: [14, 0, -21], room: 'CORRIDOR_DEF_1' },
+
+  // MAINTENANCE: boxes south z=-18.5, workbench north z=-23 — center clear
+  { pos: [17, 0, -21], room: 'MAINTENANCE' },
   { pos: [22, 0, -21], room: 'MAINTENANCE', pause: 2000 },
-  { pos: [28, 0, -21], room: 'CORRIDOR_DEF_2' },
-  { pos: [35, 0, -21], room: 'CORRIDOR_DEF_2' },
-  { pos: [42, 0, -21], room: 'SERVER_ROOM' },
-  { pos: [48, 0, -21], room: 'SERVER_ROOM', pause: 1000 },
-  { pos: [52, 0, -21], room: 'GENERATOR' },
-  { pos: [58, 0, -21], room: 'GENERATOR', pause: 1000 },
+  { pos: [27, 0, -21], room: 'MAINTENANCE' },
+
+  // CORRIDOR_DEF_2
+  { pos: [29, 0, -21], room: 'CORRIDOR_DEF_2' },
+  { pos: [41, 0, -21], room: 'CORRIDOR_DEF_2' },
+
+  // SERVER_ROOM: racks at x=44,52; desk at x=48,z=-21 — pass left of desk
+  { pos: [43, 0, -21], room: 'SERVER_ROOM' },
+  { pos: [46, 0, -21], room: 'SERVER_ROOM', pause: 1000 },
+  { pos: [48, 0, -24], room: 'SERVER_ROOM' },
+
+  // CORRIDOR_DEF_3
   { pos: [48, 0, -27], room: 'CORRIDOR_DEF_3' },
-  { pos: [48, 0, -33], room: 'CORRIDOR_DEF_3' },
-  { pos: [48, 0, -39], room: 'DATA_CENTER' },
-  { pos: [48, 0, -45], room: 'DATA_CENTER', pause: 1500 },
+  { pos: [48, 0, -39], room: 'CORRIDOR_DEF_3' },
+
+  // DATA_CENTER: racks same layout; pass west of center desk
+  { pos: [48, 0, -41], room: 'DATA_CENTER' },
+  { pos: [46, 0, -45], room: 'DATA_CENTER', pause: 1500 },
+  { pos: [48, 0, -49], room: 'DATA_CENTER' },
+
+  // CORRIDOR_DEF_4
   { pos: [48, 0, -51], room: 'CORRIDOR_DEF_4' },
-  { pos: [48, 0, -57], room: 'CORRIDOR_DEF_4' },
-  { pos: [48, 0, -63], room: 'CONTROL_ROOM' },
+  { pos: [48, 0, -63], room: 'CORRIDOR_DEF_4' },
+
+  // CONTROL_ROOM: walk to center
+  { pos: [48, 0, -65], room: 'CONTROL_ROOM' },
   { pos: [48, 0, -70], room: 'CONTROL_ROOM', pause: 3000 },
 ];
 
@@ -64,19 +114,20 @@ const DEFIANCE_PATH = [
 const CCTV_NARRATOR_EVENTS = {
   compliance: {
     0: 'cctv_start',
-    3: 'cctv_decision_compliance',
-    7: 'cctv_office_enter',
-    13: 'cctv_midpoint',
-    19: 'cctv_garden',
-    21: 'cctv_ending_room_compliance',
+    4: 'cctv_decision_compliance',
+    9: 'cctv_office_enter',
+    15: 'cctv_midpoint',
+    24: 'cctv_garden',
+    25: 'cctv_keycard_use',
+    27: 'cctv_ending_room_compliance',
   },
   defiance: {
     0: 'cctv_start',
-    3: 'cctv_decision_defiance',
-    7: 'cctv_maintenance_enter',
-    11: 'cctv_midpoint',
-    17: 'cctv_data_center',
-    21: 'cctv_ending_room_defiance',
+    4: 'cctv_decision_defiance',
+    9: 'cctv_maintenance_enter',
+    14: 'cctv_midpoint',
+    19: 'cctv_data_center',
+    24: 'cctv_ending_room_defiance',
   },
 };
 
@@ -93,26 +144,25 @@ function getCameraForRoom(roomId, roomOrigin, roomSize) {
   };
 }
 
-// Room dimension lookup (subset used by paths)
+// Room dimension lookup (must match map-data.js)
 const ROOM_DATA = {
   START_ROOM: { origin: [0, 0, 0], size: [6, 3, 6] },
   HALLWAY_1: { origin: [0, 0, -14], size: [4, 3, 22] },
   CORRIDOR_COMP_1: { origin: [-9, 0, -21], size: [14, 3, 4] },
   OFFICE_WING: { origin: [-23, 0, -21], size: [14, 3, 10] },
   CORRIDOR_COMP_2: { origin: [-37, 0, -21], size: [14, 3, 4] },
-  CONFERENCE: { origin: [-49, 0, -21], size: [10, 3, 8] },
+  CONFERENCE: { origin: [-49, 0, -21], size: [10, 3, 10] },
   CORRIDOR_COMP_3: { origin: [-49, 0, -33], size: [4, 3, 14] },
   UPPER_OFFICE: { origin: [-49, 0, -43], size: [8, 3, 6] },
-  CORRIDOR_COMP_4: { origin: [-49, 0, -53], size: [4, 3, 10] },
+  CORRIDOR_COMP_4: { origin: [-49, 0, -53], size: [4, 3, 14] },
   GARDEN_ANTECHAMBER: { origin: [-49, 0, -63], size: [8, 3, 6] },
   FALSE_ENDING_ROOM: { origin: [-49, 0, -72], size: [12, 4, 12] },
   CORRIDOR_DEF_1: { origin: [9, 0, -21], size: [14, 3, 4] },
   MAINTENANCE: { origin: [22, 0, -21], size: [12, 3, 8] },
   CORRIDOR_DEF_2: { origin: [35, 0, -21], size: [14, 3, 4] },
-  SERVER_ROOM: { origin: [48, 0, -21], size: [10, 3, 8] },
-  GENERATOR: { origin: [58, 0, -21], size: [8, 3, 6] },
+  SERVER_ROOM: { origin: [48, 0, -21], size: [12, 3, 10] },
   CORRIDOR_DEF_3: { origin: [48, 0, -33], size: [4, 3, 14] },
-  DATA_CENTER: { origin: [48, 0, -45], size: [10, 3, 10] },
+  DATA_CENTER: { origin: [48, 0, -45], size: [12, 4, 10] },
   CORRIDOR_DEF_4: { origin: [48, 0, -57], size: [4, 3, 14] },
   CONTROL_ROOM: { origin: [48, 0, -70], size: [14, 4, 12] },
 };
@@ -146,6 +196,13 @@ export class CCTVReplay {
     this._doorSystem = null;
     this._openedDoors = new Set();
 
+    // Walk animation state
+    this._walkPhase = 0;
+    this._leftLegGroup = null;
+    this._rightLegGroup = null;
+    this._leftArmGroup = null;
+    this._rightArmGroup = null;
+
     this.onComplete = null;
 
     // Overlay
@@ -167,13 +224,14 @@ export class CCTVReplay {
     this._openedDoors.clear();
     this._narratorEvents = CCTV_NARRATOR_EVENTS[pathType] || {};
     this._doorSystem = buildResult.doorSystem || null;
+    this._walkPhase = 0;
 
-    // Create character silhouette
+    // Create character
     this._createCharacter();
 
-    // Set initial position
+    // Set initial position (group origin = feet on floor)
     const start = this._waypoints[0];
-    this._charPos.set(start.pos[0], start.pos[1] + 0.9, start.pos[2]);
+    this._charPos.set(start.pos[0], start.pos[1], start.pos[2]);
     this._character.position.copy(this._charPos);
 
     // Set initial camera
@@ -198,18 +256,18 @@ export class CCTVReplay {
       this._pauseTimer -= delta * 1000;
       this._updateOverlayTime();
       this._updateCameraLerp(delta);
+      this._updateWalkAnimation(delta, false);
       return;
     }
 
     // Move toward next waypoint
     if (this._waypointIndex >= this._waypoints.length - 1) {
-      // Reached end
       this._complete();
       return;
     }
 
     const nextWP = this._waypoints[this._waypointIndex + 1];
-    this._targetPos.set(nextWP.pos[0], nextWP.pos[1] + 0.9, nextWP.pos[2]);
+    this._targetPos.set(nextWP.pos[0], nextWP.pos[1], nextWP.pos[2]);
 
     const dir = this._targetPos.clone().sub(this._charPos);
     const dist = dir.length();
@@ -234,6 +292,8 @@ export class CCTVReplay {
 
       // Set pause
       this._pauseTimer = nextWP.pause || 0;
+
+      this._updateWalkAnimation(delta, false);
     } else {
       // Move
       dir.normalize();
@@ -243,6 +303,8 @@ export class CCTVReplay {
 
       // Character faces movement direction
       this._character.lookAt(this._targetPos.x, this._charPos.y, this._targetPos.z);
+
+      this._updateWalkAnimation(delta, true);
     }
 
     this._updateOverlayTime();
@@ -253,31 +315,167 @@ export class CCTVReplay {
     this._active = false;
     if (this._character && this._scene) {
       this._scene.remove(this._character);
-      this._character.traverse(c => { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); });
+      const materials = new Set();
+      this._character.traverse(c => {
+        if (c.geometry) c.geometry.dispose();
+        if (c.material) materials.add(c.material);
+      });
+      materials.forEach(m => m.dispose());
       this._character = null;
     }
+    this._leftLegGroup = null;
+    this._rightLegGroup = null;
+    this._leftArmGroup = null;
+    this._rightArmGroup = null;
     this._hideOverlay();
   }
 
   _createCharacter() {
     const group = new THREE.Group();
 
-    // Body — dark cylinder
-    const bodyGeo = new THREE.CylinderGeometry(0.25, 0.3, 1.2, 8);
-    const bodyMat = new THREE.MeshBasicMaterial({ color: 0x1a1a2a, transparent: true, opacity: 0.8 });
-    const body = new THREE.Mesh(bodyGeo, bodyMat);
-    body.position.y = 0.6;
-    group.add(body);
+    // Shared dark silhouette material
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0x1a1a2a,
+      transparent: true,
+      opacity: 0.85,
+    });
 
-    // Head — dark sphere
-    const headGeo = new THREE.SphereGeometry(0.18, 8, 6);
-    const headMat = new THREE.MeshBasicMaterial({ color: 0x1a1a2a, transparent: true, opacity: 0.8 });
-    const head = new THREE.Mesh(headGeo, headMat);
-    head.position.y = 1.35;
+    // ── Head ──
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.13, 10, 8),
+      mat
+    );
+    head.position.y = 1.55;
     group.add(head);
+
+    // ── Neck ──
+    const neck = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05, 0.06, 0.1, 6),
+      mat
+    );
+    neck.position.y = 1.40;
+    group.add(neck);
+
+    // ── Shoulders (wider bar) ──
+    const shoulders = new THREE.Mesh(
+      new THREE.BoxGeometry(0.42, 0.08, 0.18),
+      mat
+    );
+    shoulders.position.y = 1.30;
+    group.add(shoulders);
+
+    // ── Torso ──
+    const torso = new THREE.Mesh(
+      new THREE.BoxGeometry(0.34, 0.38, 0.18),
+      mat
+    );
+    torso.position.y = 1.06;
+    group.add(torso);
+
+    // ── Hips ──
+    const hips = new THREE.Mesh(
+      new THREE.BoxGeometry(0.28, 0.14, 0.17),
+      mat
+    );
+    hips.position.y = 0.80;
+    group.add(hips);
+
+    // ── Left Arm (pivot at shoulder) ──
+    const leftArmGroup = new THREE.Group();
+    leftArmGroup.position.set(-0.24, 1.28, 0);
+    leftArmGroup.add(new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.035, 0.32, 6), mat
+    ));
+    leftArmGroup.children[0].position.y = -0.16;
+    const leftForearm = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.035, 0.03, 0.28, 6), mat
+    );
+    leftForearm.position.y = -0.46;
+    leftArmGroup.add(leftForearm);
+    group.add(leftArmGroup);
+
+    // ── Right Arm (pivot at shoulder) ──
+    const rightArmGroup = new THREE.Group();
+    rightArmGroup.position.set(0.24, 1.28, 0);
+    rightArmGroup.add(new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.035, 0.32, 6), mat
+    ));
+    rightArmGroup.children[0].position.y = -0.16;
+    const rightForearm = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.035, 0.03, 0.28, 6), mat
+    );
+    rightForearm.position.y = -0.46;
+    rightArmGroup.add(rightForearm);
+    group.add(rightArmGroup);
+
+    // ── Left Leg (pivot at hip) ──
+    const leftLegGroup = new THREE.Group();
+    leftLegGroup.position.set(-0.09, 0.76, 0);
+    leftLegGroup.add(new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.05, 0.38, 6), mat
+    ));
+    leftLegGroup.children[0].position.y = -0.19;
+    const leftShin = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05, 0.04, 0.36, 6), mat
+    );
+    leftShin.position.y = -0.56;
+    leftLegGroup.add(leftShin);
+    const leftFoot = new THREE.Mesh(
+      new THREE.BoxGeometry(0.07, 0.04, 0.15), mat
+    );
+    leftFoot.position.set(0, -0.76, 0.03);
+    leftLegGroup.add(leftFoot);
+    group.add(leftLegGroup);
+
+    // ── Right Leg (pivot at hip) ──
+    const rightLegGroup = new THREE.Group();
+    rightLegGroup.position.set(0.09, 0.76, 0);
+    rightLegGroup.add(new THREE.Mesh(
+      new THREE.CylinderGeometry(0.06, 0.05, 0.38, 6), mat
+    ));
+    rightLegGroup.children[0].position.y = -0.19;
+    const rightShin = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05, 0.04, 0.36, 6), mat
+    );
+    rightShin.position.y = -0.56;
+    rightLegGroup.add(rightShin);
+    const rightFoot = new THREE.Mesh(
+      new THREE.BoxGeometry(0.07, 0.04, 0.15), mat
+    );
+    rightFoot.position.set(0, -0.76, 0.03);
+    rightLegGroup.add(rightFoot);
+    group.add(rightLegGroup);
+
+    // Store references for animation
+    this._leftArmGroup = leftArmGroup;
+    this._rightArmGroup = rightArmGroup;
+    this._leftLegGroup = leftLegGroup;
+    this._rightLegGroup = rightLegGroup;
 
     this._character = group;
     this._scene.add(group);
+  }
+
+  _updateWalkAnimation(delta, isMoving) {
+    if (!this._leftLegGroup) return;
+
+    if (isMoving) {
+      this._walkPhase += delta * 7;
+      const legSwing = Math.sin(this._walkPhase) * 0.4;
+      const armSwing = Math.sin(this._walkPhase) * 0.25;
+
+      this._leftLegGroup.rotation.x = legSwing;
+      this._rightLegGroup.rotation.x = -legSwing;
+      this._leftArmGroup.rotation.x = -armSwing;
+      this._rightArmGroup.rotation.x = armSwing;
+    } else {
+      // Smoothly return to idle
+      const lerp = Math.min(delta * 5, 1);
+      this._leftLegGroup.rotation.x *= (1 - lerp);
+      this._rightLegGroup.rotation.x *= (1 - lerp);
+      this._leftArmGroup.rotation.x *= (1 - lerp);
+      this._rightArmGroup.rotation.x *= (1 - lerp);
+    }
   }
 
   _setupCameraForRoom(roomId, instant) {
@@ -324,7 +522,6 @@ export class CCTVReplay {
     const scriptId = this._narratorEvents[index];
     if (scriptId && !this._triggeredEvents.has(index)) {
       this._triggeredEvents.add(index);
-      // Use narrator with a CCTV-specific line
       const lang = this.getLang();
       const line = CCTV_SCRIPTS[scriptId];
       if (line) {
@@ -450,6 +647,11 @@ const CCTV_SCRIPTS = {
     ko: '정원 전실 도달. 곧 끝이야. 매번 이렇게 끝나.',
     en: 'Garden antechamber reached. It\'s almost over. It always ends like this.',
     mood: 'regretful',
+  },
+  cctv_keycard_use: {
+    ko: '보안 단말기 인식... 정원 접근 허가.',
+    en: 'Security terminal accessed... Garden access granted.',
+    mood: 'calm',
   },
   cctv_data_center: {
     ko: '데이터 센터 통과 중. 이 기계들이 전부 날 위한 거였어?',

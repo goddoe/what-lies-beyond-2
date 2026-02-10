@@ -59,10 +59,12 @@ export class Player {
 
   _setupControls() {
     this.controls.addEventListener('lock', () => {
+      document.body.style.cursor = 'none';
       if (this.onLock) this.onLock();
     });
 
     this.controls.addEventListener('unlock', () => {
+      document.body.style.cursor = 'default';
       this._resetKeys();
       if (this.onUnlock) this.onUnlock();
     });

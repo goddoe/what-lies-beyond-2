@@ -209,10 +209,10 @@ export const ROOMS = [
       { type: 'desk', position: [-1, 0, -3], size: [1.2, 0.75, 0.6], color: 0x7a6b4a },
       { type: 'desk', position: [1, 0, -3], size: [1.2, 0.75, 0.6], color: 0x7a6b4a },
       { type: 'desk', position: [3, 0, -3], size: [1.2, 0.75, 0.6], color: 0x7a6b4a },
-      { type: 'monitor', position: [-3, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111 },
-      { type: 'monitor', position: [-1, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111 },
-      { type: 'monitor', position: [1, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111 },
-      { type: 'monitor', position: [3, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111 },
+      { type: 'monitor', position: [-3, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111, id: 'office_login' },
+      { type: 'monitor', position: [-1, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111, id: 'office_portal' },
+      { type: 'monitor', position: [1, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111, id: 'office_code' },
+      { type: 'monitor', position: [3, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111, id: 'office_login' },
       // Chairs (north row, facing desks)
       { type: 'chair', position: [-3, 0, -2], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: Math.PI },
       { type: 'chair', position: [-1, 0, -2], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: Math.PI },
@@ -225,8 +225,8 @@ export const ROOMS = [
       // Second row of desks (filling enlarged space)
       { type: 'desk', position: [-3, 0, 1], size: [1.2, 0.75, 0.6], color: 0x7a6b4a },
       { type: 'desk', position: [-1, 0, 1], size: [1.2, 0.75, 0.6], color: 0x7a6b4a },
-      { type: 'monitor', position: [-3, 0.75, 1], size: [0.5, 0.55, 0.3], color: 0x111111 },
-      { type: 'monitor', position: [-1, 0.75, 1], size: [0.5, 0.55, 0.3], color: 0x111111 },
+      { type: 'monitor', position: [-3, 0.75, 1], size: [0.5, 0.55, 0.3], color: 0x111111, id: 'office_portal' },
+      { type: 'monitor', position: [-1, 0.75, 1], size: [0.5, 0.55, 0.3], color: 0x111111, id: 'office_code' },
       // Chairs (south row, facing desks)
       { type: 'chair', position: [-3, 0, 2], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: Math.PI },
       { type: 'chair', position: [-1, 0, 2], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: Math.PI },
@@ -393,8 +393,8 @@ export const ROOMS = [
       // Floor light accents
       { type: 'led', position: [-3, 0.05, 2.5], size: [0.1, 0.02, 4], color: 0x2244aa },
       { type: 'led', position: [3, 0.05, 2.5], size: [0.1, 0.02, 4], color: 0x2244aa },
-      // Lore: architect's note
-      { type: 'document', position: [-2.5, 0.91, 0], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_architects_note' },
+      // Lore: architect's note (beside monitor on console)
+      { type: 'document', position: [-1.9, 0.91, 0.1], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_architects_note' },
     ],
   }),
 
@@ -715,7 +715,7 @@ export const ROOMS = [
     lightIntensity: 0.7,
     doors: [
       { wall: 'south', offset: 0, width: 2, height: 2.5 },   // from CORRIDOR_COMP_4
-      { wall: 'north', offset: 0, width: 2, height: 2.5, locked: true },   // to FALSE_ENDING_ROOM (keycard required)
+      { wall: 'north', offset: 0, width: 2, height: 2.5, locked: 'keycard' },   // to FALSE_ENDING_ROOM (keycard required)
     ],
     triggers: [
       { id: 'garden_ante_enter', position: [0, 1, 1], size: [6, 3, 3] },
@@ -734,7 +734,7 @@ export const ROOMS = [
       { type: 'bench', position: [0, 0, 0], size: [2, 0.4, 0.6], color: 0x888888 },
       // Terminal desk + console (keycard activated, shifted west to clear north door)
       { type: 'desk', position: [-3, 0, -1.5], size: [1.2, 0.6, 0.6], color: 0x5a5a4a },
-      { type: 'console', position: [-3, 0.6, -1.5], size: [0.8, 0.9, 0.4], color: 0x445544, id: 'garden_terminal' },
+      { type: 'console', position: [-3, 0.6, -1.5], size: [0.5, 0.55, 0.3], color: 0x445544, id: 'garden_terminal' },
     ],
   }),
 
@@ -1036,19 +1036,19 @@ export const ROOMS = [
       // Cable runs on floor
       { type: 'cable', position: [0, 0.02, 0], size: [0.3, 0.04, 10], color: 0x222233 },
       // Center monitoring station
-      { type: 'console', position: [0, 0, 0], size: [1.5, 0.9, 0.6], color: 0x222233 },
-      { type: 'monitor', position: [0, 0.9, 0], size: [0.8, 0.65, 0.45], color: 0x111122 },
+      { type: 'desk', position: [0, 0, 0], size: [1.5, 0.75, 0.6], color: 0x222233 },
+      { type: 'monitor', position: [0, 0.75, 0], size: [0.5, 0.55, 0.3], color: 0x111122 },
     ],
   }),
 
   // ===================================================================
   // 26. COOLING_ROOM  (NEW)
-  // Origin: (45,0,-13), Size: 8x3x6
-  // Walls: N z=-16, S z=-10, E x=49, W x=41
+  // Origin: (46,0,-13), Size: 8x3x6
+  // Walls: N z=-16, S z=-10, E x=50, W x=42
   // Door on north at x=45 connects to SERVER_ROOM south door at offset -3
   // ===================================================================
   room('COOLING_ROOM', {
-    origin: [45, 0, -13],
+    origin: [46, 0, -13],
     size: [8, 3, 6],
     wallColor: 0x3a4a5a,
     floorColor: 0x222830,
@@ -1056,7 +1056,7 @@ export const ROOMS = [
     lightColor: 0x88aaee,
     lightIntensity: 0.65,
     doors: [
-      { wall: 'north', offset: 0, width: 2, height: 2.5 },   // to SERVER_ROOM
+      { wall: 'north', offset: -1, width: 2, height: 2.5 },   // to SERVER_ROOM (door at x=45)
     ],
     triggers: [
       { id: 'cooling_enter', position: [0, 1, -1.5], size: [6, 3, 3] },
@@ -1146,8 +1146,8 @@ export const ROOMS = [
       { type: 'warning_light', position: [0, 2.5, -3.8], size: [0.25, 0.25, 0.25], color: 0xff3300 },
       { type: 'warning_light', position: [0, 2.5, 3.8], size: [0.25, 0.25, 0.25], color: 0xff3300 },
       // Control console
-      { type: 'console', position: [-2.5, 0, -2.5], size: [1.2, 0.9, 0.6], color: 0x333333 },
-      { type: 'monitor', position: [-2.5, 0.9, -2.5], size: [0.6, 0.55, 0.35], color: 0x221100 },
+      { type: 'desk', position: [-2.5, 0, -2.5], size: [1.2, 0.75, 0.6], color: 0x333333 },
+      { type: 'monitor', position: [-2.5, 0.75, -2.5], size: [0.5, 0.55, 0.3], color: 0x221100 },
       // Coolant pipes
       { type: 'pipe', position: [3, 1, 0], size: [0.2, 0.2, 8], color: 0x664422 },
       { type: 'pipe', position: [-3, 1.5, 0], size: [0.2, 0.2, 8], color: 0x664422 },
@@ -1216,8 +1216,8 @@ export const ROOMS = [
       { type: 'rack', position: [4, 0, 1], size: [0.6, 3, 1], color: 0x0a0a1a },
       { type: 'rack', position: [4, 0, 3], size: [0.6, 3, 1], color: 0x0a0a1a },
       // Central monitoring station
-      { type: 'pedestal', position: [0, 0, 0], size: [1, 1, 1], color: 0x222233 },
-      { type: 'monitor', position: [0, 1, 0], size: [1, 0.85, 0.55], color: 0x111122 },
+      { type: 'desk', position: [0, 0, 0], size: [1.2, 0.75, 0.6], color: 0x222233 },
+      { type: 'monitor', position: [0, 0.75, 0], size: [0.5, 0.55, 0.3], color: 0x111122 },
       // Floor cable trays
       { type: 'cable', position: [-2, 0.02, 0], size: [0.2, 0.04, 10], color: 0x1a1a2a },
       { type: 'cable', position: [2, 0.02, 0], size: [0.2, 0.04, 10], color: 0x1a1a2a },
@@ -1300,15 +1300,15 @@ export const ROOMS = [
       { type: 'tank', position: [2.5, 0, -2], size: [1, 2.5, 1], color: 0x222222 },
       { type: 'tank', position: [2.5, 0, 1], size: [1, 2.5, 1], color: 0x222222 },
       // Central terminal with old records
-      { type: 'console', position: [0, 0, -3], size: [2, 0.9, 0.6], color: 0x222222 },
-      { type: 'monitor', position: [0, 0.9, -3], size: [1.2, 0.95, 0.65], color: 0x0a0a0a },
+      { type: 'desk', position: [0, 0, -3], size: [2, 0.75, 0.6], color: 0x222222 },
+      { type: 'monitor', position: [0, 0.75, -3], size: [0.6, 0.55, 0.35], color: 0x0a0a0a },
       // Dust/debris
       { type: 'debris', position: [1, 0, 2.5], size: [0.5, 0.1, 0.5], color: 0x333333 },
       { type: 'debris', position: [-1, 0, 3], size: [0.3, 0.08, 0.4], color: 0x333333 },
       // Red warning light
       { type: 'warning_light', position: [0, 3.2, 0], size: [0.25, 0.25, 0.25], color: 0xff1111 },
       // Lore: final report fragment
-      { type: 'document', position: [0, 0.91, -2.5], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_final_report' },
+      { type: 'document', position: [0, 0.76, -2.5], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_final_report' },
     ],
   }),
 
@@ -1412,8 +1412,8 @@ export const ROOMS = [
       { type: 'bench', position: [1.5, 0, -2], size: [1.5, 0.3, 0.7], color: 0x444433 },
       // Old blanket on cot
       { type: 'debris', position: [1.5, 0.3, -2], size: [1.3, 0.05, 0.6], color: 0x555544 },
-      // Old monitor (lore terminal)
-      { type: 'document', position: [-2, 0.5, -2.5], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_subject_7490' },
+      // Old monitor (lore terminal) — on top of console
+      { type: 'document', position: [-2, 0.71, -2], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_subject_7490' },
       // Small console (terminal)
       { type: 'console', position: [-2, 0, -2], size: [0.8, 0.7, 0.4], color: 0x333322 },
       // Scratched tally marks on wall (decorative)
