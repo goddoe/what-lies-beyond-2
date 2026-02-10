@@ -811,8 +811,8 @@ export class MapBuilder {
     switch (type) {
       case 'desk': return this._detailDesk(sw, sh, sd, material);
       case 'chair': return this._detailChair(sw, sh, sd, material);
-      case 'monitor':
-      case 'monitor_wall': return this._detailMonitor(sw, sh, sd, material);
+      case 'monitor': return this._detailMonitor(sw, sh, sd, material);
+      case 'monitor_wall': return this._detailMonitorWall(sw, sh, sd, material);
       case 'cabinet': return this._detailCabinet(sw, sh, sd, material);
       case 'rack': return this._detailRack(sw, sh, sd, material);
       case 'console': return this._detailConsole(sw, sh, sd, material);
@@ -882,12 +882,84 @@ export class MapBuilder {
   }
 
   _detailMonitor(sw, sh, sd, material) {
+    // Classic Macintosh style — proportional to given size
+    const group = new THREE.Group();
+    const depth = Math.max(sd, sw * 0.55);
+    const caseMat = this._getOrCreateMaterial(0x2a2822, { roughness: 0.6, metalness: 0.1 });
+    const darkMat = this._getOrCreateMaterial(0x111111, { roughness: 0.8, metalness: 0.0 });
+
+    // Main case body
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, depth), caseMat);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Recessed screen area (dark inset)
+    const recessW = sw * 0.72;
+    const recessH = sh * 0.47;
+    const screenY = sh * 0.62;
+    const recess = new THREE.Mesh(
+      new THREE.BoxGeometry(recessW, recessH, 0.03),
+      darkMat
+    );
+    recess.position.set(0, screenY, depth / 2 - 0.01);
+    group.add(recess);
+
+    // Emissive screen
+    const screenW = recessW - 0.04;
+    const screenH = recessH - 0.04;
+    const screen = new THREE.Mesh(
+      new THREE.PlaneGeometry(screenW, screenH),
+      material
+    );
+    screen.position.set(0, screenY, depth / 2 + 0.015);
+    group.add(screen);
+
+    // Ventilation slots (top front)
+    const ventY = sh - 0.04;
+    for (let i = 0; i < 5; i++) {
+      const vent = new THREE.Mesh(
+        new THREE.BoxGeometry(sw * 0.5, 0.004, 0.005),
+        darkMat
+      );
+      vent.position.set(0, ventY - i * 0.012, depth / 2 + 0.003);
+      group.add(vent);
+    }
+
+    // Floppy disk slot
+    const floppyY = screenY - recessH / 2 - 0.05;
+    const floppy = new THREE.Mesh(
+      new THREE.BoxGeometry(sw * 0.2, 0.005, 0.005),
+      darkMat
+    );
+    floppy.position.set(sw * 0.12, floppyY, depth / 2 + 0.003);
+    group.add(floppy);
+
+    // Logo placeholder
+    const logoMat = this._getOrCreateMaterial(0x888888, { roughness: 0.3, metalness: 0.5 });
+    const logo = new THREE.Mesh(
+      new THREE.BoxGeometry(0.03, 0.03, 0.005),
+      logoMat
+    );
+    logo.position.set(0, floppyY - 0.06, depth / 2 + 0.003);
+    group.add(logo);
+
+    // Base foot
+    const foot = new THREE.Mesh(
+      new THREE.BoxGeometry(sw + 0.03, 0.02, depth + 0.03),
+      caseMat
+    );
+    foot.position.set(0, 0.01, 0);
+    group.add(foot);
+
+    return group;
+  }
+
+  _detailMonitorWall(sw, sh, sd, material) {
     const group = new THREE.Group();
 
     // Screen
     const screen = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, 0.02), material);
     screen.position.set(0, sh / 2, 0);
-    // no shadow
     group.add(screen);
 
     // Bezel (frame around screen)
@@ -906,7 +978,6 @@ export class MapBuilder {
     const standMat = this._getTexturedMaterial('metal', 0x555566, { width: 0.06, height: 0.15 });
     const stand = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.15, 0.06), standMat);
     stand.position.set(0, -0.075, 0);
-    // no shadow
     group.add(stand);
 
     // Base

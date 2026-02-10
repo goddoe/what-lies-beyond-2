@@ -102,7 +102,7 @@ export const ROOMS = [
     props: [
       // Desk with monitor
       { type: 'desk', position: [-1.5, 0, -1.5], size: [1.2, 0.75, 0.6], color: 0x6b5b3a },
-      { type: 'monitor', position: [-1.5, 0.75, -1.5], size: [0.5, 0.4, 0.05], color: 0x111111 },
+      { type: 'monitor', position: [-1.5, 0.75, -1.5], size: [0.5, 0.55, 0.3], color: 0x111111 },
       { type: 'chair', position: [-1.5, 0, -0.8], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: Math.PI },
       // Filing cabinet
       { type: 'cabinet', position: [2, 0, -2.2], size: [0.6, 1.4, 0.4], color: 0x555566 },
@@ -209,10 +209,10 @@ export const ROOMS = [
       { type: 'desk', position: [-1, 0, -3], size: [1.2, 0.75, 0.6], color: 0x7a6b4a },
       { type: 'desk', position: [1, 0, -3], size: [1.2, 0.75, 0.6], color: 0x7a6b4a },
       { type: 'desk', position: [3, 0, -3], size: [1.2, 0.75, 0.6], color: 0x7a6b4a },
-      { type: 'monitor', position: [-3, 0.75, -3], size: [0.5, 0.4, 0.05], color: 0x111111 },
-      { type: 'monitor', position: [-1, 0.75, -3], size: [0.5, 0.4, 0.05], color: 0x111111 },
-      { type: 'monitor', position: [1, 0.75, -3], size: [0.5, 0.4, 0.05], color: 0x111111 },
-      { type: 'monitor', position: [3, 0.75, -3], size: [0.5, 0.4, 0.05], color: 0x111111 },
+      { type: 'monitor', position: [-3, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111 },
+      { type: 'monitor', position: [-1, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111 },
+      { type: 'monitor', position: [1, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111 },
+      { type: 'monitor', position: [3, 0.75, -3], size: [0.5, 0.55, 0.3], color: 0x111111 },
       // Chairs (north row, facing desks)
       { type: 'chair', position: [-3, 0, -2], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: Math.PI },
       { type: 'chair', position: [-1, 0, -2], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: Math.PI },
@@ -225,8 +225,8 @@ export const ROOMS = [
       // Second row of desks (filling enlarged space)
       { type: 'desk', position: [-3, 0, 1], size: [1.2, 0.75, 0.6], color: 0x7a6b4a },
       { type: 'desk', position: [-1, 0, 1], size: [1.2, 0.75, 0.6], color: 0x7a6b4a },
-      { type: 'monitor', position: [-3, 0.75, 1], size: [0.5, 0.4, 0.05], color: 0x111111 },
-      { type: 'monitor', position: [-1, 0.75, 1], size: [0.5, 0.4, 0.05], color: 0x111111 },
+      { type: 'monitor', position: [-3, 0.75, 1], size: [0.5, 0.55, 0.3], color: 0x111111 },
+      { type: 'monitor', position: [-1, 0.75, 1], size: [0.5, 0.55, 0.3], color: 0x111111 },
       // Chairs (south row, facing desks)
       { type: 'chair', position: [-3, 0, 2], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: Math.PI },
       { type: 'chair', position: [-1, 0, 2], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: Math.PI },
@@ -387,7 +387,7 @@ export const ROOMS = [
       { type: 'railing', position: [0, 0, 2.5], size: [6, 1, 0.1], color: 0x555566 },
       // Small console/desk
       { type: 'console', position: [-2.5, 0, 0], size: [1.2, 0.9, 0.6], color: 0x333344 },
-      { type: 'monitor', position: [-2.5, 0.9, 0], size: [0.6, 0.4, 0.05], color: 0x111122 },
+      { type: 'monitor', position: [-2.5, 0.9, 0], size: [0.6, 0.55, 0.35], color: 0x111122 },
       // Bench seating
       { type: 'bench', position: [2.5, 0, 0], size: [0.5, 0.4, 2], color: 0x3a3a4a },
       // Floor light accents
@@ -514,7 +514,7 @@ export const ROOMS = [
       { type: 'equipment', position: [-2.5, 0.9, 0], size: [0.4, 0.3, 0.3], color: 0x444455 },
       // Central terminal
       { type: 'console', position: [0, 0, 0.5], size: [1.2, 0.9, 0.6], color: 0x333344 },
-      { type: 'monitor', position: [0, 0.9, 0.5], size: [0.8, 0.5, 0.05], color: 0x111122 },
+      { type: 'monitor', position: [0, 0.9, 0.5], size: [0.8, 0.65, 0.45], color: 0x111122 },
       // Specimen jars (decorative boxes)
       { type: 'jar', position: [2.5, 0.9, 0], size: [0.15, 0.25, 0.15], color: 0x556655 },
       { type: 'jar', position: [2.7, 0.9, 0], size: [0.15, 0.25, 0.15], color: 0x556655 },
@@ -617,8 +617,8 @@ export const ROOMS = [
     props: [
       // Executive desk (shifted east to clear north door to garden path)
       { type: 'desk', position: [1.5, 0, -1.5], size: [2.5, 0.8, 0.8], color: 0x8a7a5a },
-      { type: 'monitor', position: [1, 0.8, -1.5], size: [0.6, 0.45, 0.05], color: 0x111111 },
-      { type: 'monitor', position: [2, 0.8, -1.5], size: [0.6, 0.45, 0.05], color: 0x111111 },
+      { type: 'monitor', position: [1, 0.8, -1.5], size: [0.6, 0.6, 0.35], color: 0x111111 },
+      { type: 'monitor', position: [2, 0.8, -1.5], size: [0.6, 0.6, 0.35], color: 0x111111 },
       // Executive chair (facing desk)
       { type: 'chair', position: [1.5, 0, -0.2], size: [0.65, 0.7, 0.65], color: 0x1a1a1a, rotY: Math.PI },
       // Bookshelf
@@ -656,7 +656,7 @@ export const ROOMS = [
     props: [
       // Large executive desk (mahogany tones)
       { type: 'desk', position: [2, 0, -1], size: [2.5, 0.85, 1], color: 0x5a3a2a },
-      { type: 'monitor', position: [2, 0.85, -1], size: [0.7, 0.5, 0.05], color: 0x111111 },
+      { type: 'monitor', position: [2, 0.85, -1], size: [0.7, 0.65, 0.4], color: 0x111111 },
       // Leather chair (facing desk)
       { type: 'chair', position: [2, 0, 0.2], size: [0.7, 0.8, 0.7], color: 0x1a1010, rotY: Math.PI },
       // Bookshelf (large)
@@ -915,9 +915,9 @@ export const ROOMS = [
       // Security desk
       { type: 'desk', position: [0, 0, -0.5], size: [3, 0.8, 0.6], color: 0x555566 },
       // Security monitors (multiple small screens)
-      { type: 'monitor', position: [-0.8, 0.8, -0.5], size: [0.4, 0.3, 0.05], color: 0x111122 },
-      { type: 'monitor', position: [0, 0.8, -0.5], size: [0.4, 0.3, 0.05], color: 0x111122 },
-      { type: 'monitor', position: [0.8, 0.8, -0.5], size: [0.4, 0.3, 0.05], color: 0x111122 },
+      { type: 'monitor', position: [-0.8, 0.8, -0.5], size: [0.4, 0.45, 0.25], color: 0x111122 },
+      { type: 'monitor', position: [0, 0.8, -0.5], size: [0.4, 0.45, 0.25], color: 0x111122 },
+      { type: 'monitor', position: [0.8, 0.8, -0.5], size: [0.4, 0.45, 0.25], color: 0x111122 },
       // Chair (facing desk/monitors)
       { type: 'chair', position: [0, 0, 0.5], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: Math.PI },
       // Security code terminal (interactable)
@@ -1037,7 +1037,7 @@ export const ROOMS = [
       { type: 'cable', position: [0, 0.02, 0], size: [0.3, 0.04, 10], color: 0x222233 },
       // Center monitoring station
       { type: 'console', position: [0, 0, 0], size: [1.5, 0.9, 0.6], color: 0x222233 },
-      { type: 'monitor', position: [0, 0.9, 0], size: [0.8, 0.5, 0.05], color: 0x111122 },
+      { type: 'monitor', position: [0, 0.9, 0], size: [0.8, 0.65, 0.45], color: 0x111122 },
     ],
   }),
 
@@ -1147,7 +1147,7 @@ export const ROOMS = [
       { type: 'warning_light', position: [0, 2.5, 3.8], size: [0.25, 0.25, 0.25], color: 0xff3300 },
       // Control console
       { type: 'console', position: [-2.5, 0, -2.5], size: [1.2, 0.9, 0.6], color: 0x333333 },
-      { type: 'monitor', position: [-2.5, 0.9, -2.5], size: [0.6, 0.4, 0.05], color: 0x221100 },
+      { type: 'monitor', position: [-2.5, 0.9, -2.5], size: [0.6, 0.55, 0.35], color: 0x221100 },
       // Coolant pipes
       { type: 'pipe', position: [3, 1, 0], size: [0.2, 0.2, 8], color: 0x664422 },
       { type: 'pipe', position: [-3, 1.5, 0], size: [0.2, 0.2, 8], color: 0x664422 },
@@ -1217,7 +1217,7 @@ export const ROOMS = [
       { type: 'rack', position: [4, 0, 3], size: [0.6, 3, 1], color: 0x0a0a1a },
       // Central monitoring station
       { type: 'pedestal', position: [0, 0, 0], size: [1, 1, 1], color: 0x222233 },
-      { type: 'monitor', position: [0, 1, 0], size: [1, 0.7, 0.05], color: 0x111122 },
+      { type: 'monitor', position: [0, 1, 0], size: [1, 0.85, 0.55], color: 0x111122 },
       // Floor cable trays
       { type: 'cable', position: [-2, 0.02, 0], size: [0.2, 0.04, 10], color: 0x1a1a2a },
       { type: 'cable', position: [2, 0.02, 0], size: [0.2, 0.04, 10], color: 0x1a1a2a },
@@ -1301,7 +1301,7 @@ export const ROOMS = [
       { type: 'tank', position: [2.5, 0, 1], size: [1, 2.5, 1], color: 0x222222 },
       // Central terminal with old records
       { type: 'console', position: [0, 0, -3], size: [2, 0.9, 0.6], color: 0x222222 },
-      { type: 'monitor', position: [0, 0.9, -3], size: [1.2, 0.8, 0.05], color: 0x0a0a0a },
+      { type: 'monitor', position: [0, 0.9, -3], size: [1.2, 0.95, 0.65], color: 0x0a0a0a },
       // Dust/debris
       { type: 'debris', position: [1, 0, 2.5], size: [0.5, 0.1, 0.5], color: 0x333333 },
       { type: 'debris', position: [-1, 0, 3], size: [0.3, 0.08, 0.4], color: 0x333333 },
