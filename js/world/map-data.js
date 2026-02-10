@@ -1371,11 +1371,8 @@ export const ROOMS = [
       { type: 'desk', position: [3, 0, -2], size: [4, 0.75, 0.7], color: 0x222233 },
       { type: 'console', position: [-4, 0.75, -2], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
       { type: 'console', position: [-2, 0.75, -2], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
-      { type: 'console', position: [0, 0.75, -2], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
       { type: 'console', position: [2, 0.75, -2], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
       { type: 'console', position: [4, 0.75, -2], size: [1.2, 0.7, 0.5], color: 0x1a1a2a },
-      // Operator chair (facing consoles)
-      { type: 'chair', position: [0, 0, 1], size: [0.6, 0.6, 0.6], color: 0x222222, rotY: Math.PI },
       // Floor lights (guide path)
       { type: 'floor_light', position: [-1, 0.01, 4], size: [0.1, 0.02, 0.1], color: 0x3355ff },
       { type: 'floor_light', position: [1, 0.01, 4], size: [0.1, 0.02, 0.1], color: 0x3355ff },
