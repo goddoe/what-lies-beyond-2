@@ -58,15 +58,28 @@ export class Player {
   }
 
   _setupControls() {
+    // Pointer lock already hides cursor at OS level — no CSS cursor manipulation needed.
+    // Avoid document.body.style.cursor = 'none' which can persist after tab close on macOS.
     this.controls.addEventListener('lock', () => {
-      document.body.style.cursor = 'none';
       if (this.onLock) this.onLock();
     });
 
     this.controls.addEventListener('unlock', () => {
-      document.body.style.cursor = 'default';
       this._resetKeys();
       if (this.onUnlock) this.onUnlock();
+    });
+
+    // Force-release pointer lock on every possible page exit / focus loss event.
+    // Cmd+W on macOS can skip beforeunload, so we cover multiple paths.
+    const cleanup = () => {
+      if (document.pointerLockElement) document.exitPointerLock();
+    };
+    window.addEventListener('beforeunload', cleanup);
+    window.addEventListener('unload', cleanup);
+    window.addEventListener('pagehide', cleanup);
+    window.addEventListener('blur', cleanup);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) cleanup();
     });
   }
 

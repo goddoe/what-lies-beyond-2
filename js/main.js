@@ -371,10 +371,12 @@ function openCodeInput() {
 }
 
 function closeCodeInput() {
-  codeInputActive = false;
   codeOverlay.style.display = 'none';
-  // Re-lock pointer to resume playing
-  player.lock();
+  // Keep codeInputActive true briefly so ESC-triggered unlock doesn't show pause menu
+  setTimeout(() => {
+    codeInputActive = false;
+    player.lock();
+  }, 150);
 }
 
 if (codeField) {
