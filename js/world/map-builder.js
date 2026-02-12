@@ -271,9 +271,12 @@ export class MapBuilder {
       });
     }
 
-    // Remove orphan doors: doors connecting to rooms no longer in activeRooms
+    // Remove orphan doors: doors connecting to rooms no longer in activeRooms.
+    // Skip orphan check for rooms moved by variant (their CONNECTIONS data is stale).
     const activeIds = new Set(activeRooms.map(r => r.id));
+    const movedIds = mods.moveRooms ? new Set(Object.keys(mods.moveRooms)) : new Set();
     activeRooms = activeRooms.map(r => {
+      if (movedIds.has(r.id)) return r; // moved rooms: original connections are invalid
       const filtered = r.doors.filter(d => {
         // Check if any connection references this room+wall leading to a removed room
         for (const conn of CONNECTIONS) {
@@ -901,7 +904,7 @@ export class MapBuilder {
     }
 
     // Interactable types
-    const interactableTypes = ['monitor', 'monitor_wall', 'console', 'valve', 'document'];
+    const interactableTypes = ['monitor', 'monitor_wall', 'console', 'valve', 'document', 'flashlight'];
     if (interactableTypes.includes(prop.type)) {
       this.interactables.push({
         mesh: mainMesh,
@@ -936,6 +939,51 @@ export class MapBuilder {
       case 'console': return this._detailConsole(sw, sh, sd, material, roomId);
       case 'valve': return this._detailValve(sw, sh, sd, material);
       case 'crate': return this._detailCrate(sw, sh, sd, material);
+      case 'table': return this._detailTable(sw, sh, sd, material);
+      case 'counter': return this._detailCounter(sw, sh, sd, material);
+      case 'shelf': return this._detailShelf(sw, sh, sd, material);
+      case 'bench': return this._detailBench(sw, sh, sd, material);
+      case 'couch': return this._detailCouch(sw, sh, sd, material);
+      case 'vending': return this._detailVending(sw, sh, sd, material);
+      case 'generator': return this._detailGenerator(sw, sh, sd, material);
+      case 'tank': return this._detailTank(sw, sh, sd, material);
+      case 'pipe': return this._detailPipe(sw, sh, sd, material);
+      case 'drum': return this._detailDrum(sw, sh, sd, material);
+      case 'equipment': return this._detailEquipment(sw, sh, sd, material);
+      case 'plant': return this._detailPlant(sw, sh, sd, material);
+      case 'tree': return this._detailTree(sw, sh, sd, material);
+      case 'lamp': return this._detailLamp(sw, sh, sd, material);
+      case 'clock': return this._detailClock(sw, sh, sd, material);
+      case 'coffee_machine': return this._detailCoffeeMachine(sw, sh, sd, material);
+      case 'microwave': return this._detailMicrowave(sw, sh, sd, material);
+      case 'cooler': return this._detailCooler(sw, sh, sd, material);
+      case 'fountain': return this._detailFountain(sw, sh, sd, material);
+      case 'bin': return this._detailBin(sw, sh, sd, material);
+      case 'basket': return this._detailBasket(sw, sh, sd, material);
+      case 'whiteboard': return this._detailWhiteboard(sw, sh, sd, material);
+      case 'cryo': return this._detailCryo(sw, sh, sd, material);
+      case 'bars': return this._detailBars(sw, sh, sd, material);
+      case 'projector': return this._detailProjector(sw, sh, sd, material);
+      case 'sign_left': return this._detailSign(sw, sh, sd, material, 'left');
+      case 'sign_right': return this._detailSign(sw, sh, sd, material, 'right');
+      case 'poster': return this._detailPoster(sw, sh, sd, material);
+      case 'document': return this._detailDocument(sw, sh, sd, material);
+      case 'debris': return this._detailDebris(sw, sh, sd, material);
+      case 'light_fixture': return this._detailLightFixture(sw, sh, sd, material);
+      case 'ceiling_light': return this._detailCeilingLight(sw, sh, sd, material);
+      case 'floor_light': return this._detailFloorLight(sw, sh, sd, material);
+      case 'led': return this._detailLED(sw, sh, sd, material);
+      case 'warning_light': return this._detailWarningLight(sw, sh, sd, material);
+      case 'window': return this._detailWindow(sw, sh, sd, material);
+      case 'rug': return this._detailRug(sw, sh, sd, material);
+      case 'railing': return this._detailRailing(sw, sh, sd, material);
+      case 'jar': return this._detailJar(sw, sh, sd, material);
+      case 'trellis': return this._detailTrellis(sw, sh, sd, material);
+      case 'grass': return this._detailGrass(sw, sh, sd, material);
+      case 'pipe_vert': return this._detailPipeVert(sw, sh, sd, material);
+      case 'grate': return this._detailGrate(sw, sh, sd, material);
+      case 'box': return this._detailBox(sw, sh, sd, material);
+      case 'flashlight': return this._detailFlashlight(sw, sh, sd, material);
       default: return null;
     }
   }
@@ -944,24 +992,60 @@ export class MapBuilder {
     const group = new THREE.Group();
     const topThick = 0.04;
     const legW = 0.06;
+    const legH = sh - topThick;
+    const legMat = this._getTexturedMaterial('metal', 0x555566, { width: legW, height: legH });
+    const darkMat = this._getOrCreateMaterial(0x222222, { roughness: 0.8, metalness: 0.0 });
+    const handleMat = this._getOrCreateMaterial(0x888899, { roughness: 0.3, metalness: 0.8 });
 
     // Tabletop
     const top = new THREE.Mesh(new THREE.BoxGeometry(sw, topThick, sd), material);
     top.position.set(0, sh - topThick / 2, 0);
-    // no shadow for performance
     group.add(top);
 
+    // Tabletop edge strip (front)
+    const edge = new THREE.Mesh(new THREE.BoxGeometry(sw, 0.02, 0.01), darkMat);
+    edge.position.set(0, sh - topThick, sd / 2 + 0.005);
+    group.add(edge);
+
     // 4 legs
-    const legH = sh - topThick;
     const legGeo = new THREE.BoxGeometry(legW, legH, legW);
-    const legMat = this._getTexturedMaterial('metal', 0x555566, { width: legW, height: legH });
     const offX = sw / 2 - legW / 2 - 0.02;
     const offZ = sd / 2 - legW / 2 - 0.02;
     for (const [lx, lz] of [[-offX, -offZ], [offX, -offZ], [-offX, offZ], [offX, offZ]]) {
       const leg = new THREE.Mesh(legGeo, legMat);
       leg.position.set(lx, legH / 2, lz);
-      // no shadow
       group.add(leg);
+    }
+
+    // Back panel (modesty panel)
+    const panelH = legH * 0.6;
+    const backPanel = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.04, panelH, 0.02), material);
+    backPanel.position.set(0, panelH / 2, -offZ);
+    group.add(backPanel);
+
+    // Cable management hole (back panel)
+    const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.025, 8), darkMat);
+    hole.rotation.x = Math.PI / 2;
+    hole.position.set(sw * 0.25, panelH * 0.7, -offZ);
+    group.add(hole);
+
+    // Side drawer unit (right side, if desk is wide enough)
+    if (sw > 0.8) {
+      const drawerW = sw * 0.35;
+      const drawerH = legH * 0.5;
+      const drawerBox = new THREE.Mesh(new THREE.BoxGeometry(drawerW, drawerH, sd - 0.06), material);
+      drawerBox.position.set(offX - drawerW / 2, drawerH / 2, 0);
+      group.add(drawerBox);
+
+      // Drawer seam
+      const seam = new THREE.Mesh(new THREE.BoxGeometry(drawerW - 0.02, 0.004, 0.004), darkMat);
+      seam.position.set(offX - drawerW / 2, drawerH * 0.5, sd / 2 - 0.02);
+      group.add(seam);
+
+      // Drawer handle
+      const handle = new THREE.Mesh(new THREE.BoxGeometry(drawerW * 0.4, 0.012, 0.015), handleMat);
+      handle.position.set(offX - drawerW / 2, drawerH * 0.3, sd / 2 - 0.005);
+      group.add(handle);
     }
 
     return group;
@@ -970,33 +1054,44 @@ export class MapBuilder {
   _detailChair(sw, sh, sd, material) {
     const group = new THREE.Group();
     const seatH = sh * 0.55;
-    const seatThick = 0.04;
-    const legW = 0.04;
+    const seatThick = 0.05;
+    const legW = 0.035;
+    const legMat = this._getTexturedMaterial('metal', 0x555566, { width: legW, height: seatH });
 
-    // Seat
-    const seat = new THREE.Mesh(new THREE.BoxGeometry(sw, seatThick, sd), material);
+    // Seat cushion (slightly rounded with two layers)
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.02, seatThick, sd - 0.02), material);
     seat.position.set(0, seatH, 0);
-    // no shadow
     group.add(seat);
 
-    // Backrest
-    const backH = sh - seatH - seatThick;
-    const back = new THREE.Mesh(new THREE.BoxGeometry(sw, backH, 0.04), material);
-    back.position.set(0, seatH + seatThick + backH / 2, -sd / 2 + 0.02);
-    // no shadow
-    group.add(back);
+    // Seat base frame
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(sw, 0.02, sd), legMat);
+    frame.position.set(0, seatH - seatThick / 2 - 0.01, 0);
+    group.add(frame);
 
-    // 4 legs
+    // Backrest (two-part: frame + pad)
+    const backH = sh - seatH - seatThick;
+    const backFrame = new THREE.Mesh(new THREE.BoxGeometry(sw, backH, 0.02), legMat);
+    backFrame.position.set(0, seatH + seatThick / 2 + backH / 2, -sd / 2 + 0.01);
+    group.add(backFrame);
+
+    const backPad = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.06, backH - 0.04, 0.025), material);
+    backPad.position.set(0, seatH + seatThick / 2 + backH / 2, -sd / 2 + 0.035);
+    group.add(backPad);
+
+    // 4 legs (tapered look with slightly smaller bottom)
     const legGeo = new THREE.BoxGeometry(legW, seatH, legW);
-    const legMat = this._getTexturedMaterial('metal', 0x555566, { width: legW, height: seatH });
     const offX = sw / 2 - legW - 0.01;
     const offZ = sd / 2 - legW - 0.01;
     for (const [lx, lz] of [[-offX, -offZ], [offX, -offZ], [-offX, offZ], [offX, offZ]]) {
       const leg = new THREE.Mesh(legGeo, legMat);
       leg.position.set(lx, seatH / 2, lz);
-      // no shadow
       group.add(leg);
     }
+
+    // Cross brace between front legs
+    const brace = new THREE.Mesh(new THREE.BoxGeometry(sw - legW * 2 - 0.02, legW * 0.6, legW * 0.6), legMat);
+    brace.position.set(0, seatH * 0.25, offZ);
+    group.add(brace);
 
     return group;
   }
@@ -1641,19 +1736,40 @@ export class MapBuilder {
 
   _detailCabinet(sw, sh, sd, material) {
     const group = new THREE.Group();
+    const handleMat = this._getOrCreateMaterial(0x888899, { roughness: 0.3, metalness: 0.8 });
+    const darkMat = this._getOrCreateMaterial(0x222222, { roughness: 0.8, metalness: 0.0 });
 
     // Main body
     const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), material);
     body.position.set(0, sh / 2, 0);
-    // no shadow
-    // no shadow
     group.add(body);
 
-    // Handle strip
-    const handleMat = this._getOrCreateMaterial(0x888899, { roughness: 0.3, metalness: 0.8 });
-    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.02, sh * 0.6, 0.02), handleMat);
-    handle.position.set(sw / 2 + 0.01, sh / 2, 0);
-    group.add(handle);
+    // Top lip (slight overhang)
+    const lip = new THREE.Mesh(new THREE.BoxGeometry(sw + 0.02, 0.02, sd + 0.02), material);
+    lip.position.set(0, sh + 0.01, 0);
+    group.add(lip);
+
+    // Drawer lines (horizontal seams on front face)
+    const drawerCount = Math.max(2, Math.round(sh / 0.4));
+    const drawerH = sh / drawerCount;
+    for (let i = 1; i < drawerCount; i++) {
+      const seam = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.04, 0.005, 0.005), darkMat);
+      seam.position.set(0, drawerH * i, sd / 2 + 0.003);
+      group.add(seam);
+    }
+
+    // Drawer handles (small horizontal bars)
+    for (let i = 0; i < drawerCount; i++) {
+      const hy = drawerH * i + drawerH * 0.5;
+      const handle = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.25, 0.015, 0.02), handleMat);
+      handle.position.set(0, hy, sd / 2 + 0.015);
+      group.add(handle);
+    }
+
+    // Keyhole (top drawer only)
+    const keyhole = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.02, 0.005), darkMat);
+    keyhole.position.set(sw * 0.2, drawerH * (drawerCount - 1) + drawerH * 0.5, sd / 2 + 0.003);
+    group.add(keyhole);
 
     return group;
   }
@@ -1661,38 +1777,65 @@ export class MapBuilder {
   _detailRack(sw, sh, sd, material) {
     const group = new THREE.Group();
     const frameW = 0.04;
+    const darkMat = this._getOrCreateMaterial(0x1a1a1a, { roughness: 0.8, metalness: 0.0 });
+    const metalMat = this._getOrCreateMaterial(0x555566, { roughness: 0.4, metalness: 0.6 });
 
-    // 4 vertical frame posts
+    // 4 vertical frame posts (L-shaped rails)
     const postGeo = new THREE.BoxGeometry(frameW, sh, frameW);
     const offX = sw / 2 - frameW / 2;
     const offZ = sd / 2 - frameW / 2;
     for (const [rx, rz] of [[-offX, -offZ], [offX, -offZ], [-offX, offZ], [offX, offZ]]) {
       const post = new THREE.Mesh(postGeo, material);
       post.position.set(rx, sh / 2, rz);
-      // no shadow
       group.add(post);
     }
 
-    // Horizontal shelves
-    const shelfCount = 3;
-    const shelfGeo = new THREE.BoxGeometry(sw, 0.02, sd);
-    for (let i = 0; i <= shelfCount; i++) {
-      const shelf = new THREE.Mesh(shelfGeo, material);
-      shelf.position.set(0, (sh / shelfCount) * i, 0);
-      // no shadow
-      group.add(shelf);
+    // Server units (fill shelves)
+    const unitCount = 4;
+    const unitH = (sh - 0.04) / unitCount;
+    const unitW = sw - frameW * 2 - 0.02;
+    const unitD = sd - frameW * 2;
+    for (let i = 0; i < unitCount; i++) {
+      const uy = unitH * i + unitH / 2 + 0.02;
+      // Unit body
+      const unit = new THREE.Mesh(new THREE.BoxGeometry(unitW, unitH - 0.02, unitD), darkMat);
+      unit.position.set(0, uy, 0);
+      group.add(unit);
+
+      // Front face plate (slightly lighter)
+      const facePlate = new THREE.Mesh(new THREE.BoxGeometry(unitW, unitH - 0.03, 0.01), metalMat);
+      facePlate.position.set(0, uy, offZ + 0.005);
+      group.add(facePlate);
+
+      // Horizontal ventilation slots
+      for (let v = 0; v < 3; v++) {
+        const vent = new THREE.Mesh(new THREE.BoxGeometry(unitW * 0.4, 0.004, 0.005), darkMat);
+        vent.position.set(unitW * 0.1, uy - unitH * 0.15 + v * 0.025, offZ + 0.015);
+        group.add(vent);
+      }
+
+      // LED indicators (2 per unit: power + activity)
+      const ledColors = [0x00ff44, 0x00aaff];
+      for (let j = 0; j < 2; j++) {
+        const lm = new THREE.MeshStandardMaterial({
+          color: ledColors[j], emissive: ledColors[j], emissiveIntensity: 0.6,
+          roughness: 0.3, metalness: 0.1,
+        });
+        const led = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.012, 0.008), lm);
+        led.position.set(-unitW * 0.35 + j * 0.04, uy + unitH * 0.2, offZ + 0.015);
+        group.add(led);
+      }
     }
 
-    // LED dots on front
-    const ledMat = new THREE.MeshStandardMaterial({
-      color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 0.6,
-      roughness: 0.3, metalness: 0.1,
-    });
-    for (let i = 1; i < shelfCount; i++) {
-      const led = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.02), ledMat);
-      led.position.set(offX - 0.03, (sh / shelfCount) * i + 0.05, offZ + 0.01);
-      group.add(led);
-    }
+    // Top horizontal beam (front)
+    const topBeam = new THREE.Mesh(new THREE.BoxGeometry(sw, frameW, frameW), material);
+    topBeam.position.set(0, sh - frameW / 2, offZ);
+    group.add(topBeam);
+
+    // Bottom base plate
+    const basePlate = new THREE.Mesh(new THREE.BoxGeometry(sw + 0.04, 0.02, sd + 0.04), material);
+    basePlate.position.set(0, 0.01, 0);
+    group.add(basePlate);
 
     return group;
   }
@@ -1781,6 +1924,7 @@ export class MapBuilder {
   _detailCrate(sw, sh, sd, material) {
     const group = new THREE.Group();
     const stripMat = this._getOrCreateMaterial(0x555555, { roughness: 0.5, metalness: 0.5 });
+    const plankMat = this._getOrCreateMaterial(0x8B7355, { roughness: 0.85, metalness: 0.0 });
     const stripW = 0.02;
 
     // Main body — slightly inset from full size
@@ -1788,31 +1932,52 @@ export class MapBuilder {
     body.position.set(0, sh / 2, 0);
     group.add(body);
 
-    // 4 vertical corner strips
-    const stripGeo = new THREE.BoxGeometry(stripW, sh, stripW);
+    // Plank seams (horizontal lines on front and back)
+    const plankCount = Math.max(2, Math.floor(sh / 0.15));
     const hx = sw / 2, hz = sd / 2;
+    for (let i = 1; i < plankCount; i++) {
+      const py = (sh / plankCount) * i;
+      // Front seam
+      const seamF = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.02, 0.004, 0.004), stripMat);
+      seamF.position.set(0, py, hz + 0.002);
+      group.add(seamF);
+      // Back seam
+      const seamB = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.02, 0.004, 0.004), stripMat);
+      seamB.position.set(0, py, -hz - 0.002);
+      group.add(seamB);
+    }
+
+    // 4 vertical corner strips (metal reinforcement)
+    const stripGeo = new THREE.BoxGeometry(stripW, sh + 0.005, stripW);
     for (const [cx, cz] of [[-hx, -hz], [hx, -hz], [-hx, hz], [hx, hz]]) {
       const strip = new THREE.Mesh(stripGeo, stripMat);
       strip.position.set(cx, sh / 2, cz);
       group.add(strip);
     }
 
-    // 2 horizontal bands (front + back)
-    const bandH = stripW;
-    const bandY = sh * 0.35;
-    const bandGeo = new THREE.BoxGeometry(sw + 0.005, bandH, stripW);
-    for (const bz of [-hz, hz]) {
-      const band = new THREE.Mesh(bandGeo, stripMat);
-      band.position.set(0, bandY, bz);
-      group.add(band);
+    // 2 horizontal metal bands (at 1/3 and 2/3 height, all 4 sides)
+    for (const bandY of [sh * 0.33, sh * 0.67]) {
+      const bandFB = new THREE.BoxGeometry(sw + 0.005, stripW, stripW);
+      for (const bz of [-hz, hz]) {
+        const band = new THREE.Mesh(bandFB, stripMat);
+        band.position.set(0, bandY, bz);
+        group.add(band);
+      }
+      const bandLR = new THREE.BoxGeometry(stripW, stripW, sd + 0.005);
+      for (const bx of [-hx, hx]) {
+        const band = new THREE.Mesh(bandLR, stripMat);
+        band.position.set(bx, bandY, 0);
+        group.add(band);
+      }
     }
-    // 2 horizontal bands (left + right sides)
-    const sideBandGeo = new THREE.BoxGeometry(stripW, bandH, sd + 0.005);
-    for (const bx of [-hx, hx]) {
-      const band = new THREE.Mesh(sideBandGeo, stripMat);
-      band.position.set(bx, bandY, 0);
-      group.add(band);
-    }
+
+    // Lid seam (top edge)
+    const lidF = new THREE.Mesh(new THREE.BoxGeometry(sw + 0.01, 0.015, 0.008), plankMat);
+    lidF.position.set(0, sh, hz);
+    group.add(lidF);
+    const lidB = new THREE.Mesh(new THREE.BoxGeometry(sw + 0.01, 0.015, 0.008), plankMat);
+    lidB.position.set(0, sh, -hz);
+    group.add(lidB);
 
     return group;
   }
@@ -1876,6 +2041,1811 @@ export class MapBuilder {
     );
     foot.position.set(0, 0.0125, 0);
     group.add(foot);
+
+    return group;
+  }
+
+  _detailTable(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const topThick = 0.04;
+    const legW = 0.05;
+    const legH = sh - topThick;
+    const legMat = this._getTexturedMaterial('metal', 0x555566, { width: legW, height: legH });
+
+    // Tabletop
+    const top = new THREE.Mesh(new THREE.BoxGeometry(sw, topThick, sd), material);
+    top.position.set(0, sh - topThick / 2, 0);
+    group.add(top);
+
+    // Edge trim
+    const trimMat = this._getOrCreateMaterial(0x333333, { roughness: 0.6, metalness: 0.3 });
+    for (const [tx, tz, tw, td] of [
+      [0, sd / 2, sw, 0.01], [0, -sd / 2, sw, 0.01],
+      [sw / 2, 0, 0.01, sd], [-sw / 2, 0, 0.01, sd],
+    ]) {
+      const trim = new THREE.Mesh(new THREE.BoxGeometry(tw, topThick + 0.005, td), trimMat);
+      trim.position.set(tx, sh - topThick / 2, tz);
+      group.add(trim);
+    }
+
+    // 4 legs
+    const legGeo = new THREE.BoxGeometry(legW, legH, legW);
+    const ox = sw / 2 - legW / 2 - 0.02;
+    const oz = sd / 2 - legW / 2 - 0.02;
+    for (const [lx, lz] of [[-ox, -oz], [ox, -oz], [-ox, oz], [ox, oz]]) {
+      const leg = new THREE.Mesh(legGeo, legMat);
+      leg.position.set(lx, legH / 2, lz);
+      group.add(leg);
+    }
+
+    // Cross stretchers (between legs for stability)
+    if (sw > 1) {
+      const stretchGeo = new THREE.BoxGeometry(sw - legW * 2, legW * 0.5, legW * 0.5);
+      const stretch = new THREE.Mesh(stretchGeo, legMat);
+      stretch.position.set(0, legH * 0.2, 0);
+      group.add(stretch);
+    }
+
+    return group;
+  }
+
+  _detailCounter(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const darkMat = this._getOrCreateMaterial(0x222222, { roughness: 0.8, metalness: 0.0 });
+    const handleMat = this._getOrCreateMaterial(0x888899, { roughness: 0.3, metalness: 0.8 });
+
+    // Main body
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), material);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Countertop (slightly wider)
+    const topMat = this._getOrCreateMaterial(0x666655, { roughness: 0.4, metalness: 0.2 });
+    const countertop = new THREE.Mesh(new THREE.BoxGeometry(sw + 0.04, 0.03, sd + 0.02), topMat);
+    countertop.position.set(0, sh + 0.015, 0);
+    group.add(countertop);
+
+    // Cabinet doors (front, 2 panels)
+    const doorW = (sw - 0.06) / 2;
+    for (let i = 0; i < 2; i++) {
+      const dx = (i === 0 ? -1 : 1) * (doorW / 2 + 0.015);
+      // Door seam
+      const seam = new THREE.Mesh(new THREE.BoxGeometry(0.004, sh * 0.7, 0.004), darkMat);
+      seam.position.set(0, sh * 0.35, sd / 2 + 0.003);
+      if (i === 0) group.add(seam);
+      // Handle
+      const handle = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.08, 0.02), handleMat);
+      handle.position.set(dx > 0 ? -0.06 : 0.06, sh * 0.55, sd / 2 + 0.015);
+      group.add(handle);
+    }
+
+    // Kickplate
+    const kick = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.04, 0.06, 0.01), darkMat);
+    kick.position.set(0, 0.03, sd / 2 - 0.02);
+    group.add(kick);
+
+    return group;
+  }
+
+  _detailShelf(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const frameMat = this._getTexturedMaterial('metal', 0x555566, { width: 0.04, height: sh });
+
+    // 4 vertical uprights
+    const postW = 0.03;
+    const postGeo = new THREE.BoxGeometry(postW, sh, postW);
+    const ox = sw / 2 - postW / 2;
+    const oz = sd / 2 - postW / 2;
+    for (const [px, pz] of [[-ox, -oz], [ox, -oz], [-ox, oz], [ox, oz]]) {
+      const post = new THREE.Mesh(postGeo, frameMat);
+      post.position.set(px, sh / 2, pz);
+      group.add(post);
+    }
+
+    // Shelf planks
+    const shelfCount = Math.max(2, Math.round(sh / 0.55));
+    const plankThick = 0.02;
+    for (let i = 0; i <= shelfCount; i++) {
+      const sy = (sh / shelfCount) * i;
+      const plank = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.02, plankThick, sd - 0.02), material);
+      plank.position.set(0, sy + plankThick / 2, 0);
+      group.add(plank);
+    }
+
+    // Back panel (thin)
+    const back = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.02, sh, 0.01), material);
+    back.position.set(0, sh / 2, -sd / 2 + 0.01);
+    group.add(back);
+
+    // Random small items on shelves (boxes/books)
+    const itemMat = this._getOrCreateMaterial(0x444433, { roughness: 0.7, metalness: 0.1 });
+    for (let i = 1; i < shelfCount; i++) {
+      const sy = (sh / shelfCount) * i + plankThick;
+      const itemW = 0.05 + Math.random() * 0.1;
+      const itemH = 0.05 + Math.random() * 0.08;
+      const item = new THREE.Mesh(new THREE.BoxGeometry(itemW, itemH, sd * 0.6), itemMat);
+      item.position.set((Math.random() - 0.5) * (sw * 0.5), sy + itemH / 2, 0);
+      group.add(item);
+    }
+
+    return group;
+  }
+
+  _detailBench(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const seatThick = 0.04;
+    const legW = 0.04;
+    const legMat = this._getTexturedMaterial('metal', 0x555566, { width: legW, height: sh });
+
+    // Seat surface (planks effect — 3 strips)
+    const plankW = (sw - 0.02) / 3;
+    for (let i = 0; i < 3; i++) {
+      const px = (i - 1) * (plankW + 0.005);
+      const plank = new THREE.Mesh(new THREE.BoxGeometry(plankW, seatThick, sd), material);
+      plank.position.set(px, sh - seatThick / 2, 0);
+      group.add(plank);
+    }
+
+    // 4 legs (angled slightly outward via position)
+    const legH = sh - seatThick;
+    const legGeo = new THREE.BoxGeometry(legW, legH, legW);
+    const ox = sw / 2 - legW - 0.02;
+    const oz = sd / 2 - legW / 2;
+    for (const [lx, lz] of [[-ox, -oz], [ox, -oz], [-ox, oz], [ox, oz]]) {
+      const leg = new THREE.Mesh(legGeo, legMat);
+      leg.position.set(lx, legH / 2, lz);
+      group.add(leg);
+    }
+
+    // Side stretchers
+    const stretchGeo = new THREE.BoxGeometry(legW * 0.6, legW * 0.6, sd - legW);
+    for (const sx of [-ox, ox]) {
+      const stretch = new THREE.Mesh(stretchGeo, legMat);
+      stretch.position.set(sx, legH * 0.3, 0);
+      group.add(stretch);
+    }
+
+    return group;
+  }
+
+  _detailCouch(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const frameMat = this._getOrCreateMaterial(0x2a2a22, { roughness: 0.7, metalness: 0.1 });
+
+    // Seat cushion
+    const seatH = sh * 0.35;
+    const seat = new THREE.Mesh(
+      new THREE.BoxGeometry(sw - 0.04, seatH, sd - 0.1),
+      material
+    );
+    seat.position.set(0, seatH / 2, 0.02);
+    group.add(seat);
+
+    // Cushion seam (center line)
+    const darkMat = this._getOrCreateMaterial(0x222222, { roughness: 0.8, metalness: 0.0 });
+    const seam = new THREE.Mesh(new THREE.BoxGeometry(0.005, seatH * 0.5, sd * 0.6), darkMat);
+    seam.position.set(0, seatH / 2 + 0.01, 0.02);
+    group.add(seam);
+
+    // Backrest
+    const backH = sh * 0.5;
+    const back = new THREE.Mesh(
+      new THREE.BoxGeometry(sw - 0.04, backH, 0.1),
+      material
+    );
+    back.position.set(0, seatH + backH / 2, -sd / 2 + 0.05);
+    group.add(back);
+
+    // Back cushion top (rounded feel)
+    const backTop = new THREE.Mesh(
+      new THREE.BoxGeometry(sw - 0.06, 0.04, 0.12),
+      material
+    );
+    backTop.position.set(0, seatH + backH, -sd / 2 + 0.05);
+    group.add(backTop);
+
+    // Armrests
+    const armH = sh * 0.45;
+    const armGeo = new THREE.BoxGeometry(0.08, armH, sd);
+    for (const ax of [-(sw / 2 - 0.04), sw / 2 - 0.04]) {
+      const arm = new THREE.Mesh(armGeo, material);
+      arm.position.set(ax, armH / 2, 0);
+      group.add(arm);
+      // Armrest top cap
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.03, sd + 0.02), material);
+      cap.position.set(ax, armH + 0.015, 0);
+      group.add(cap);
+    }
+
+    // Short frame legs
+    const legH = 0.06;
+    const legGeo = new THREE.BoxGeometry(0.06, legH, 0.06);
+    const ox = sw / 2 - 0.08;
+    const oz = sd / 2 - 0.08;
+    for (const [lx, lz] of [[-ox, -oz], [ox, -oz], [-ox, oz], [ox, oz]]) {
+      const leg = new THREE.Mesh(legGeo, frameMat);
+      leg.position.set(lx, legH / 2, lz);
+      group.add(leg);
+    }
+
+    return group;
+  }
+
+  _detailVending(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const darkMat = this._getOrCreateMaterial(0x111111, { roughness: 0.8, metalness: 0.0 });
+    const glassMat = this._getOrCreateMaterial(0x1a2a3a, { roughness: 0.1, metalness: 0.3 });
+    const handleMat = this._getOrCreateMaterial(0x888899, { roughness: 0.3, metalness: 0.8 });
+
+    // Main body
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), material);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Front glass window
+    const glassW = sw * 0.55;
+    const glassH = sh * 0.55;
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(glassW, glassH, 0.02), glassMat);
+    glass.position.set(-sw * 0.1, sh * 0.55, sd / 2 + 0.005);
+    group.add(glass);
+
+    // Glass frame
+    for (const [fx, fy, fw, fh] of [
+      [0, glassH / 2, glassW + 0.02, 0.02],
+      [0, -glassH / 2, glassW + 0.02, 0.02],
+      [-glassW / 2, 0, 0.02, glassH],
+      [glassW / 2, 0, 0.02, glassH],
+    ]) {
+      const f = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, 0.02), darkMat);
+      f.position.set(-sw * 0.1 + fx, sh * 0.55 + fy, sd / 2 + 0.008);
+      group.add(f);
+    }
+
+    // Product shelf lines inside glass
+    for (let i = 0; i < 3; i++) {
+      const sy = sh * 0.35 + i * (glassH / 3);
+      const shelf = new THREE.Mesh(new THREE.BoxGeometry(glassW - 0.04, 0.005, sd * 0.3), darkMat);
+      shelf.position.set(-sw * 0.1, sy, 0);
+      group.add(shelf);
+    }
+
+    // Control panel (right side)
+    const panelW = sw * 0.25;
+    const panelH = sh * 0.3;
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(panelW, panelH, 0.02), darkMat);
+    panel.position.set(sw * 0.3, sh * 0.55, sd / 2 + 0.005);
+    group.add(panel);
+
+    // Buttons on panel
+    const btnMat = this._getOrCreateMaterial(0x666666, { roughness: 0.4, metalness: 0.4 });
+    for (let i = 0; i < 4; i++) {
+      const btn = new THREE.Mesh(new THREE.BoxGeometry(panelW * 0.5, 0.025, 0.015), btnMat);
+      btn.position.set(sw * 0.3, sh * 0.65 - i * 0.04, sd / 2 + 0.02);
+      group.add(btn);
+    }
+
+    // Coin slot
+    const coin = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.04, 0.01), darkMat);
+    coin.position.set(sw * 0.3, sh * 0.42, sd / 2 + 0.01);
+    group.add(coin);
+
+    // Dispensing hatch
+    const hatch = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.5, sh * 0.12, 0.02), darkMat);
+    hatch.position.set(-sw * 0.1, sh * 0.12, sd / 2 + 0.005);
+    group.add(hatch);
+    // Hatch flap
+    const flap = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.45, 0.01, 0.04), handleMat);
+    flap.position.set(-sw * 0.1, sh * 0.18, sd / 2 + 0.02);
+    group.add(flap);
+
+    return group;
+  }
+
+  _detailGenerator(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const darkMat = this._getOrCreateMaterial(0x222222, { roughness: 0.8, metalness: 0.0 });
+    const metalMat = this._getOrCreateMaterial(0x556677, { roughness: 0.4, metalness: 0.6 });
+
+    // Main housing
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh * 0.7, sd), material);
+    body.position.set(0, sh * 0.35, 0);
+    group.add(body);
+
+    // Top motor housing (cylinder)
+    const motorR = Math.min(sw, sd) * 0.35;
+    const motor = new THREE.Mesh(new THREE.CylinderGeometry(motorR, motorR, sh * 0.25, 12), metalMat);
+    motor.position.set(0, sh * 0.7 + sh * 0.125, 0);
+    group.add(motor);
+
+    // Exhaust pipe (top)
+    const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, sh * 0.2, 8), darkMat);
+    exhaust.position.set(sw * 0.25, sh * 0.85, 0);
+    group.add(exhaust);
+
+    // Ventilation grille (front)
+    for (let i = 0; i < 6; i++) {
+      const vent = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.6, 0.008, 0.005), darkMat);
+      vent.position.set(0, sh * 0.15 + i * 0.06, sd / 2 + 0.003);
+      group.add(vent);
+    }
+
+    // Control panel (front, small)
+    const panelMat = this._getOrCreateMaterial(0x333344, { roughness: 0.5, metalness: 0.3 });
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.4, sh * 0.15, 0.02), panelMat);
+    panel.position.set(0, sh * 0.6, sd / 2 + 0.005);
+    group.add(panel);
+
+    // LED indicator
+    const ledMat = new THREE.MeshStandardMaterial({
+      color: 0x00ff44, emissive: 0x00ff44, emissiveIntensity: 0.6,
+      roughness: 0.3, metalness: 0.1,
+    });
+    const led = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.01), ledMat);
+    led.position.set(sw * 0.1, sh * 0.62, sd / 2 + 0.02);
+    group.add(led);
+
+    // Base feet
+    for (const [fx, fz] of [[-sw * 0.35, -sd * 0.35], [sw * 0.35, -sd * 0.35], [-sw * 0.35, sd * 0.35], [sw * 0.35, sd * 0.35]]) {
+      const foot = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.03, 0.08), darkMat);
+      foot.position.set(fx, 0.015, fz);
+      group.add(foot);
+    }
+
+    return group;
+  }
+
+  _detailTank(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const metalMat = this._getOrCreateMaterial(0x556677, { roughness: 0.4, metalness: 0.6 });
+    const darkMat = this._getOrCreateMaterial(0x222222, { roughness: 0.8, metalness: 0.0 });
+
+    // Main tank body (cylinder)
+    const radius = Math.min(sw, sd) * 0.45;
+    const tankBody = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, sh * 0.8, 16), material);
+    tankBody.position.set(0, sh * 0.4, 0);
+    group.add(tankBody);
+
+    // Top dome
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(radius, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), material);
+    dome.position.set(0, sh * 0.8, 0);
+    group.add(dome);
+
+    // Bottom ring
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(radius + 0.02, 0.02, 8, 16), metalMat);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.set(0, 0.02, 0);
+    group.add(ring);
+
+    // Middle band
+    const band = new THREE.Mesh(new THREE.TorusGeometry(radius + 0.01, 0.015, 8, 16), metalMat);
+    band.rotation.x = Math.PI / 2;
+    band.position.set(0, sh * 0.4, 0);
+    group.add(band);
+
+    // Pressure gauge (front)
+    const gauge = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.02, 12), darkMat);
+    gauge.rotation.x = Math.PI / 2;
+    gauge.position.set(0, sh * 0.6, radius + 0.01);
+    group.add(gauge);
+    const gaugeFace = new THREE.Mesh(
+      new THREE.CircleGeometry(0.035, 12),
+      this._getOrCreateMaterial(0xccccbb, { roughness: 0.2, metalness: 0.1 })
+    );
+    gaugeFace.position.set(0, sh * 0.6, radius + 0.025);
+    group.add(gaugeFace);
+
+    // Outlet valve (small cylinder on side)
+    const valve = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.08, 8), metalMat);
+    valve.rotation.z = Math.PI / 2;
+    valve.position.set(radius + 0.04, sh * 0.3, 0);
+    group.add(valve);
+
+    // Support legs (3)
+    for (let i = 0; i < 3; i++) {
+      const angle = (i / 3) * Math.PI * 2;
+      const legX = Math.cos(angle) * (radius - 0.02);
+      const legZ = Math.sin(angle) * (radius - 0.02);
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.06, 0.04), metalMat);
+      leg.position.set(legX, 0.03, legZ);
+      group.add(leg);
+    }
+
+    return group;
+  }
+
+  _detailPipe(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const metalMat = this._getOrCreateMaterial(0x556677, { roughness: 0.4, metalness: 0.6 });
+
+    // Determine pipe orientation based on dimensions
+    const isHorizontalX = sw > sd && sw > sh;
+    const isHorizontalZ = sd > sw && sd > sh;
+    const radius = isHorizontalX ? Math.min(sh, sd) * 0.45 : isHorizontalZ ? Math.min(sw, sh) * 0.45 : Math.min(sw, sd) * 0.45;
+    const length = isHorizontalX ? sw : isHorizontalZ ? sd : sh;
+
+    // Main pipe (cylinder)
+    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 10), material);
+    if (isHorizontalX) {
+      pipe.rotation.z = Math.PI / 2;
+      pipe.position.set(0, sh / 2, 0);
+    } else if (isHorizontalZ) {
+      pipe.rotation.x = Math.PI / 2;
+      pipe.position.set(0, sh / 2, 0);
+    } else {
+      pipe.position.set(0, sh / 2, 0);
+    }
+    group.add(pipe);
+
+    // Joint rings (flanges along the pipe)
+    const flangeCount = Math.max(1, Math.floor(length / 2));
+    for (let i = 0; i <= flangeCount; i++) {
+      const t = (i / flangeCount) - 0.5;
+      const flange = new THREE.Mesh(new THREE.TorusGeometry(radius + 0.01, 0.012, 6, 12), metalMat);
+      if (isHorizontalX) {
+        flange.rotation.y = Math.PI / 2;
+        flange.position.set(t * length, sh / 2, 0);
+      } else if (isHorizontalZ) {
+        flange.position.set(0, sh / 2, t * length);
+      } else {
+        flange.rotation.x = Math.PI / 2;
+        flange.position.set(0, t * length + sh / 2, 0);
+      }
+      group.add(flange);
+    }
+
+    return group;
+  }
+
+  _detailDrum(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const metalMat = this._getOrCreateMaterial(0x556677, { roughness: 0.4, metalness: 0.6 });
+
+    // Barrel body (cylinder)
+    const radius = Math.min(sw, sd) * 0.45;
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, sh, 16), material);
+    barrel.position.set(0, sh / 2, 0);
+    group.add(barrel);
+
+    // Top and bottom rims
+    for (const ry of [0.02, sh - 0.02]) {
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(radius + 0.005, 0.015, 6, 16), metalMat);
+      rim.rotation.x = Math.PI / 2;
+      rim.position.set(0, ry, 0);
+      group.add(rim);
+    }
+
+    // Middle band
+    const midBand = new THREE.Mesh(new THREE.TorusGeometry(radius + 0.005, 0.01, 6, 16), metalMat);
+    midBand.rotation.x = Math.PI / 2;
+    midBand.position.set(0, sh / 2, 0);
+    group.add(midBand);
+
+    // Top lid detail (bung holes)
+    const darkMat = this._getOrCreateMaterial(0x222222, { roughness: 0.8, metalness: 0.0 });
+    const bung = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.01, 8), darkMat);
+    bung.position.set(radius * 0.4, sh + 0.005, 0);
+    group.add(bung);
+
+    return group;
+  }
+
+  _detailEquipment(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const darkMat = this._getOrCreateMaterial(0x222222, { roughness: 0.8, metalness: 0.0 });
+    const metalMat = this._getOrCreateMaterial(0x556677, { roughness: 0.4, metalness: 0.6 });
+
+    // Main housing
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), material);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Front panel (recessed)
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.8, sh * 0.6, 0.02), darkMat);
+    panel.position.set(0, sh * 0.55, sd / 2 + 0.005);
+    group.add(panel);
+
+    // Indicator LEDs (row)
+    const ledColors = [0x00ff44, 0x00ff44, 0xffaa00, 0xff4444];
+    for (let i = 0; i < 4; i++) {
+      const lm = new THREE.MeshStandardMaterial({
+        color: ledColors[i], emissive: ledColors[i], emissiveIntensity: 0.5,
+        roughness: 0.3, metalness: 0.1,
+      });
+      const led = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.015, 0.008), lm);
+      led.position.set(-sw * 0.2 + i * 0.06, sh * 0.8, sd / 2 + 0.015);
+      group.add(led);
+    }
+
+    // Toggle switches
+    for (let i = 0; i < 3; i++) {
+      const sw2 = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.025, 0.015), metalMat);
+      sw2.position.set(-sw * 0.15 + i * 0.08, sh * 0.4, sd / 2 + 0.015);
+      group.add(sw2);
+    }
+
+    // Ventilation (side, horizontal slots)
+    for (let i = 0; i < 4; i++) {
+      const vent = new THREE.Mesh(new THREE.BoxGeometry(0.005, 0.008, sd * 0.6), darkMat);
+      vent.position.set(sw / 2 + 0.003, sh * 0.3 + i * 0.04, 0);
+      group.add(vent);
+    }
+
+    // Cable connector (back)
+    const connector = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.04, 8), metalMat);
+    connector.rotation.x = Math.PI / 2;
+    connector.position.set(0, sh * 0.3, -sd / 2 - 0.02);
+    group.add(connector);
+
+    return group;
+  }
+
+  _detailPlant(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const potMat = this._getOrCreateMaterial(0x8B4513, { roughness: 0.8, metalness: 0.0 });
+    const soilMat = this._getOrCreateMaterial(0x3B2610, { roughness: 0.9, metalness: 0.0 });
+    const leafMat = this._getOrCreateMaterial(0x2d6b30, { roughness: 0.7, metalness: 0.0 });
+    const leafDark = this._getOrCreateMaterial(0x1a4d1e, { roughness: 0.7, metalness: 0.0 });
+
+    const potH = sh * 0.35;
+    const potTopR = Math.min(sw, sd) * 0.45;
+    const potBotR = potTopR * 0.7;
+
+    // Pot body (tapered cylinder)
+    const pot = new THREE.Mesh(new THREE.CylinderGeometry(potTopR, potBotR, potH, 8), potMat);
+    pot.position.set(0, potH / 2, 0);
+    group.add(pot);
+
+    // Pot rim
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(potTopR, 0.02, 6, 8), potMat);
+    rim.rotation.x = Math.PI / 2;
+    rim.position.set(0, potH, 0);
+    group.add(rim);
+
+    // Soil surface
+    const soil = new THREE.Mesh(new THREE.CylinderGeometry(potTopR - 0.02, potTopR - 0.02, 0.03, 8), soilMat);
+    soil.position.set(0, potH - 0.01, 0);
+    group.add(soil);
+
+    // Leaves (multiple ellipsoid clusters)
+    const leafBaseY = potH + 0.02;
+    const leafH = sh - potH;
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2 + Math.random() * 0.3;
+      const r = potTopR * 0.5;
+      const lx = Math.cos(angle) * r;
+      const lz = Math.sin(angle) * r;
+      const lh = leafH * (0.5 + Math.random() * 0.5);
+      const leaf = new THREE.Mesh(
+        new THREE.SphereGeometry(potTopR * 0.45, 6, 5),
+        i % 2 === 0 ? leafMat : leafDark
+      );
+      leaf.scale.set(1, lh / (potTopR * 0.45) * 0.5, 1);
+      leaf.position.set(lx, leafBaseY + lh * 0.5, lz);
+      group.add(leaf);
+    }
+
+    // Central stem/trunk
+    const stem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.02, 0.03, leafH * 0.6, 5),
+      this._getOrCreateMaterial(0x4a3520, { roughness: 0.8, metalness: 0.0 })
+    );
+    stem.position.set(0, leafBaseY + leafH * 0.3, 0);
+    group.add(stem);
+
+    return group;
+  }
+
+  _detailTree(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const trunkMat = this._getOrCreateMaterial(0x5C3A1E, { roughness: 0.9, metalness: 0.0 });
+    const leafMat = this._getOrCreateMaterial(0x2E7D32, { roughness: 0.7, metalness: 0.0 });
+    const leafDark = this._getOrCreateMaterial(0x1B5E20, { roughness: 0.7, metalness: 0.0 });
+
+    const trunkH = sh * 0.5;
+    const trunkR = Math.min(sw, sd) * 0.12;
+
+    // Trunk (tapered cylinder)
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(trunkR * 0.7, trunkR, trunkH, 6),
+      trunkMat
+    );
+    trunk.position.set(0, trunkH / 2, 0);
+    group.add(trunk);
+
+    // Canopy (multiple spheres overlapping)
+    const canopyR = Math.min(sw, sd) * 0.45;
+    const canopyY = trunkH + canopyR * 0.5;
+    const mainCanopy = new THREE.Mesh(
+      new THREE.SphereGeometry(canopyR, 7, 6),
+      leafMat
+    );
+    mainCanopy.position.set(0, canopyY, 0);
+    group.add(mainCanopy);
+
+    // Secondary canopy blobs
+    for (let i = 0; i < 4; i++) {
+      const angle = (i / 4) * Math.PI * 2;
+      const cr = canopyR * 0.6;
+      const blob = new THREE.Mesh(
+        new THREE.SphereGeometry(cr, 6, 5),
+        i % 2 === 0 ? leafDark : leafMat
+      );
+      blob.position.set(
+        Math.cos(angle) * canopyR * 0.4,
+        canopyY - canopyR * 0.1,
+        Math.sin(angle) * canopyR * 0.4
+      );
+      group.add(blob);
+    }
+
+    // Top cluster
+    const topBlob = new THREE.Mesh(
+      new THREE.SphereGeometry(canopyR * 0.5, 6, 5),
+      leafDark
+    );
+    topBlob.position.set(0, canopyY + canopyR * 0.5, 0);
+    group.add(topBlob);
+
+    return group;
+  }
+
+  _detailLamp(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const metalMat = this._getOrCreateMaterial(0x444444, { roughness: 0.4, metalness: 0.7 });
+    const shadeMat = this._getOrCreateMaterial(0xCCBB99, { roughness: 0.6, metalness: 0.0 });
+    const bulbMat = new THREE.MeshStandardMaterial({
+      color: 0xffffcc, emissive: 0xffeeaa, emissiveIntensity: 0.4,
+      roughness: 0.3, metalness: 0.0,
+    });
+
+    const baseR = Math.min(sw, sd) * 0.4;
+
+    // Base (disc)
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(baseR, baseR * 1.1, 0.03, 12), metalMat);
+    base.position.set(0, 0.015, 0);
+    group.add(base);
+
+    // Pole
+    const poleH = sh * 0.65;
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, poleH, 6), metalMat);
+    pole.position.set(0, 0.03 + poleH / 2, 0);
+    group.add(pole);
+
+    // Shade (cone/frustum)
+    const shadeH = sh * 0.25;
+    const shadeTopR = baseR * 0.3;
+    const shadeBotR = baseR * 0.9;
+    const shade = new THREE.Mesh(
+      new THREE.CylinderGeometry(shadeTopR, shadeBotR, shadeH, 8, 1, true),
+      shadeMat
+    );
+    shade.position.set(0, sh - shadeH / 2, 0);
+    group.add(shade);
+
+    // Bulb (small sphere inside shade)
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6), bulbMat);
+    bulb.position.set(0, sh - shadeH * 0.6, 0);
+    group.add(bulb);
+
+    return group;
+  }
+
+  _detailClock(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const frameMat = this._getOrCreateMaterial(0x333333, { roughness: 0.4, metalness: 0.5 });
+    const faceMat = this._getOrCreateMaterial(0xEEEEDD, { roughness: 0.3, metalness: 0.0 });
+    const handMat = this._getOrCreateMaterial(0x111111, { roughness: 0.5, metalness: 0.3 });
+
+    const r = Math.min(sw, sh) * 0.45;
+
+    // Back plate (wall mount)
+    const back = new THREE.Mesh(new THREE.CylinderGeometry(r + 0.02, r + 0.02, 0.02, 16), frameMat);
+    back.rotation.x = Math.PI / 2;
+    back.position.set(0, sh / 2, 0);
+    group.add(back);
+
+    // Face (white circle)
+    const face = new THREE.Mesh(new THREE.CircleGeometry(r, 16), faceMat);
+    face.position.set(0, sh / 2, sd / 2 + 0.005);
+    group.add(face);
+
+    // Hour markers (12 ticks)
+    for (let i = 0; i < 12; i++) {
+      const angle = (i / 12) * Math.PI * 2;
+      const tickLen = i % 3 === 0 ? 0.05 : 0.03;
+      const tick = new THREE.Mesh(new THREE.BoxGeometry(0.008, tickLen, 0.003), handMat);
+      const dist = r * 0.82;
+      tick.position.set(
+        Math.sin(angle) * dist,
+        sh / 2 + Math.cos(angle) * dist,
+        sd / 2 + 0.008
+      );
+      tick.rotation.z = -angle;
+      group.add(tick);
+    }
+
+    // Hour hand
+    const hourHand = new THREE.Mesh(new THREE.BoxGeometry(0.012, r * 0.5, 0.004), handMat);
+    hourHand.position.set(0.01, sh / 2 + r * 0.2, sd / 2 + 0.012);
+    hourHand.rotation.z = -0.8;
+    group.add(hourHand);
+
+    // Minute hand
+    const minHand = new THREE.Mesh(new THREE.BoxGeometry(0.008, r * 0.7, 0.004), handMat);
+    minHand.position.set(-0.02, sh / 2 + r * 0.15, sd / 2 + 0.014);
+    minHand.rotation.z = 0.4;
+    group.add(minHand);
+
+    // Center pin
+    const pin = new THREE.Mesh(new THREE.SphereGeometry(0.012, 6, 6), handMat);
+    pin.position.set(0, sh / 2, sd / 2 + 0.016);
+    group.add(pin);
+
+    return group;
+  }
+
+  _detailCoffeeMachine(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const darkMat = this._getOrCreateMaterial(0x1a1a1a, { roughness: 0.6, metalness: 0.2 });
+    const metalMat = this._getOrCreateMaterial(0x888888, { roughness: 0.3, metalness: 0.7 });
+    const redMat = this._getOrCreateMaterial(0xcc2222, { roughness: 0.4, metalness: 0.2 });
+
+    // Main body
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), darkMat);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Top water reservoir (translucent look, slightly taller)
+    const tankH = sh * 0.3;
+    const tank = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.4, tankH, sd * 0.6),
+      this._getOrCreateMaterial(0x334455, { roughness: 0.2, metalness: 0.1 })
+    );
+    tank.position.set(-sw * 0.2, sh + tankH / 2 - 0.02, 0);
+    group.add(tank);
+
+    // Drip nozzle
+    const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.02, 0.04, 6), metalMat);
+    nozzle.position.set(0, sh * 0.6, sd / 2 - 0.05);
+    group.add(nozzle);
+
+    // Drip tray
+    const tray = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.7, 0.02, sd * 0.5), metalMat);
+    tray.position.set(0, sh * 0.15, sd * 0.1);
+    group.add(tray);
+
+    // Button (power)
+    const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.01, 8), redMat);
+    btn.rotation.x = Math.PI / 2;
+    btn.position.set(sw * 0.3, sh * 0.75, sd / 2 + 0.005);
+    group.add(btn);
+
+    // LED indicator
+    const ledMat = new THREE.MeshStandardMaterial({
+      color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 0.5,
+      roughness: 0.3, metalness: 0.1,
+    });
+    const led = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.01, 0.005), ledMat);
+    led.position.set(sw * 0.3, sh * 0.82, sd / 2 + 0.005);
+    group.add(led);
+
+    return group;
+  }
+
+  _detailMicrowave(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const darkMat = this._getOrCreateMaterial(0x222222, { roughness: 0.6, metalness: 0.2 });
+    const glassMat = this._getOrCreateMaterial(0x112233, { roughness: 0.1, metalness: 0.1 });
+    const metalMat = this._getOrCreateMaterial(0x888888, { roughness: 0.3, metalness: 0.7 });
+
+    // Body
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), material);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Door window (dark glass area)
+    const doorW = sw * 0.6;
+    const doorH = sh * 0.7;
+    const door = new THREE.Mesh(new THREE.BoxGeometry(doorW, doorH, 0.02), glassMat);
+    door.position.set(-sw * 0.1, sh * 0.5, sd / 2 + 0.005);
+    group.add(door);
+
+    // Door frame (thin border)
+    const frameT = 0.015;
+    const frameParts = [
+      [doorW + frameT * 2, frameT, doorH * 0.5 + frameT / 2, 0],       // top
+      [doorW + frameT * 2, frameT, -doorH * 0.5 - frameT / 2, 0],      // bottom
+      [frameT, doorH, 0, -doorW / 2 - frameT / 2],                       // left
+      [frameT, doorH, 0, doorW / 2 + frameT / 2],                        // right
+    ];
+    for (const [fw, fh, fy, fx] of frameParts) {
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, 0.008), darkMat);
+      frame.position.set(-sw * 0.1 + fx, sh * 0.5 + fy, sd / 2 + 0.012);
+      group.add(frame);
+    }
+
+    // Control panel (right side)
+    const panelW = sw * 0.2;
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(panelW, sh * 0.6, 0.01), darkMat);
+    panel.position.set(sw * 0.35, sh * 0.5, sd / 2 + 0.005);
+    group.add(panel);
+
+    // Buttons (2x3 grid)
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 2; c++) {
+        const btn = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.008), metalMat);
+        btn.position.set(sw * 0.33 + c * 0.04, sh * 0.6 - r * 0.06, sd / 2 + 0.015);
+        group.add(btn);
+      }
+    }
+
+    // Handle
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.015, sh * 0.4, 0.02), metalMat);
+    handle.position.set(-sw * 0.1 + doorW / 2 + 0.03, sh * 0.5, sd / 2 + 0.02);
+    group.add(handle);
+
+    return group;
+  }
+
+  _detailCooler(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const bodyMat = this._getOrCreateMaterial(0xcccccc, { roughness: 0.4, metalness: 0.2 });
+    const tapMat = this._getOrCreateMaterial(0x3366cc, { roughness: 0.3, metalness: 0.5 });
+    const tapRedMat = this._getOrCreateMaterial(0xcc3333, { roughness: 0.3, metalness: 0.5 });
+
+    // Main body (tall white cylinder/box)
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), bodyMat);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Water jug on top (blue-tinted cylinder, inverted)
+    const jugR = Math.min(sw, sd) * 0.35;
+    const jugH = sh * 0.3;
+    const jugMat = this._getOrCreateMaterial(0x88bbdd, { roughness: 0.1, metalness: 0.0 });
+    const jug = new THREE.Mesh(new THREE.CylinderGeometry(jugR, jugR * 0.8, jugH, 8), jugMat);
+    jug.position.set(0, sh + jugH / 2 - 0.02, 0);
+    group.add(jug);
+
+    // Jug cap
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(jugR * 0.3, jugR * 0.3, 0.03, 8), bodyMat);
+    cap.position.set(0, sh - 0.01, 0);
+    group.add(cap);
+
+    // Cold tap (blue)
+    const coldTap = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.025, 0.04), tapMat);
+    coldTap.position.set(-sw * 0.15, sh * 0.6, sd / 2 + 0.02);
+    group.add(coldTap);
+
+    // Hot tap (red)
+    const hotTap = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.025, 0.04), tapRedMat);
+    hotTap.position.set(sw * 0.15, sh * 0.6, sd / 2 + 0.02);
+    group.add(hotTap);
+
+    // Drip tray
+    const tray = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.6, 0.02, 0.06),
+      this._getOrCreateMaterial(0x666666, { roughness: 0.5, metalness: 0.3 }));
+    tray.position.set(0, sh * 0.5, sd / 2 + 0.03);
+    group.add(tray);
+
+    return group;
+  }
+
+  _detailFountain(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const metalMat = this._getOrCreateMaterial(0x999999, { roughness: 0.3, metalness: 0.6 });
+    const basinMat = this._getOrCreateMaterial(0xaaaaaa, { roughness: 0.4, metalness: 0.4 });
+
+    // Wall mount plate
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, 0.03), material);
+    plate.position.set(0, sh / 2, -sd / 2 + 0.015);
+    group.add(plate);
+
+    // Basin (curved trough)
+    const basinW = sw * 0.8;
+    const basinH = sh * 0.3;
+    const basin = new THREE.Mesh(new THREE.BoxGeometry(basinW, basinH, sd * 0.6), basinMat);
+    basin.position.set(0, basinH / 2, sd * 0.1);
+    group.add(basin);
+
+    // Basin interior (dark, recessed)
+    const inner = new THREE.Mesh(new THREE.BoxGeometry(basinW - 0.04, basinH - 0.02, sd * 0.4),
+      this._getOrCreateMaterial(0x333344, { roughness: 0.5, metalness: 0.2 }));
+    inner.position.set(0, basinH / 2 + 0.01, sd * 0.1);
+    group.add(inner);
+
+    // Spout (small curved pipe)
+    const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.08, 6), metalMat);
+    spout.rotation.z = Math.PI / 6;
+    spout.position.set(0, basinH + 0.06, 0);
+    group.add(spout);
+
+    // Push button
+    const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.015, 8), metalMat);
+    btn.rotation.x = Math.PI / 2;
+    btn.position.set(sw * 0.3, basinH + 0.03, sd * 0.2);
+    group.add(btn);
+
+    return group;
+  }
+
+  _detailBin(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const darkMat = this._getOrCreateMaterial(0x333333, { roughness: 0.7, metalness: 0.2 });
+
+    const r = Math.min(sw, sd) * 0.45;
+
+    // Bin body (tapered cylinder)
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 0.85, sh, 8), material);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Rim
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(r, 0.015, 6, 8), darkMat);
+    rim.rotation.x = Math.PI / 2;
+    rim.position.set(0, sh, 0);
+    group.add(rim);
+
+    // Lid (slightly wider)
+    const lid = new THREE.Mesh(new THREE.CylinderGeometry(r + 0.01, r + 0.01, 0.025, 8), darkMat);
+    lid.position.set(0, sh + 0.012, 0);
+    group.add(lid);
+
+    // Swing flap opening
+    const flap = new THREE.Mesh(new THREE.BoxGeometry(r * 0.8, 0.01, r * 0.5), material);
+    flap.position.set(0, sh + 0.03, 0);
+    group.add(flap);
+
+    return group;
+  }
+
+  _detailBasket(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const wickerMat = this._getOrCreateMaterial(0x8B7355, { roughness: 0.9, metalness: 0.0 });
+
+    // Body (tapered)
+    const topR = Math.min(sw, sd) * 0.45;
+    const botR = topR * 0.8;
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(topR, botR, sh, 8), wickerMat);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Rim
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(topR, 0.02, 6, 8), wickerMat);
+    rim.rotation.x = Math.PI / 2;
+    rim.position.set(0, sh, 0);
+    group.add(rim);
+
+    // Wicker texture lines (horizontal bands)
+    const bandMat = this._getOrCreateMaterial(0x7A6448, { roughness: 0.9, metalness: 0.0 });
+    for (let i = 1; i <= 3; i++) {
+      const y = (sh / 4) * i;
+      const rr = botR + (topR - botR) * (i / 4);
+      const band = new THREE.Mesh(new THREE.TorusGeometry(rr + 0.005, 0.008, 4, 8), bandMat);
+      band.rotation.x = Math.PI / 2;
+      band.position.set(0, y, 0);
+      group.add(band);
+    }
+
+    return group;
+  }
+
+  _detailWhiteboard(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const frameMat = this._getOrCreateMaterial(0x888888, { roughness: 0.4, metalness: 0.5 });
+    const boardMat = this._getOrCreateMaterial(0xEEEEEE, { roughness: 0.2, metalness: 0.1 });
+    const trayMat = this._getOrCreateMaterial(0x666666, { roughness: 0.5, metalness: 0.3 });
+
+    // Board surface (white)
+    const board = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, 0.02), boardMat);
+    board.position.set(0, sh / 2, 0);
+    group.add(board);
+
+    // Frame (4 edges)
+    const ft = 0.025;
+    const edges = [
+      [sw + ft, ft, 0, sh - ft / 2],   // top
+      [sw + ft, ft, 0, ft / 2],          // bottom
+      [ft, sh, -sw / 2, sh / 2],         // left
+      [ft, sh, sw / 2, sh / 2],          // right
+    ];
+    for (const [ew, eh, ex, ey] of edges) {
+      const edge = new THREE.Mesh(new THREE.BoxGeometry(ew, eh, 0.03), frameMat);
+      edge.position.set(ex, ey, 0);
+      group.add(edge);
+    }
+
+    // Marker tray (bottom)
+    const tray = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.6, 0.03, 0.06), trayMat);
+    tray.position.set(0, 0.02, 0.04);
+    group.add(tray);
+
+    // Markers (3 colored cylinders on tray)
+    const markerColors = [0x2244cc, 0xcc2222, 0x22aa22];
+    for (let i = 0; i < 3; i++) {
+      const mMat = this._getOrCreateMaterial(markerColors[i], { roughness: 0.5, metalness: 0.1 });
+      const marker = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.1, 6), mMat);
+      marker.rotation.z = Math.PI / 2;
+      marker.position.set(-0.06 + i * 0.06, 0.045, 0.04);
+      group.add(marker);
+    }
+
+    return group;
+  }
+
+  _detailCryo(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const metalMat = this._getOrCreateMaterial(0x667788, { roughness: 0.3, metalness: 0.7 });
+    const glassMat = this._getOrCreateMaterial(0x88ccff, { roughness: 0.1, metalness: 0.2 });
+    const darkMat = this._getOrCreateMaterial(0x111122, { roughness: 0.8, metalness: 0.0 });
+    const frostMat = new THREE.MeshStandardMaterial({
+      color: 0xaaddff, emissive: 0x4488cc, emissiveIntensity: 0.2,
+      roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.6,
+    });
+
+    // Pod body (main capsule)
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), metalMat);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Window (frosted glass, front)
+    const winW = sw * 0.4;
+    const winH = sh * 0.5;
+    const win = new THREE.Mesh(new THREE.BoxGeometry(winW, winH, 0.02), frostMat);
+    win.position.set(0, sh * 0.55, sd / 2 + 0.005);
+    group.add(win);
+
+    // Window frame
+    const wft = 0.02;
+    const wfParts = [
+      [winW + wft, wft, 0, winH / 2],
+      [winW + wft, wft, 0, -winH / 2],
+      [wft, winH + wft, -winW / 2, 0],
+      [wft, winH + wft, winW / 2, 0],
+    ];
+    for (const [fw, fh, fx, fy] of wfParts) {
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, 0.025), darkMat);
+      frame.position.set(fx, sh * 0.55 + fy, sd / 2 + 0.008);
+      group.add(frame);
+    }
+
+    // Status panel (below window)
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.5, 0.08, 0.015), darkMat);
+    panel.position.set(0, sh * 0.2, sd / 2 + 0.005);
+    group.add(panel);
+
+    // Status LEDs
+    const ledColors = [0x00ff44, 0x00ff44, 0x00aaff];
+    for (let i = 0; i < 3; i++) {
+      const lm = new THREE.MeshStandardMaterial({
+        color: ledColors[i], emissive: ledColors[i], emissiveIntensity: 0.5,
+        roughness: 0.3, metalness: 0.1,
+      });
+      const led = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.012, 0.008), lm);
+      led.position.set(-0.04 + i * 0.04, sh * 0.2, sd / 2 + 0.018);
+      group.add(led);
+    }
+
+    // Top hoses (2 cylinders going up)
+    for (const hx of [-sw * 0.25, sw * 0.25]) {
+      const hose = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.15, 6), metalMat);
+      hose.position.set(hx, sh + 0.07, 0);
+      group.add(hose);
+    }
+
+    // Base platform
+    const base = new THREE.Mesh(new THREE.BoxGeometry(sw + 0.06, 0.04, sd + 0.06), darkMat);
+    base.position.set(0, 0.02, 0);
+    group.add(base);
+
+    return group;
+  }
+
+  _detailBars(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const barMat = this._getOrCreateMaterial(0x555555, { roughness: 0.4, metalness: 0.8 });
+
+    const barR = 0.02;
+    const spacing = sw / (Math.floor(sw / 0.12) + 1);
+    const count = Math.floor(sw / spacing);
+
+    // Vertical bars
+    for (let i = 0; i <= count; i++) {
+      const bx = -sw / 2 + spacing * i;
+      const bar = new THREE.Mesh(new THREE.CylinderGeometry(barR, barR, sh, 6), barMat);
+      bar.position.set(bx, sh / 2, 0);
+      group.add(bar);
+    }
+
+    // Horizontal cross bars (top + middle)
+    for (const by of [sh * 0.15, sh * 0.85]) {
+      const crossBar = new THREE.Mesh(new THREE.CylinderGeometry(barR * 0.8, barR * 0.8, sw, 6), barMat);
+      crossBar.rotation.z = Math.PI / 2;
+      crossBar.position.set(0, by, 0);
+      group.add(crossBar);
+    }
+
+    return group;
+  }
+
+  _detailProjector(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const darkMat = this._getOrCreateMaterial(0x222222, { roughness: 0.6, metalness: 0.2 });
+    const lensMat = this._getOrCreateMaterial(0x111133, { roughness: 0.1, metalness: 0.3 });
+    const metalMat = this._getOrCreateMaterial(0x666666, { roughness: 0.3, metalness: 0.6 });
+
+    // Body
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), darkMat);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Lens (front, circular)
+    const lensR = Math.min(sh, sw) * 0.3;
+    const lens = new THREE.Mesh(new THREE.CylinderGeometry(lensR, lensR * 1.1, 0.06, 12), lensMat);
+    lens.rotation.x = Math.PI / 2;
+    lens.position.set(0, sh * 0.5, sd / 2 + 0.03);
+    group.add(lens);
+
+    // Lens ring
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(lensR * 1.05, 0.01, 6, 12), metalMat);
+    ring.position.set(0, sh * 0.5, sd / 2 + 0.06);
+    group.add(ring);
+
+    // Mount bracket (top)
+    const bracket = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.3, 0.08, sd * 0.3), metalMat);
+    bracket.position.set(0, sh + 0.04, 0);
+    group.add(bracket);
+
+    // Vent slots (side)
+    for (let i = 0; i < 3; i++) {
+      const vent = new THREE.Mesh(new THREE.BoxGeometry(0.005, sh * 0.3, 0.02), darkMat);
+      vent.position.set(sw / 2 + 0.003, sh * 0.5, -sd * 0.2 + i * 0.08);
+      group.add(vent);
+    }
+
+    return group;
+  }
+
+  _detailSign(sw, sh, sd, material, direction) {
+    const group = new THREE.Group();
+    const signMat = this._getOrCreateMaterial(0x2244aa, { roughness: 0.5, metalness: 0.2 });
+    const arrowMat = this._getOrCreateMaterial(0xffffff, { roughness: 0.4, metalness: 0.1 });
+
+    // Sign plate
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), signMat);
+    plate.position.set(0, sh / 2, 0);
+    group.add(plate);
+
+    // Arrow (triangle pointing left or right)
+    const arrowDir = direction === 'left' ? -1 : 1;
+    const arrowW = sw * 0.3;
+    const arrowH = sh * 0.4;
+
+    // Arrow shaft
+    const shaft = new THREE.Mesh(new THREE.BoxGeometry(arrowW, arrowH * 0.35, 0.01), arrowMat);
+    shaft.position.set(-arrowDir * arrowW * 0.2, sh * 0.5, sd / 2 + 0.005);
+    group.add(shaft);
+
+    // Arrow head (wider box approximation)
+    const head = new THREE.Mesh(new THREE.BoxGeometry(arrowH * 0.35, arrowH, 0.01), arrowMat);
+    head.position.set(arrowDir * arrowW * 0.4, sh * 0.5, sd / 2 + 0.005);
+    group.add(head);
+
+    // Border
+    const borderMat = this._getOrCreateMaterial(0xffffff, { roughness: 0.5, metalness: 0.1 });
+    const bt = 0.01;
+    for (const [bw, bh, bx, by] of [
+      [sw, bt, 0, sh - bt / 2], [sw, bt, 0, bt / 2],
+      [bt, sh, -sw / 2 + bt / 2, sh / 2], [bt, sh, sw / 2 - bt / 2, sh / 2],
+    ]) {
+      const b = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, sd + 0.002), borderMat);
+      b.position.set(bx, by, 0);
+      group.add(b);
+    }
+
+    return group;
+  }
+
+  _detailPoster(sw, sh, sd, material) {
+    const group = new THREE.Group();
+
+    // Poster paper (slightly curved feel - just a thin plane)
+    const paper = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, 0.005), material);
+    paper.position.set(0, sh / 2, 0);
+    group.add(paper);
+
+    // Corner pins (4 small spheres)
+    const pinMat = this._getOrCreateMaterial(0xcc3333, { roughness: 0.4, metalness: 0.3 });
+    const pinR = 0.012;
+    for (const [px, py] of [
+      [-sw * 0.42, sh * 0.92], [sw * 0.42, sh * 0.92],
+      [-sw * 0.42, sh * 0.08], [sw * 0.42, sh * 0.08],
+    ]) {
+      const pin = new THREE.Mesh(new THREE.SphereGeometry(pinR, 6, 6), pinMat);
+      pin.position.set(px, py, 0.005);
+      group.add(pin);
+    }
+
+    // Slight curl at bottom corner (thin triangle-ish box)
+    const curl = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.15, sh * 0.08, 0.015), material);
+    curl.position.set(sw * 0.35, sh * 0.04, 0.008);
+    curl.rotation.z = 0.1;
+    group.add(curl);
+
+    return group;
+  }
+
+  _detailDocument(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const textMat = this._getOrCreateMaterial(0x333333, { roughness: 0.9, metalness: 0.0 });
+
+    // Use the prop's original material (preserves color — yellow for flashlight, etc.)
+    // Stack of papers (3 slightly offset sheets)
+    for (let i = 0; i < 3; i++) {
+      const sheet = new THREE.Mesh(new THREE.BoxGeometry(sw, 0.003, sd), material);
+      sheet.position.set(i * 0.005, i * 0.003 + 0.002, -i * 0.003);
+      sheet.rotation.y = (i - 1) * 0.03;
+      group.add(sheet);
+    }
+
+    // Text lines on top sheet (thin dark strips) — skip for non-paper items
+    const col = material.color ? material.color.getHex() : 0xffffff;
+    const isPaper = (col & 0xcc0000) > 0x880000 && (col & 0x00cc00) > 0x008800;
+    if (isPaper) {
+      for (let i = 0; i < 5; i++) {
+        const lineW = sw * (0.5 + Math.random() * 0.3);
+        const line = new THREE.Mesh(new THREE.BoxGeometry(lineW, 0.002, 0.005), textMat);
+        line.position.set(-sw * 0.1, 0.01, -sd * 0.3 + i * sd * 0.15);
+        group.add(line);
+      }
+    }
+
+    return group;
+  }
+
+  _detailDebris(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const concreteMat = this._getOrCreateMaterial(0x777777, { roughness: 0.9, metalness: 0.0 });
+    const darkMat = this._getOrCreateMaterial(0x444444, { roughness: 0.9, metalness: 0.1 });
+
+    // Main chunk (irregular-ish: rotated box)
+    const main = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.7, sh * 0.6, sd * 0.7), concreteMat);
+    main.position.set(0, sh * 0.3, 0);
+    main.rotation.set(0.2, 0.3, 0.1);
+    group.add(main);
+
+    // Secondary chunks (2-3 smaller pieces scattered)
+    const pieces = [
+      [sw * 0.3, sh * 0.35, sd * 0.3, sw * 0.25, sh * 0.17, -sd * 0.2, 0.4, -0.2, 0.5],
+      [sw * 0.25, sh * 0.25, sd * 0.25, -sw * 0.2, sh * 0.12, sd * 0.15, -0.3, 0.6, -0.1],
+      [sw * 0.2, sh * 0.2, sd * 0.35, sw * 0.1, sh * 0.1, sd * 0.25, 0.6, 0.1, 0.3],
+    ];
+    for (const [pw, ph, pd, px, py, pz, rx, ry, rz] of pieces) {
+      const piece = new THREE.Mesh(new THREE.BoxGeometry(pw, ph, pd), darkMat);
+      piece.position.set(px, py, pz);
+      piece.rotation.set(rx, ry, rz);
+      group.add(piece);
+    }
+
+    // Dust/rubble base (flat low disc)
+    const dust = new THREE.Mesh(
+      new THREE.CylinderGeometry(Math.max(sw, sd) * 0.5, Math.max(sw, sd) * 0.6, 0.02, 6),
+      concreteMat
+    );
+    dust.position.set(0, 0.01, 0);
+    group.add(dust);
+
+    return group;
+  }
+
+  _detailLightFixture(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const housingMat = this._getOrCreateMaterial(0x888888, { roughness: 0.4, metalness: 0.5 });
+    const glowMat = new THREE.MeshStandardMaterial({
+      color: 0xffffee, emissive: 0xffffdd, emissiveIntensity: 0.4,
+      roughness: 0.2, metalness: 0.0,
+    });
+
+    // Housing (metal frame, slightly recessed)
+    const housing = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), housingMat);
+    housing.position.set(0, sh / 2, 0);
+    group.add(housing);
+
+    // Diffuser panel (glowing surface, inset)
+    const diffuser = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.04, 0.01, sd - 0.04), glowMat);
+    diffuser.position.set(0, 0.005, 0);
+    group.add(diffuser);
+
+    // Edge lip (rim around diffuser)
+    const lipW = 0.015;
+    for (const [lw, ld, lx, lz] of [
+      [sw, lipW, 0, sd / 2 - lipW / 2], [sw, lipW, 0, -sd / 2 + lipW / 2],
+      [lipW, sd, sw / 2 - lipW / 2, 0], [lipW, sd, -sw / 2 + lipW / 2, 0],
+    ]) {
+      const lip = new THREE.Mesh(new THREE.BoxGeometry(lw, sh + 0.005, ld), housingMat);
+      lip.position.set(lx, sh / 2, lz);
+      group.add(lip);
+    }
+
+    return group;
+  }
+
+  _detailCeilingLight(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const housingMat = this._getOrCreateMaterial(0x999999, { roughness: 0.3, metalness: 0.5 });
+    const glowMat = new THREE.MeshStandardMaterial({
+      color: 0xffffee, emissive: 0xffffcc, emissiveIntensity: 0.5,
+      roughness: 0.2, metalness: 0.0,
+    });
+
+    // Round housing
+    const r = Math.min(sw, sd) * 0.45;
+    const housing = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 0.9, sh, 12), housingMat);
+    housing.position.set(0, sh / 2, 0);
+    group.add(housing);
+
+    // Diffuser dome (bottom)
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(r * 0.85, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), glowMat);
+    dome.rotation.x = Math.PI;
+    dome.position.set(0, 0, 0);
+    group.add(dome);
+
+    return group;
+  }
+
+  _detailFloorLight(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const baseMat = this._getOrCreateMaterial(0x555555, { roughness: 0.5, metalness: 0.4 });
+    const glowMat = new THREE.MeshStandardMaterial({
+      color: 0xaaccff, emissive: 0x6699cc, emissiveIntensity: 0.5,
+      roughness: 0.2, metalness: 0.1,
+    });
+
+    // Base plate (recessed into floor)
+    const base = new THREE.Mesh(new THREE.BoxGeometry(sw, sh * 0.4, sd), baseMat);
+    base.position.set(0, sh * 0.2, 0);
+    group.add(base);
+
+    // Light strip/lens (glowing)
+    const lens = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.7, sh * 0.3, sd * 0.7), glowMat);
+    lens.position.set(0, sh * 0.55, 0);
+    group.add(lens);
+
+    // Protective grid (thin bars)
+    const gridMat = this._getOrCreateMaterial(0x444444, { roughness: 0.4, metalness: 0.6 });
+    for (let i = 0; i < 3; i++) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.8, 0.008, 0.008), gridMat);
+      bar.position.set(0, sh * 0.7, -sd * 0.2 + i * sd * 0.2);
+      group.add(bar);
+    }
+
+    return group;
+  }
+
+  _detailLED(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const stripMat = this._getOrCreateMaterial(0x333333, { roughness: 0.5, metalness: 0.3 });
+
+    // LED strip backing
+    const back = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd * 0.5), stripMat);
+    back.position.set(0, sh / 2, -sd * 0.25);
+    group.add(back);
+
+    // LED emissive surface (use material's color for glow)
+    const col = material.color ? material.color.getHex() : 0x00ff44;
+    const ledMat = new THREE.MeshStandardMaterial({
+      color: col, emissive: col, emissiveIntensity: 0.6,
+      roughness: 0.2, metalness: 0.1,
+    });
+    const ledSurface = new THREE.Mesh(new THREE.BoxGeometry(sw, sh * 0.6, sd * 0.3), ledMat);
+    ledSurface.position.set(0, sh / 2, sd * 0.1);
+    group.add(ledSurface);
+
+    return group;
+  }
+
+  _detailWarningLight(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const baseMat = this._getOrCreateMaterial(0x444444, { roughness: 0.5, metalness: 0.5 });
+    const lensMat = new THREE.MeshStandardMaterial({
+      color: 0xff4400, emissive: 0xff2200, emissiveIntensity: 0.6,
+      roughness: 0.2, metalness: 0.1,
+    });
+
+    // Mount base
+    const base = new THREE.Mesh(new THREE.BoxGeometry(sw * 0.6, sh * 0.3, sd * 0.6), baseMat);
+    base.position.set(0, sh * 0.15, 0);
+    group.add(base);
+
+    // Dome lens (warning beacon)
+    const r = Math.min(sw, sd) * 0.4;
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(r, 8, 6), lensMat);
+    dome.position.set(0, sh * 0.5, 0);
+    group.add(dome);
+
+    // Cage bars (protective grid)
+    const cageMat = this._getOrCreateMaterial(0x555555, { roughness: 0.4, metalness: 0.6 });
+    for (let i = 0; i < 4; i++) {
+      const angle = (i / 4) * Math.PI * 2;
+      const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, sh * 0.5, 4), cageMat);
+      bar.position.set(Math.cos(angle) * r * 1.1, sh * 0.5, Math.sin(angle) * r * 1.1);
+      group.add(bar);
+    }
+
+    return group;
+  }
+
+  _detailWindow(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const frameMat = this._getOrCreateMaterial(0x555555, { roughness: 0.4, metalness: 0.5 });
+    const glassMat = this._getOrCreateMaterial(0x223344, { roughness: 0.05, metalness: 0.2 });
+
+    // Glass pane
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.06, sh - 0.06, 0.01), glassMat);
+    glass.position.set(0, sh / 2, 0);
+    group.add(glass);
+
+    // Frame (4 borders)
+    const ft = 0.03;
+    for (const [fw, fh, fx, fy] of [
+      [sw, ft, 0, sh - ft / 2], [sw, ft, 0, ft / 2],
+      [ft, sh, -sw / 2 + ft / 2, sh / 2], [ft, sh, sw / 2 - ft / 2, sh / 2],
+    ]) {
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, sd), frameMat);
+      frame.position.set(fx, fy, 0);
+      group.add(frame);
+    }
+
+    // Center cross (divider)
+    const crossH = new THREE.Mesh(new THREE.BoxGeometry(sw - 0.06, 0.02, sd), frameMat);
+    crossH.position.set(0, sh / 2, 0);
+    group.add(crossH);
+    const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.02, sh - 0.06, sd), frameMat);
+    crossV.position.set(0, sh / 2, 0);
+    group.add(crossV);
+
+    return group;
+  }
+
+  _detailRug(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const borderMat = this._getOrCreateMaterial(0x6B4226, { roughness: 0.9, metalness: 0.0 });
+
+    // Main rug body (very flat)
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), material);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Border pattern (inner rectangle)
+    const borderW = 0.04;
+    for (const [bw, bd, bx, bz] of [
+      [sw - borderW * 2, borderW, 0, sd / 2 - borderW * 2],
+      [sw - borderW * 2, borderW, 0, -sd / 2 + borderW * 2],
+      [borderW, sd - borderW * 4, sw / 2 - borderW * 2, 0],
+      [borderW, sd - borderW * 4, -sw / 2 + borderW * 2, 0],
+    ]) {
+      const border = new THREE.Mesh(new THREE.BoxGeometry(bw, 0.005, bd), borderMat);
+      border.position.set(bx, sh + 0.003, bz);
+      group.add(border);
+    }
+
+    return group;
+  }
+
+  _detailRailing(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const metalMat = this._getOrCreateMaterial(0x666666, { roughness: 0.3, metalness: 0.7 });
+
+    const barR = 0.015;
+
+    // Top rail
+    const topRail = new THREE.Mesh(new THREE.CylinderGeometry(barR * 1.2, barR * 1.2, sw, 6), metalMat);
+    topRail.rotation.z = Math.PI / 2;
+    topRail.position.set(0, sh, 0);
+    group.add(topRail);
+
+    // Bottom rail
+    const botRail = new THREE.Mesh(new THREE.CylinderGeometry(barR, barR, sw, 6), metalMat);
+    botRail.rotation.z = Math.PI / 2;
+    botRail.position.set(0, sh * 0.1, 0);
+    group.add(botRail);
+
+    // Vertical balusters
+    const count = Math.max(2, Math.floor(sw / 0.15));
+    const spacing = sw / (count + 1);
+    for (let i = 1; i <= count; i++) {
+      const bx = -sw / 2 + spacing * i;
+      const baluster = new THREE.Mesh(new THREE.CylinderGeometry(barR, barR, sh * 0.9, 5), metalMat);
+      baluster.position.set(bx, sh * 0.55, 0);
+      group.add(baluster);
+    }
+
+    // End posts (thicker)
+    for (const px of [-sw / 2, sw / 2]) {
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(barR * 2, barR * 2, sh + 0.03, 6), metalMat);
+      post.position.set(px, sh / 2 + 0.015, 0);
+      group.add(post);
+      // Post cap
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(barR * 2.5, 6, 6), metalMat);
+      cap.position.set(px, sh + 0.03, 0);
+      group.add(cap);
+    }
+
+    return group;
+  }
+
+  _detailJar(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const r = Math.min(sw, sd) * 0.45;
+
+    // Body (bulging cylinder)
+    const body = new THREE.Mesh(
+      new THREE.CylinderGeometry(r * 0.7, r, sh * 0.7, 8),
+      material
+    );
+    body.position.set(0, sh * 0.35, 0);
+    group.add(body);
+
+    // Neck (narrower top)
+    const neck = new THREE.Mesh(
+      new THREE.CylinderGeometry(r * 0.4, r * 0.7, sh * 0.2, 8),
+      material
+    );
+    neck.position.set(0, sh * 0.8, 0);
+    group.add(neck);
+
+    // Rim
+    const rimMat = this._getOrCreateMaterial(0x666666, { roughness: 0.4, metalness: 0.3 });
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(r * 0.45, 0.015, 6, 8), rimMat);
+    rim.rotation.x = Math.PI / 2;
+    rim.position.set(0, sh * 0.9, 0);
+    group.add(rim);
+
+    // Lid
+    const lid = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.48, r * 0.48, 0.03, 8), rimMat);
+    lid.position.set(0, sh * 0.92, 0);
+    group.add(lid);
+
+    return group;
+  }
+
+  _detailTrellis(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const woodMat = this._getOrCreateMaterial(0x8B6914, { roughness: 0.85, metalness: 0.0 });
+    const barW = 0.02;
+
+    // Diagonal bars (criss-cross lattice pattern)
+    const countH = Math.max(3, Math.floor(sh / 0.2));
+    const countW = Math.max(2, Math.floor(sw / 0.2));
+
+    // Forward-leaning diagonals
+    for (let i = 0; i <= countH; i++) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(sw * 1.2, barW, barW), woodMat);
+      bar.position.set(0, (sh / countH) * i, 0);
+      bar.rotation.z = Math.PI / 4;
+      group.add(bar);
+    }
+    // Back-leaning diagonals
+    for (let i = 0; i <= countH; i++) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(sw * 1.2, barW, barW), woodMat);
+      bar.position.set(0, (sh / countH) * i, 0);
+      bar.rotation.z = -Math.PI / 4;
+      group.add(bar);
+    }
+
+    // Outer frame
+    for (const [fw, fh, fx, fy] of [
+      [sw, barW * 1.5, 0, sh], [sw, barW * 1.5, 0, 0],
+      [barW * 1.5, sh, -sw / 2, sh / 2], [barW * 1.5, sh, sw / 2, sh / 2],
+    ]) {
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, barW * 1.5), woodMat);
+      frame.position.set(fx, fy, 0);
+      group.add(frame);
+    }
+
+    return group;
+  }
+
+  _detailGrass(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const grassMat = this._getOrCreateMaterial(0x3a7d30, { roughness: 0.9, metalness: 0.0 });
+    const darkGrass = this._getOrCreateMaterial(0x2a5d20, { roughness: 0.9, metalness: 0.0 });
+
+    // Ground patch (flat)
+    const ground = new THREE.Mesh(new THREE.BoxGeometry(sw, 0.02, sd), grassMat);
+    ground.position.set(0, 0.01, 0);
+    group.add(ground);
+
+    // Grass tufts (small pointed cones)
+    const tuftCount = Math.max(6, Math.floor(sw * sd * 40));
+    for (let i = 0; i < tuftCount; i++) {
+      const tx = (Math.random() - 0.5) * sw * 0.9;
+      const tz = (Math.random() - 0.5) * sd * 0.9;
+      const th = sh * (0.4 + Math.random() * 0.6);
+      const tuft = new THREE.Mesh(
+        new THREE.ConeGeometry(0.02, th, 4),
+        i % 3 === 0 ? darkGrass : grassMat
+      );
+      tuft.position.set(tx, th / 2, tz);
+      group.add(tuft);
+    }
+
+    return group;
+  }
+
+  _detailPipeVert(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const pipeMat = this._getOrCreateMaterial(0x556677, { roughness: 0.5, metalness: 0.6 });
+    const clampMat = this._getOrCreateMaterial(0x444444, { roughness: 0.4, metalness: 0.7 });
+
+    const r = Math.min(sw, sd) * 0.4;
+
+    // Main vertical pipe
+    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(r, r, sh, 8), pipeMat);
+    pipe.position.set(0, sh / 2, 0);
+    group.add(pipe);
+
+    // Wall clamps (every 1/3 of height)
+    for (let i = 1; i <= 2; i++) {
+      const cy = (sh / 3) * i;
+      const clamp = new THREE.Mesh(new THREE.TorusGeometry(r + 0.01, 0.015, 6, 8), clampMat);
+      clamp.rotation.x = Math.PI / 2;
+      clamp.position.set(0, cy, 0);
+      group.add(clamp);
+    }
+
+    // Joint flanges (top and bottom)
+    for (const jy of [0.02, sh - 0.02]) {
+      const flange = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.3, r * 1.3, 0.04, 8), clampMat);
+      flange.position.set(0, jy, 0);
+      group.add(flange);
+    }
+
+    return group;
+  }
+
+  _detailGrate(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const metalMat = this._getOrCreateMaterial(0x555555, { roughness: 0.5, metalness: 0.6 });
+
+    // Frame
+    const ft = 0.02;
+    for (const [fw, fh, fx, fy] of [
+      [sw, ft, 0, sh - ft / 2], [sw, ft, 0, ft / 2],
+      [ft, sh, -sw / 2 + ft / 2, sh / 2], [ft, sh, sw / 2 - ft / 2, sh / 2],
+    ]) {
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(fw, fh, sd), metalMat);
+      frame.position.set(fx, fy, 0);
+      group.add(frame);
+    }
+
+    // Grid bars (horizontal)
+    const barCount = Math.max(3, Math.floor(sh / 0.08));
+    for (let i = 1; i < barCount; i++) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(sw - ft * 2, 0.008, sd), metalMat);
+      bar.position.set(0, (sh / barCount) * i, 0);
+      group.add(bar);
+    }
+
+    // Grid bars (vertical)
+    const vCount = Math.max(2, Math.floor(sw / 0.08));
+    for (let i = 1; i < vCount; i++) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.008, sh - ft * 2, sd), metalMat);
+      bar.position.set(-sw / 2 + (sw / vCount) * i, sh / 2, 0);
+      group.add(bar);
+    }
+
+    return group;
+  }
+
+  _detailBox(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const tapeMat = this._getOrCreateMaterial(0xBB9944, { roughness: 0.7, metalness: 0.0 });
+
+    // Main box body
+    const body = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, sd), material);
+    body.position.set(0, sh / 2, 0);
+    group.add(body);
+
+    // Packing tape (top cross)
+    const tapeW = sw * 0.15;
+    const tapeTop = new THREE.Mesh(new THREE.BoxGeometry(tapeW, 0.005, sd + 0.01), tapeMat);
+    tapeTop.position.set(0, sh + 0.003, 0);
+    group.add(tapeTop);
+
+    // Tape drape (front and back)
+    const drapeFront = new THREE.Mesh(new THREE.BoxGeometry(tapeW, sh * 0.2, 0.005), tapeMat);
+    drapeFront.position.set(0, sh - sh * 0.1, sd / 2 + 0.003);
+    group.add(drapeFront);
+    const drapeBack = new THREE.Mesh(new THREE.BoxGeometry(tapeW, sh * 0.2, 0.005), tapeMat);
+    drapeBack.position.set(0, sh - sh * 0.1, -sd / 2 - 0.003);
+    group.add(drapeBack);
+
+    // Flap seam (top center)
+    const seam = new THREE.Mesh(new THREE.BoxGeometry(sw + 0.005, 0.003, 0.003),
+      this._getOrCreateMaterial(0x333333, { roughness: 0.8, metalness: 0.0 }));
+    seam.position.set(0, sh, 0);
+    group.add(seam);
+
+    return group;
+  }
+
+  _detailFlashlight(sw, sh, sd, material) {
+    const group = new THREE.Group();
+    const bodyMat = this._getOrCreateMaterial(0x222222, { roughness: 0.5, metalness: 0.4 });
+    const gripMat = this._getOrCreateMaterial(0x333333, { roughness: 0.7, metalness: 0.2 });
+    const lensMat = new THREE.MeshStandardMaterial({
+      color: 0xffffcc, emissive: 0xffeeaa, emissiveIntensity: 0.3,
+      roughness: 0.1, metalness: 0.2,
+    });
+    const ringMat = this._getOrCreateMaterial(0x888888, { roughness: 0.3, metalness: 0.7 });
+
+    // Flashlight lies on its side (long axis along X)
+    const length = Math.max(sw, sd) * 0.9;
+    const bodyR = Math.min(sw, sd) * 0.35;
+
+    // Main barrel (body)
+    const barrel = new THREE.Mesh(
+      new THREE.CylinderGeometry(bodyR, bodyR, length * 0.6, 8),
+      bodyMat
+    );
+    barrel.rotation.z = Math.PI / 2;
+    barrel.position.set(0, bodyR, 0);
+    group.add(barrel);
+
+    // Head (wider cone toward lens end)
+    const head = new THREE.Mesh(
+      new THREE.CylinderGeometry(bodyR * 1.4, bodyR, length * 0.3, 8),
+      bodyMat
+    );
+    head.rotation.z = Math.PI / 2;
+    head.position.set(length * 0.35, bodyR, 0);
+    group.add(head);
+
+    // Lens (glowing disc at front)
+    const lens = new THREE.Mesh(
+      new THREE.CylinderGeometry(bodyR * 1.2, bodyR * 1.2, 0.01, 10),
+      lensMat
+    );
+    lens.rotation.z = Math.PI / 2;
+    lens.position.set(length * 0.5, bodyR, 0);
+    group.add(lens);
+
+    // Lens ring (chrome bezel)
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(bodyR * 1.3, 0.008, 6, 10),
+      ringMat
+    );
+    ring.rotation.y = Math.PI / 2;
+    ring.position.set(length * 0.5, bodyR, 0);
+    group.add(ring);
+
+    // Grip ridges (3 rings around body)
+    for (let i = 0; i < 3; i++) {
+      const ridge = new THREE.Mesh(
+        new THREE.TorusGeometry(bodyR + 0.005, 0.006, 4, 8),
+        gripMat
+      );
+      ridge.rotation.y = Math.PI / 2;
+      ridge.position.set(-length * 0.15 + i * 0.04, bodyR, 0);
+      group.add(ridge);
+    }
+
+    // Tail cap (back end)
+    const cap = new THREE.Mesh(
+      new THREE.SphereGeometry(bodyR * 0.9, 6, 4, 0, Math.PI * 2, 0, Math.PI / 2),
+      bodyMat
+    );
+    cap.rotation.x = Math.PI / 2;
+    cap.rotation.z = -Math.PI / 2;
+    cap.position.set(-length * 0.3, bodyR, 0);
+    group.add(cap);
+
+    // Button (side, small bump)
+    const btn = new THREE.Mesh(
+      new THREE.BoxGeometry(0.015, 0.01, 0.02),
+      ringMat
+    );
+    btn.position.set(-length * 0.05, bodyR * 2 + 0.005, 0);
+    group.add(btn);
 
     return group;
   }

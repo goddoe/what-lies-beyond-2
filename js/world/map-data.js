@@ -111,7 +111,7 @@ export const ROOMS = [
       // Wall clock (decorative)
       { type: 'clock', position: [0, 2.2, -2.8], size: [0.4, 0.4, 0.05], color: 0x888888 },
       // Flashlight on cabinet (interactable)
-      { type: 'document', position: [2, 1.38, -2.2], size: [0.18, 0.05, 0.08], color: 0xaaaa44, id: 'flashlight_drawer' },
+      { type: 'flashlight', position: [2, 1.43, -2.2], size: [0.18, 0.05, 0.08], color: 0xaaaa44, id: 'flashlight_drawer' },
     ],
   }),
 
@@ -258,17 +258,17 @@ export const ROOMS = [
       { type: 'coffee_machine', position: [-2, 0.9, -2.3], size: [0.4, 0.6, 0.3], color: 0x222222 },
       { type: 'counter', position: [-2, 0, -2.3], size: [1.5, 0.9, 0.5], color: 0x8a7a5a },
       // Microwave on counter
-      { type: 'microwave', position: [-1, 0.9, -2.3], size: [0.35, 0.25, 0.3], color: 0xcccccc },
+      { type: 'microwave', position: [-1.5, 0.9, -2.3], size: [0.35, 0.25, 0.3], color: 0xcccccc },
       // Plates/tray on counter
       { type: 'tray', position: [-2.5, 0.91, -2.3], size: [0.3, 0.03, 0.2], color: 0xccccbb },
-      // Couch (east side)
-      { type: 'couch', position: [1.5, 0, 0], size: [1.2, 0.6, 2], color: 0x5a5a4a },
+      // Couch (south wall, back against wall)
+      { type: 'couch', position: [1.5, 0, 2.2], size: [1.2, 0.6, 1.0], color: 0x5a5a4a, rotY: Math.PI },
       // Side table next to couch
-      { type: 'table', position: [1.5, 0, 1.5], size: [0.5, 0.4, 0.5], color: 0x6b5b3a },
+      { type: 'table', position: [2.5, 0, 2.2], size: [0.5, 0.4, 0.5], color: 0x6b5b3a },
       // Small table (center-south) with chairs
       { type: 'table', position: [-0.5, 0, 1], size: [0.8, 0.5, 0.8], color: 0x6b5b3a },
-      { type: 'chair', position: [-0.5, 0, 0.2], size: [0.4, 0.45, 0.4], color: 0x444433, rotY: Math.PI },
-      { type: 'chair', position: [-0.5, 0, 1.8], size: [0.4, 0.45, 0.4], color: 0x444433 },
+      { type: 'chair', position: [-0.5, 0, 0.2], size: [0.4, 0.45, 0.4], color: 0x444433 },
+      { type: 'chair', position: [-0.5, 0, 1.8], size: [0.4, 0.45, 0.4], color: 0x444433, rotY: Math.PI },
       // Plant on table
       { type: 'plant', position: [-0.2, 0.5, 0.8], size: [0.15, 0.25, 0.15], color: 0x3a6a3a },
       // Vending machine (NE corner)
@@ -385,16 +385,16 @@ export const ROOMS = [
       { type: 'window', position: [0, 0.8, 3.8], size: [6, 1.8, 0.05], color: 0x0a0a20 },
       // Railing in front of window
       { type: 'railing', position: [0, 0, 2.5], size: [6, 1, 0.1], color: 0x555566 },
-      // Desk + monitor workstation
-      { type: 'desk', position: [-2.5, 0, 0], size: [1.2, 0.75, 0.6], color: 0x333344 },
-      { type: 'monitor', position: [-2.5, 0.75, 0], size: [0.6, 0.55, 0.35], color: 0x111122 },
-      // Bench seating
-      { type: 'bench', position: [2.5, 0, 0], size: [0.5, 0.4, 2], color: 0x3a3a4a },
+      // Desk + monitor workstation (against west wall, rotated 90° so screen faces room)
+      { type: 'desk', position: [-3.5, 0, -1], size: [1.2, 0.75, 0.6], color: 0x333344, rotY: -Math.PI / 2 },
+      { type: 'monitor', position: [-3.2, 0.75, -1], size: [0.6, 0.55, 0.35], color: 0x111122, rotY: -Math.PI / 2 },
+      // Bench seating (against east wall)
+      { type: 'bench', position: [3.5, 0, 0], size: [0.5, 0.4, 2], color: 0x3a3a4a },
       // Floor light accents
       { type: 'led', position: [-3, 0.05, 2.5], size: [0.1, 0.02, 4], color: 0x2244aa },
       { type: 'led', position: [3, 0.05, 2.5], size: [0.1, 0.02, 4], color: 0x2244aa },
       // Lore: architect's note (beside monitor on desk)
-      { type: 'document', position: [-1.9, 0.76, 0.1], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_architects_note' },
+      { type: 'document', position: [-3.3, 0.76, -0.2], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_architects_note' },
     ],
   }),
 
@@ -660,9 +660,6 @@ export const ROOMS = [
       { type: 'shelf', position: [3.5, 0, 0], size: [0.5, 2.5, 3], color: 0x5a3a2a },
       // Painting on wall
       { type: 'frame', position: [0, 1.5, -2.8], size: [1.5, 1, 0.05], color: 0x6a4a3a },
-      // Guest chairs (facing desk)
-      { type: 'chair', position: [-1, 0, -1.5], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: -Math.PI / 2 },
-      { type: 'chair', position: [-1, 0, 0.5], size: [0.5, 0.5, 0.5], color: 0x333333, rotY: -Math.PI / 2 },
       // Keycard on desk (interactable)
       { type: 'document', position: [1.5, 0.86, -0.5], size: [0.15, 0.02, 0.1], color: 0xddcc44, id: 'keycard' },
       // Side table + lore: narrator specification document
@@ -1017,21 +1014,21 @@ export const ROOMS = [
       { id: 'server_deep', position: [3, 1, 0], size: [3, 3, 6] },
     ],
     props: [
-      // Server racks - left row
-      { type: 'rack', position: [-4, 0, -3], size: [0.6, 2.5, 1], color: 0x1a1a2a },
-      { type: 'rack', position: [-4, 0, -1], size: [0.6, 2.5, 1], color: 0x1a1a2a },
-      { type: 'rack', position: [-4, 0, 1], size: [0.6, 2.5, 1], color: 0x1a1a2a },
-      { type: 'rack', position: [-4, 0, 3], size: [0.6, 2.5, 1], color: 0x1a1a2a },
+      // Server racks - left row (wider front facing aisle, pushed toward wall)
+      { type: 'rack', position: [-4.5, 0, -3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
+      { type: 'rack', position: [-4.5, 0, -1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
+      { type: 'rack', position: [-4.5, 0, 1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
+      { type: 'rack', position: [-4.5, 0, 3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
       // Server racks - right row
-      { type: 'rack', position: [4, 0, -3], size: [0.6, 2.5, 1], color: 0x1a1a2a },
-      { type: 'rack', position: [4, 0, -1], size: [0.6, 2.5, 1], color: 0x1a1a2a },
-      { type: 'rack', position: [4, 0, 1], size: [0.6, 2.5, 1], color: 0x1a1a2a },
-      { type: 'rack', position: [4, 0, 3], size: [0.6, 2.5, 1], color: 0x1a1a2a },
+      { type: 'rack', position: [4.5, 0, -3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
+      { type: 'rack', position: [4.5, 0, -1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
+      { type: 'rack', position: [4.5, 0, 1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
+      { type: 'rack', position: [4.5, 0, 3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
       // Blue LED strips
-      { type: 'led', position: [-4, 1.5, -3], size: [0.02, 0.05, 1], color: 0x2244ff },
-      { type: 'led', position: [-4, 1.5, -1], size: [0.02, 0.05, 1], color: 0x2244ff },
-      { type: 'led', position: [4, 1.5, -3], size: [0.02, 0.05, 1], color: 0x2244ff },
-      { type: 'led', position: [4, 1.5, -1], size: [0.02, 0.05, 1], color: 0x2244ff },
+      { type: 'led', position: [-4.5, 1.5, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
+      { type: 'led', position: [-4.5, 1.5, -1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
+      { type: 'led', position: [4.5, 1.5, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
+      { type: 'led', position: [4.5, 1.5, -1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
       // Cable runs on floor
       { type: 'cable', position: [0, 0.02, 0], size: [0.3, 0.04, 10], color: 0x222233 },
       // Center monitoring station
@@ -1147,9 +1144,9 @@ export const ROOMS = [
       // Control console
       { type: 'desk', position: [-2.5, 0, -2.5], size: [1.2, 0.75, 0.6], color: 0x333333 },
       { type: 'monitor', position: [-2.5, 0.75, -2.5], size: [0.5, 0.55, 0.3], color: 0x221100 },
-      // Coolant pipes
-      { type: 'pipe', position: [3, 1, 0], size: [0.2, 0.2, 8], color: 0x664422 },
-      { type: 'pipe', position: [-3, 1.5, 0], size: [0.2, 0.2, 8], color: 0x664422 },
+      // Coolant pipes (ceiling-mounted)
+      { type: 'pipe', position: [3, 2.3, 0], size: [0.2, 0.2, 8], color: 0x664422 },
+      { type: 'pipe', position: [-3, 2.3, 0], size: [0.2, 0.2, 8], color: 0x664422 },
     ],
   }),
 
@@ -1204,16 +1201,16 @@ export const ROOMS = [
       { id: 'data_center_screens', position: [0, 1, -2], size: [6, 4, 3] },
     ],
     props: [
-      // Server racks - left row
-      { type: 'rack', position: [-4, 0, -3], size: [0.6, 3, 1], color: 0x0a0a1a },
-      { type: 'rack', position: [-4, 0, -1], size: [0.6, 3, 1], color: 0x0a0a1a },
-      { type: 'rack', position: [-4, 0, 1], size: [0.6, 3, 1], color: 0x0a0a1a },
-      { type: 'rack', position: [-4, 0, 3], size: [0.6, 3, 1], color: 0x0a0a1a },
+      // Server racks - left row (wider front facing aisle, pushed toward wall)
+      { type: 'rack', position: [-4.5, 0, -3.5], size: [1, 3, 0.6], color: 0x0a0a1a },
+      { type: 'rack', position: [-4.5, 0, -1.5], size: [1, 3, 0.6], color: 0x0a0a1a },
+      { type: 'rack', position: [-4.5, 0, 1.5], size: [1, 3, 0.6], color: 0x0a0a1a },
+      { type: 'rack', position: [-4.5, 0, 3.5], size: [1, 3, 0.6], color: 0x0a0a1a },
       // Server racks - right row
-      { type: 'rack', position: [4, 0, -3], size: [0.6, 3, 1], color: 0x0a0a1a },
-      { type: 'rack', position: [4, 0, -1], size: [0.6, 3, 1], color: 0x0a0a1a },
-      { type: 'rack', position: [4, 0, 1], size: [0.6, 3, 1], color: 0x0a0a1a },
-      { type: 'rack', position: [4, 0, 3], size: [0.6, 3, 1], color: 0x0a0a1a },
+      { type: 'rack', position: [4.5, 0, -3.5], size: [1, 3, 0.6], color: 0x0a0a1a },
+      { type: 'rack', position: [4.5, 0, -1.5], size: [1, 3, 0.6], color: 0x0a0a1a },
+      { type: 'rack', position: [4.5, 0, 1.5], size: [1, 3, 0.6], color: 0x0a0a1a },
+      { type: 'rack', position: [4.5, 0, 3.5], size: [1, 3, 0.6], color: 0x0a0a1a },
       // Central monitoring station
       { type: 'desk', position: [0, 0, 0], size: [1.2, 0.75, 0.6], color: 0x222233 },
       { type: 'monitor', position: [0, 0.75, 0], size: [0.5, 0.55, 0.3], color: 0x111122 },
@@ -1221,10 +1218,10 @@ export const ROOMS = [
       { type: 'cable', position: [-2, 0.02, 0], size: [0.2, 0.04, 10], color: 0x1a1a2a },
       { type: 'cable', position: [2, 0.02, 0], size: [0.2, 0.04, 10], color: 0x1a1a2a },
       // Status lights
-      { type: 'led', position: [-4, 2, -3], size: [0.02, 0.05, 1], color: 0x2244ff },
-      { type: 'led', position: [4, 2, -3], size: [0.02, 0.05, 1], color: 0x2244ff },
-      { type: 'led', position: [-4, 2, 1], size: [0.02, 0.05, 1], color: 0x2244ff },
-      { type: 'led', position: [4, 2, 1], size: [0.02, 0.05, 1], color: 0x2244ff },
+      { type: 'led', position: [-4.5, 2, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
+      { type: 'led', position: [4.5, 2, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
+      { type: 'led', position: [-4.5, 2, 1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
+      { type: 'led', position: [4.5, 2, 1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
     ],
   }),
 

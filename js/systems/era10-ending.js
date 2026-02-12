@@ -145,6 +145,10 @@ export class Era10Ending {
     this._leftScreenMesh = null;
     this._rightScreenMesh = null;
     this._era1Light = null;
+
+    // ── Optimization: temporal staggering + throttling ──
+    this._gridFrameCounter = 0;   // round-robin counter for cell rendering
+    this._overlayTimer = 0;       // throttle CCTV overlay to ~4fps
   }
 
   start(rendererObj, canvas, onRestart, onReplay) {
@@ -304,8 +308,12 @@ export class Era10Ending {
     if (!this.active) return;
     this._elapsed += delta;
 
-    // Update CCTV overlay (blinking REC, timestamp)
-    this._updateCCTVOverlay();
+    // Update CCTV overlay — throttled to ~4fps (REC blinks at 2Hz, timestamp at 1Hz)
+    this._overlayTimer += delta;
+    if (this._overlayTimer >= 0.25) {
+      this._overlayTimer = 0;
+      this._updateCCTVOverlay();
+    }
 
     // Animate grid characters (CCTV cells)
     if (this._gridCharacters) {
@@ -381,9 +389,18 @@ export class Era10Ending {
 
   render() {
     if (!this.active || !this._gameRT || !this._gridCameras) return;
+
+    // Only render grid during phases where left monitor is meaningfully visible
     if (this._phase !== 'GLITCH' && this._phase !== 'ZOOM_OUT' &&
-        this._phase !== 'ZOOM_RIGHT' && this._phase !== 'CHATML' &&
-        this._phase !== 'FADE') return;
+        this._phase !== 'ZOOM_RIGHT' && this._phase !== 'CHATML') return;
+
+    // Freeze grid after ~19s (5s into CHATML) — left monitor is fully peripheral
+    if (this._phase === 'CHATML' && this._elapsed > 19) return;
+
+    // ── Temporal staggering: render only a subset of cells per frame ──
+    this._gridFrameCounter++;
+    const cellsToRender = this._getCellsForFrame(this._gridFrameCounter);
+    if (cellsToRender.length === 0) return;
 
     // Save current state
     const fog = this._scene.fog;
@@ -395,12 +412,10 @@ export class Era10Ending {
     const savedBg = this._scene.background;
 
     // Use ACES tone mapping for the RT render.
-    // Values get tone-mapped into [0,1] and stored in 8-bit RT.
-    // ShaderMaterial with brightness boost + toneMapped:false displays the result.
     this._renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this._renderer.toneMappingExposure = 2.6;
 
-    // Render 3×3 grid into RT — each cell uses its own camera + atmosphere
+    // Render selected cells into RT
     this._renderer.setRenderTarget(this._gameRT);
     const savedAutoClear = this._renderer.autoClear;
     this._renderer.autoClear = false;
@@ -416,7 +431,7 @@ export class Era10Ending {
     if (this._cellLight) this._cellLight.visible = true;
 
     this._renderer.setScissorTest(true);
-    for (let i = 0; i < 9; i++) {
+    for (const i of cellsToRender) {
       const row = Math.floor(i / 3);
       const col = i % 3;
       const x = col * cw;
@@ -465,6 +480,30 @@ export class Era10Ending {
     this._renderer.toneMapping = savedToneMapping;
     this._renderer.toneMappingExposure = savedExposure;
     this._scene.background = savedBg;
+  }
+
+  /**
+   * Temporal staggering: returns which cell indices to render this frame.
+   * Fewer cells per frame = lower GPU cost. Stale cells keep previous content.
+   * Gives authentic CCTV "low framerate" look.
+   */
+  _getCellsForFrame(frame) {
+    if (this._phase === 'GLITCH') {
+      // Only center cell visible (camera zoomed into cell 4)
+      return [4];
+    }
+    if (this._phase === 'ZOOM_OUT') {
+      // 3 cells per frame, round-robin in groups of 3 → each cell ~20fps
+      const g = frame % 3;
+      return [g * 3, g * 3 + 1, g * 3 + 2];
+    }
+    if (this._phase === 'ZOOM_RIGHT') {
+      // 2 cells per frame → each cell ~13fps
+      const groups = [[0, 1], [2, 3], [4, 5], [6, 7], [8, 0]];
+      return groups[frame % 5];
+    }
+    // CHATML: 1 cell per frame → each cell ~7fps
+    return [frame % 9];
   }
 
   stop() {
