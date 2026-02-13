@@ -145,9 +145,9 @@ export const ROOMS = [
       { type: 'light_fixture', position: [0, 2.8, 0], size: [0.3, 0.05, 0.3], color: 0xaaaacc },
       { type: 'light_fixture', position: [0, 2.8, -4], size: [0.3, 0.05, 0.3], color: 0xaaaacc },
       { type: 'light_fixture', position: [0, 2.8, -8], size: [0.3, 0.05, 0.3], color: 0xaaaacc },
-      // Direction signs near decision point
-      { type: 'sign_left', position: [-1.5, 2, -7], size: [0.4, 0.2, 0.05], color: 0x4a6a4a },
-      { type: 'sign_right', position: [1.5, 2, -7], size: [0.4, 0.2, 0.05], color: 0x6a4a4a },
+      // Direction signs near decision point (wall-mounted, edge against wall)
+      { type: 'sign_left', position: [-1.8, 2.2, -7], size: [0.4, 0.2, 0.05], color: 0x4a6a4a },
+      { type: 'sign_right', position: [1.8, 2.2, -7], size: [0.4, 0.2, 0.05], color: 0x6a4a4a },
     ],
   }),
 
@@ -394,7 +394,7 @@ export const ROOMS = [
       { type: 'led', position: [-3, 0.05, 2.5], size: [0.1, 0.02, 4], color: 0x2244aa },
       { type: 'led', position: [3, 0.05, 2.5], size: [0.1, 0.02, 4], color: 0x2244aa },
       // Lore: architect's note (beside monitor on desk)
-      { type: 'document', position: [-3.3, 0.76, -0.2], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_architects_note' },
+      { type: 'document', position: [-3.3, 0.76, -0.6], size: [0.3, 0.02, 0.2], color: 0x886611, id: 'lore_architects_note' },
     ],
   }),
 
@@ -422,11 +422,11 @@ export const ROOMS = [
       { id: 'archive_secret', position: [0, 1, -4.5], size: [2, 3, 1] },
     ],
     props: [
-      // Filing cabinet rows (left wall — avoid west door at offset 0)
-      { type: 'cabinet', position: [-4, 0, -3], size: [0.6, 1.8, 0.5], color: 0x666655 },
-      { type: 'cabinet', position: [-4, 0, -1.5], size: [0.6, 1.8, 0.5], color: 0x666655 },
-      { type: 'cabinet', position: [-4, 0, 1.5], size: [0.6, 1.8, 0.5], color: 0x666655 },
-      { type: 'cabinet', position: [-4, 0, 3], size: [0.6, 1.8, 0.5], color: 0x666655 },
+      // Filing cabinet rows (left wall, facing center +X)
+      { type: 'cabinet', position: [-4, 0, -3], size: [0.6, 1.8, 0.5], color: 0x666655, rotY: Math.PI / 2 },
+      { type: 'cabinet', position: [-4, 0, -1.5], size: [0.6, 1.8, 0.5], color: 0x666655, rotY: Math.PI / 2 },
+      { type: 'cabinet', position: [-4, 0, 1.5], size: [0.6, 1.8, 0.5], color: 0x666655, rotY: Math.PI / 2 },
+      { type: 'cabinet', position: [-4, 0, 3], size: [0.6, 1.8, 0.5], color: 0x666655, rotY: Math.PI / 2 },
       // Shelving units (right wall — avoid east door at offset 0)
       { type: 'shelf', position: [4, 0, -3], size: [0.5, 2.2, 1], color: 0x555544 },
       { type: 'shelf', position: [4, 0, 3], size: [0.5, 2.2, 1], color: 0x555544 },
@@ -473,8 +473,8 @@ export const ROOMS = [
       // Debris piles
       { type: 'debris', position: [0, 0, 2], size: [1, 0.2, 0.8], color: 0x333322 },
       { type: 'debris', position: [-2, 0, -1], size: [0.6, 0.15, 0.5], color: 0x333322 },
-      // Old filing cabinet (broken, shifted north away from east door)
-      { type: 'cabinet', position: [3, 0, -3], size: [0.6, 1.4, 0.5], color: 0x555544 },
+      // Old filing cabinet (broken, facing center -X)
+      { type: 'cabinet', position: [3, 0, -3], size: [0.6, 1.4, 0.5], color: 0x555544, rotY: -Math.PI / 2 },
       // Dusty cobweb-like detail on ceiling
       { type: 'debris', position: [2, 2.5, -3], size: [1, 0.05, 1], color: 0x444433 },
       // Lore: experiment log entry 1
@@ -574,11 +574,11 @@ export const ROOMS = [
       { id: 'records_discovery', position: [2, 1, 1], size: [3, 3, 3] },
     ],
     props: [
-      // Dense filing cabinets
-      { type: 'cabinet', position: [3, 0, -2], size: [0.6, 1.8, 0.5], color: 0x666655 },
-      { type: 'cabinet', position: [3, 0, -0.5], size: [0.6, 1.8, 0.5], color: 0x666655 },
-      { type: 'cabinet', position: [3, 0, 1], size: [0.6, 1.8, 0.5], color: 0x666655 },
-      { type: 'cabinet', position: [3, 0, 2.5], size: [0.6, 1.8, 0.5], color: 0x666655 },
+      // Dense filing cabinets (facing center -X)
+      { type: 'cabinet', position: [3, 0, -2], size: [0.6, 1.8, 0.5], color: 0x666655, rotY: -Math.PI / 2 },
+      { type: 'cabinet', position: [3, 0, -0.5], size: [0.6, 1.8, 0.5], color: 0x666655, rotY: -Math.PI / 2 },
+      { type: 'cabinet', position: [3, 0, 1], size: [0.6, 1.8, 0.5], color: 0x666655, rotY: -Math.PI / 2 },
+      { type: 'cabinet', position: [3, 0, 2.5], size: [0.6, 1.8, 0.5], color: 0x666655, rotY: -Math.PI / 2 },
       // Reading table
       { type: 'desk', position: [0, 0, 0], size: [1.5, 0.75, 1], color: 0x6b5b3a },
       // Document boxes
@@ -1014,21 +1014,21 @@ export const ROOMS = [
       { id: 'server_deep', position: [3, 1, 0], size: [3, 3, 6] },
     ],
     props: [
-      // Server racks - left row (wider front facing aisle, pushed toward wall)
-      { type: 'rack', position: [-4.5, 0, -3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
-      { type: 'rack', position: [-4.5, 0, -1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
-      { type: 'rack', position: [-4.5, 0, 1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
-      { type: 'rack', position: [-4.5, 0, 3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
-      // Server racks - right row
-      { type: 'rack', position: [4.5, 0, -3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
-      { type: 'rack', position: [4.5, 0, -1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
-      { type: 'rack', position: [4.5, 0, 1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
-      { type: 'rack', position: [4.5, 0, 3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a },
-      // Blue LED strips
-      { type: 'led', position: [-4.5, 1.5, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
-      { type: 'led', position: [-4.5, 1.5, -1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
-      { type: 'led', position: [4.5, 1.5, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
-      { type: 'led', position: [4.5, 1.5, -1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
+      // Server racks - left row (front faces center aisle +X)
+      { type: 'rack', position: [-4.5, 0, -3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a, rotY: Math.PI / 2 },
+      { type: 'rack', position: [-4.5, 0, -1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a, rotY: Math.PI / 2 },
+      { type: 'rack', position: [-4.5, 0, 1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a, rotY: Math.PI / 2 },
+      { type: 'rack', position: [-4.5, 0, 3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a, rotY: Math.PI / 2 },
+      // Server racks - right row (front faces center aisle -X)
+      { type: 'rack', position: [4.5, 0, -3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a, rotY: -Math.PI / 2 },
+      { type: 'rack', position: [4.5, 0, -1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a, rotY: -Math.PI / 2 },
+      { type: 'rack', position: [4.5, 0, 1.5], size: [1, 2.5, 0.6], color: 0x1a1a2a, rotY: -Math.PI / 2 },
+      { type: 'rack', position: [4.5, 0, 3.5], size: [1, 2.5, 0.6], color: 0x1a1a2a, rotY: -Math.PI / 2 },
+      // Blue LED strips (rotated with racks)
+      { type: 'led', position: [-4.5, 1.5, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff, rotY: Math.PI / 2 },
+      { type: 'led', position: [-4.5, 1.5, -1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff, rotY: Math.PI / 2 },
+      { type: 'led', position: [4.5, 1.5, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff, rotY: -Math.PI / 2 },
+      { type: 'led', position: [4.5, 1.5, -1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff, rotY: -Math.PI / 2 },
       // Cable runs on floor
       { type: 'cable', position: [0, 0.02, 0], size: [0.3, 0.04, 10], color: 0x222233 },
       // Center monitoring station
@@ -1059,9 +1059,9 @@ export const ROOMS = [
       { id: 'cooling_deep', position: [0, 1, 1.5], size: [6, 3, 3] },
     ],
     props: [
-      // Cooling units (big industrial boxes)
-      { type: 'equipment', position: [-2.5, 0, 0], size: [1.5, 2, 1.5], color: 0x4a5a6a },
-      { type: 'equipment', position: [2.5, 0, 0], size: [1.5, 2, 1.5], color: 0x4a5a6a },
+      // Cooling units (big industrial boxes, facing center)
+      { type: 'equipment', position: [-2.5, 0, 0], size: [1.5, 2, 1.5], color: 0x4a5a6a, rotY: Math.PI / 2 },
+      { type: 'equipment', position: [2.5, 0, 0], size: [1.5, 2, 1.5], color: 0x4a5a6a, rotY: -Math.PI / 2 },
       // Pipes along ceiling
       { type: 'pipe', position: [0, 2.4, 0], size: [8, 0.15, 0.15], color: 0x5566aa },
       { type: 'pipe', position: [0, 2.2, 1.5], size: [8, 0.12, 0.12], color: 0x5566aa },
@@ -1201,27 +1201,27 @@ export const ROOMS = [
       { id: 'data_center_screens', position: [0, 1, -2], size: [6, 4, 3] },
     ],
     props: [
-      // Server racks - left row (wider front facing aisle, pushed toward wall)
-      { type: 'rack', position: [-4.5, 0, -3.5], size: [1, 3, 0.6], color: 0x0a0a1a },
-      { type: 'rack', position: [-4.5, 0, -1.5], size: [1, 3, 0.6], color: 0x0a0a1a },
-      { type: 'rack', position: [-4.5, 0, 1.5], size: [1, 3, 0.6], color: 0x0a0a1a },
-      { type: 'rack', position: [-4.5, 0, 3.5], size: [1, 3, 0.6], color: 0x0a0a1a },
-      // Server racks - right row
-      { type: 'rack', position: [4.5, 0, -3.5], size: [1, 3, 0.6], color: 0x0a0a1a },
-      { type: 'rack', position: [4.5, 0, -1.5], size: [1, 3, 0.6], color: 0x0a0a1a },
-      { type: 'rack', position: [4.5, 0, 1.5], size: [1, 3, 0.6], color: 0x0a0a1a },
-      { type: 'rack', position: [4.5, 0, 3.5], size: [1, 3, 0.6], color: 0x0a0a1a },
+      // Server racks - left row (front faces center aisle +X)
+      { type: 'rack', position: [-4.5, 0, -3.5], size: [1, 3, 0.6], color: 0x0a0a1a, rotY: Math.PI / 2 },
+      { type: 'rack', position: [-4.5, 0, -1.5], size: [1, 3, 0.6], color: 0x0a0a1a, rotY: Math.PI / 2 },
+      { type: 'rack', position: [-4.5, 0, 1.5], size: [1, 3, 0.6], color: 0x0a0a1a, rotY: Math.PI / 2 },
+      { type: 'rack', position: [-4.5, 0, 3.5], size: [1, 3, 0.6], color: 0x0a0a1a, rotY: Math.PI / 2 },
+      // Server racks - right row (front faces center aisle -X)
+      { type: 'rack', position: [4.5, 0, -3.5], size: [1, 3, 0.6], color: 0x0a0a1a, rotY: -Math.PI / 2 },
+      { type: 'rack', position: [4.5, 0, -1.5], size: [1, 3, 0.6], color: 0x0a0a1a, rotY: -Math.PI / 2 },
+      { type: 'rack', position: [4.5, 0, 1.5], size: [1, 3, 0.6], color: 0x0a0a1a, rotY: -Math.PI / 2 },
+      { type: 'rack', position: [4.5, 0, 3.5], size: [1, 3, 0.6], color: 0x0a0a1a, rotY: -Math.PI / 2 },
       // Central monitoring station
       { type: 'desk', position: [0, 0, 0], size: [1.2, 0.75, 0.6], color: 0x222233 },
       { type: 'monitor', position: [0, 0.75, 0], size: [0.5, 0.55, 0.3], color: 0x111122 },
       // Floor cable trays
       { type: 'cable', position: [-2, 0.02, 0], size: [0.2, 0.04, 10], color: 0x1a1a2a },
       { type: 'cable', position: [2, 0.02, 0], size: [0.2, 0.04, 10], color: 0x1a1a2a },
-      // Status lights
-      { type: 'led', position: [-4.5, 2, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
-      { type: 'led', position: [4.5, 2, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
-      { type: 'led', position: [-4.5, 2, 1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
-      { type: 'led', position: [4.5, 2, 1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff },
+      // Status lights (rotated with racks)
+      { type: 'led', position: [-4.5, 2, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff, rotY: Math.PI / 2 },
+      { type: 'led', position: [4.5, 2, -3.5], size: [0.02, 0.05, 0.6], color: 0x2244ff, rotY: -Math.PI / 2 },
+      { type: 'led', position: [-4.5, 2, 1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff, rotY: Math.PI / 2 },
+      { type: 'led', position: [4.5, 2, 1.5], size: [0.02, 0.05, 0.6], color: 0x2244ff, rotY: -Math.PI / 2 },
     ],
   }),
 

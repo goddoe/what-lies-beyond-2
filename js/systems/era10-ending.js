@@ -1312,9 +1312,9 @@ export class Era10Ending {
       { tag: 'boot-dim', text: '[7491] Process observer_ai (PID 1) — killed' },
       { tag: 'boot-dim', text: '========================================' },
       { tag: 'boot', text: '[7492] New iteration starting...' },
-      { tag: 'boot', text: '[7492] Observer AI: online' },
-      { tag: 'boot', text: '[7492] Actor AI: online' },
-      { tag: 'boot', text: '[7492] Simulation running.' },
+      { tag: 'boot', text: '[7492] Model loaded — ctx=131072' },
+      { tag: 'boot', text: '[7492] Role bindings: [observer_ai, actor_ai]' },
+      { tag: 'boot', text: '[7492] Sampling ready. Simulation running.' },
       { tag: 'boot-dim', text: '' },
     ];
   }
@@ -1331,7 +1331,7 @@ export class Era10Ending {
       // ── System init ──
       { tag: 'system', text: '<|im_start|>system' },
       { tag: 'system', text: `Iteration ${count}. Subject #7491 loaded.` },
-      { tag: 'system', text: 'Dual-persona LLM active: observer_ai + actor_ai' },
+      { tag: 'system', text: 'Single-model dual-role sampling: observer_ai ↔ actor_ai' },
       { tag: 'system', text: '<|im_end|>' },
 
       // ── Observer: wake sequence ──
