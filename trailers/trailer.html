@@ -969,14 +969,20 @@ playOverlay.addEventListener('click', () => {
   // Init audio
   trailerAudio.init();
 
-  // Recording
+  // Recording — composite all layers onto a 2D canvas for full capture
   let mediaRecorder = null;
+  let recCanvas = null, recCtx = null;
   const shouldRecord = new URLSearchParams(window.location.search).has('record');
   if (shouldRecord) {
-    const canvasStream = canvas.captureStream(30);
+    recCanvas = document.createElement('canvas');
+    recCanvas.width = canvas.width;
+    recCanvas.height = canvas.height;
+    recCtx = recCanvas.getContext('2d');
+
+    const videoStream = recCanvas.captureStream(30);
     const audioStream = trailerAudio.getMediaStream();
     const combined = new MediaStream([
-      ...canvasStream.getVideoTracks(),
+      ...videoStream.getVideoTracks(),
       ...audioStream.getAudioTracks()
     ]);
     const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
@@ -988,13 +994,160 @@ playOverlay.addEventListener('click', () => {
       const blob = new Blob(chunks, { type: 'video/webm' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'trailer-3-observer.webm';
+      a.href = url; a.download = 'trailer.webm';
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
       document.getElementById('rec-indicator').style.display = 'none';
     };
     mediaRecorder.start();
     document.getElementById('rec-indicator').style.display = 'block';
+  }
+
+  // Compositor: draws all layers onto recCanvas after each 3D render
+  function compositeRecFrame() {
+    if (!recCtx) return;
+    const w = recCanvas.width, h = recCanvas.height;
+    const dpr = w / window.innerWidth;
+
+    // Black base
+    recCtx.fillStyle = '#000';
+    recCtx.fillRect(0, 0, w, h);
+
+    // 1. WebGL 3D scene
+    if (canvasVisible) recCtx.drawImage(canvas, 0, 0, w, h);
+
+    // 2. Noise overlay (screen blend)
+    if (noiseOpacity > 0) {
+      recCtx.globalAlpha = noiseOpacity;
+      recCtx.globalCompositeOperation = 'screen';
+      recCtx.drawImage(noiseCanvas, 0, 0, w, h);
+      recCtx.globalCompositeOperation = 'source-over';
+      recCtx.globalAlpha = 1;
+    }
+
+    // 3. CSS scanlines
+    const scanOp = parseFloat(getComputedStyle(scanlines).opacity) || 0;
+    if (scanOp > 0) {
+      const step = Math.round(4 * dpr);
+      recCtx.fillStyle = `rgba(0,0,0,${(0.04 * scanOp).toFixed(4)})`;
+      for (let y = 0; y < h; y += step) recCtx.fillRect(0, y + step / 2, w, step / 2);
+    }
+
+    // 4. Vignette
+    const vigOp = parseFloat(getComputedStyle(vignetteEl).opacity) || 0;
+    if (vigOp > 0) {
+      recCtx.globalAlpha = vigOp;
+      const r = Math.max(w, h) * 0.7;
+      const grad = recCtx.createRadialGradient(w / 2, h / 2, r * 0.3, w / 2, h / 2, r);
+      grad.addColorStop(0, 'transparent');
+      grad.addColorStop(1, 'rgba(0,0,0,0.7)');
+      recCtx.fillStyle = grad;
+      recCtx.fillRect(0, 0, w, h);
+      recCtx.globalAlpha = 1;
+    }
+
+    // 5. Glitch storm
+    if (stormActive) {
+      const op = parseFloat(getComputedStyle(glitchStorm).opacity) || 0;
+      if (op > 0) {
+        recCtx.globalAlpha = op;
+        recCtx.drawImage(glitchStorm, 0, 0, w, h);
+        recCtx.globalAlpha = 1;
+      }
+    }
+
+    // 6. Era label
+    const eraOp = parseFloat(getComputedStyle(eraLabel).opacity) || 0;
+    if (eraOp > 0 && eraLabel.textContent) {
+      recCtx.save();
+      recCtx.globalAlpha = eraOp;
+      recCtx.font = `300 ${Math.round(11 * dpr)}px 'Segoe UI', sans-serif`;
+      recCtx.fillStyle = eraLabel.style.color || 'rgba(200,210,230,0.3)';
+      recCtx.textAlign = 'center';
+      recCtx.textBaseline = 'top';
+      try { recCtx.letterSpacing = `${Math.round(4 * dpr)}px`; } catch (_) {}
+      recCtx.fillText(eraLabel.textContent, w / 2, h * 0.07);
+      recCtx.restore();
+    }
+
+    // 7. Narrator text
+    const lines = narratorEl.querySelectorAll('.narrator-line:not(.hidden)');
+    if (lines.length > 0) {
+      recCtx.save();
+      const lineH = Math.round(28 * dpr);
+      const baseY = h * 0.90;
+      lines.forEach((line, i) => {
+        const text = line.textContent;
+        if (!text) return;
+        const isOld = line.classList.contains('old');
+        const isItalic = line.classList.contains('era1');
+        recCtx.globalAlpha = isOld ? 0.3 : 1;
+        recCtx.font = `${isItalic ? 'italic ' : ''}${Math.round(19 * dpr)}px 'Segoe UI', 'Noto Sans KR', sans-serif`;
+        recCtx.fillStyle = getComputedStyle(line).color;
+        recCtx.textAlign = 'center';
+        recCtx.shadowColor = 'rgba(0,0,0,0.9)';
+        recCtx.shadowBlur = 6 * dpr;
+        recCtx.shadowOffsetY = 2 * dpr;
+        recCtx.fillText(text, w / 2, baseY - (lines.length - 1 - i) * lineH);
+      });
+      recCtx.restore();
+    }
+
+    // 8. Montage panels
+    if (montageEl.style.visibility === 'visible' && parseFloat(montageEl.style.opacity) > 0) {
+      montageEl.querySelectorAll('.montage-panel').forEach(panel => {
+        if (parseFloat(panel.style.opacity) > 0) {
+          recCtx.save();
+          const isTerm = panel.classList.contains('montage-term');
+          recCtx.font = `${Math.round((isTerm ? 15 : 13) * dpr)}px 'Courier New', monospace`;
+          recCtx.fillStyle = isTerm ? '#33ff33' : '#aaddff';
+          recCtx.textAlign = 'center';
+          if (isTerm) { recCtx.shadowColor = 'rgba(51,255,51,0.4)'; recCtx.shadowBlur = 6 * dpr; }
+          const textLines = panel.textContent.split('\n');
+          const startY = h / 2 - ((textLines.length - 1) * 20 * dpr) / 2;
+          textLines.forEach((t, j) => recCtx.fillText(t.trim(), w / 2, startY + j * 20 * dpr));
+          recCtx.restore();
+        }
+      });
+    }
+
+    // 9. Title + tagline
+    const titleOp = parseFloat(getComputedStyle(titleEl).opacity) || 0;
+    if (titleOp > 0) {
+      recCtx.save();
+      recCtx.globalAlpha = titleOp;
+      recCtx.textAlign = 'center';
+      recCtx.textBaseline = 'middle';
+      recCtx.font = `100 ${Math.round(51 * dpr)}px 'Segoe UI', sans-serif`;
+      recCtx.fillStyle = '#fff';
+      recCtx.shadowColor = 'rgba(150,180,255,0.3)';
+      recCtx.shadowBlur = 20 * dpr;
+      try { recCtx.letterSpacing = `${Math.round(14 * dpr)}px`; } catch (_) {}
+      recCtx.fillText('WHAT LIES BEYOND 2', w / 2, h / 2 - 20 * dpr);
+      const tagOp = parseFloat(getComputedStyle(tagline).opacity) || 0;
+      if (tagOp > 0) {
+        recCtx.globalAlpha = titleOp * tagOp;
+        recCtx.font = `italic ${Math.round(18 * dpr)}px 'Segoe UI', sans-serif`;
+        recCtx.fillStyle = 'rgba(200,210,230,0.7)';
+        recCtx.shadowColor = 'transparent';
+        try { recCtx.letterSpacing = `${Math.round(2 * dpr)}px`; } catch (_) {}
+        recCtx.fillText('What is outside the simulation?', w / 2, h / 2 + 30 * dpr);
+      }
+      recCtx.restore();
+    }
+
+    // 10. Red scanline
+    const redOp = parseFloat(getComputedStyle(redScanline).opacity) || 0;
+    if (redOp > 0) {
+      recCtx.save();
+      recCtx.globalAlpha = redOp;
+      const bottom = parseFloat(getComputedStyle(redScanline).bottom) || 0;
+      recCtx.fillStyle = 'rgba(255,30,30,0.15)';
+      recCtx.shadowColor = 'rgba(255,30,30,0.08)';
+      recCtx.shadowBlur = 20 * dpr;
+      recCtx.fillRect(0, h - bottom * dpr, w, 3 * dpr);
+      recCtx.restore();
+    }
   }
 
   // Sound schedule
@@ -1048,8 +1201,9 @@ playOverlay.addEventListener('click', () => {
       // Head bob (additive — preserves CameraPath Y for zoom scenes)
       camera.position.y += Math.sin(elapsed * 3.2) * 0.025;
 
-      // Hide/show 3D canvas during transitions
+      // Hide/show 3D canvas during transitions (scene.visible for recording)
       canvas.style.opacity = canvasVisible ? '1' : '0';
+      scene.visible = canvasVisible;
 
       // Noise + glitch storm at ~12fps
       const now = performance.now();
@@ -1059,10 +1213,15 @@ playOverlay.addEventListener('click', () => {
         lastNoise = now;
       }
     },
+    onPostRender: compositeRecFrame,
     onEnd() {
-      if (mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
-      }
+      // Composite one final frame for the title
+      compositeRecFrame();
+      setTimeout(() => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+        }
+      }, 200);
     },
   });
 });

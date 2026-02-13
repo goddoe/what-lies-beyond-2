@@ -321,7 +321,7 @@ export function runTrailer(config) {
   const {
     renderer, postfx, camera,
     cameraPath, textTimeline, effectTimeline, eventTimeline,
-    duration = 30, onUpdate, onEnd,
+    duration = 30, onUpdate, onPostRender, onEnd,
   } = config;
 
   let running = true;
@@ -355,6 +355,9 @@ export function runTrailer(config) {
     } else {
       renderer.render();
     }
+
+    // Post-render callback (for recording compositor)
+    if (onPostRender) onPostRender(elapsed);
 
     requestAnimationFrame(frame);
   }
