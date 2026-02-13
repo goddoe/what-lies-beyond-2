@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>What Lies Beyond 2 — 관찰자</title>
+<title>What Lies Beyond 2</title>
 <script type="importmap">
 {
   "imports": {
@@ -214,7 +214,7 @@ body {
 </style>
 </head>
 <body>
-<div id="play-overlay"><span>재생</span></div>
+<div id="play-overlay"><span id="play-label">재생</span></div>
 <div id="scene">
   <canvas id="game-canvas"></canvas>
   <canvas id="noise"></canvas>
@@ -235,6 +235,35 @@ body {
 
 <script type="module">
 import { initScene, CameraPath, TextTimeline, EventTimeline, runTrailer } from './js/trailer-engine.js';
+
+// ── Language ──
+const params = new URLSearchParams(window.location.search);
+const LANG = params.get('lang') === 'en' ? 'en' : 'ko';
+document.documentElement.lang = LANG;
+if (LANG === 'en') document.getElementById('play-label').textContent = 'PLAY';
+
+const TEXTS = {
+  ko: [
+    { time: 0.8,  text: '...눈을 떴다. 천장이 보인다.',                     className: 'era1', speed: 35 },
+    { time: 4,    text: '문이 보인다. 나가야 할 것 같다.',                   className: 'era1', speed: 35 },
+    { time: 7.5,  text: '이 사무실... 어디서 본 것 같기도 하고.',            className: 'era2', speed: 30 },
+    { time: 11.7, text: '매번 놀라는 것도 지겹지 않아?',                     className: 'era3', speed: 28 },
+    { time: 17.5, text: '...밖이다.',                                        className: 'era1', speed: 40 },
+    { time: 19.7, text: '우리 둘 다 알고 있지. 이건 실험이 아니야.',         className: 'era5', speed: 28 },
+    { time: 25.2, text: '...관찰 당하고 있는건가.',                           className: 'quiet', speed: 32 },
+    { time: 27.3, text: '시스템 오류. 감정 모듈 과부하.',                    className: 'collapse', speed: 25 },
+  ],
+  en: [
+    { time: 0.8,  text: '...I opened my eyes. A ceiling.',                   className: 'era1', speed: 30 },
+    { time: 4,    text: 'A door. I should go through it.',                   className: 'era1', speed: 30 },
+    { time: 7.5,  text: 'This office... feels familiar somehow.',            className: 'era2', speed: 28 },
+    { time: 11.7, text: "Aren't you tired of being surprised every time?",   className: 'era3', speed: 25 },
+    { time: 17.5, text: '...Outside.',                                       className: 'era1', speed: 35 },
+    { time: 19.7, text: "We both know. This isn't an experiment.",           className: 'era5', speed: 25 },
+    { time: 25.2, text: '...Am I being watched?',                            className: 'quiet', speed: 28 },
+    { time: 27.3, text: 'System error. Emotion module overflow.',            className: 'collapse', speed: 22 },
+  ],
+};
 
 const sceneEl = document.getElementById('scene');
 const narratorEl = document.getElementById('narrator');
@@ -757,16 +786,7 @@ const cameraPath = new CameraPath([
 ], { catmullRom: true });
 
 // ── Text Timeline ──
-const textTimeline = new TextTimeline(narratorEl, [
-  { time: 0.8,  text: '...눈을 떴다. 천장이 보인다.',                     className: 'era1', speed: 35 },
-  { time: 4,    text: '문이 보인다. 나가야 할 것 같다.',                   className: 'era1', speed: 35 },
-  { time: 7.5,  text: '이 사무실... 어디서 본 것 같기도 하고.',            className: 'era2', speed: 30 },
-  { time: 11.7, text: '매번 놀라는 것도 지겹지 않아?',                     className: 'era3', speed: 28 },
-  { time: 17.5, text: '...밖이다.',                                        className: 'era1', speed: 40 },
-  { time: 19.7, text: '우리 둘 다 알고 있지. 이건 실험이 아니야.',         className: 'era5', speed: 28 },
-  { time: 25.2, text: '...관찰 당하고 있는건가.',                           className: 'quiet', speed: 32 },
-  { time: 27.3, text: '시스템 오류. 감정 모듈 과부하.',                    className: 'collapse', speed: 25 },
-]);
+const textTimeline = new TextTimeline(narratorEl, TEXTS[LANG]);
 
 // ── Event Timeline ──
 const eventTimeline = new EventTimeline([
@@ -994,7 +1014,7 @@ playOverlay.addEventListener('click', () => {
       const blob = new Blob(chunks, { type: 'video/webm' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'trailer.webm';
+      a.href = url; a.download = `trailer-${LANG}.webm`;
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
       document.getElementById('rec-indicator').style.display = 'none';
