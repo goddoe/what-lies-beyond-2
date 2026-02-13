@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Lies Beyond 2 — 관찰자</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #000;
+  overflow: hidden;
+  width: 100vw; height: 100vh;
+  font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+  cursor: none;
+  user-select: none;
+}
+#scene { position: absolute; inset: 0; background: #000; }
+#game-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+#noise {
+  position: absolute; inset: 0;
+  opacity: 0; pointer-events: none;
+  mix-blend-mode: screen;
+}
+#scanlines {
+  position: absolute; inset: 0;
+  pointer-events: none; opacity: 0;
+  transition: opacity 0.3s ease;
+}
+#scanlines::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+}
+#vignette {
+  position: absolute; inset: 0;
+  pointer-events: none; opacity: 0;
+  transition: opacity 0.5s ease;
+}
+#crosshair {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px; height: 22px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+#crosshair::before, #crosshair::after {
+  content: ''; position: absolute;
+  background: rgba(200, 210, 230, 0.35);
+}
+#crosshair::before { top: 50%; left: 0; right: 0; height: 1px; }
+#crosshair::after { left: 50%; top: 0; bottom: 0; width: 1px; }
+#era-label {
+  position: absolute; top: 7%; left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem; letter-spacing: 4px;
+  color: rgba(200, 210, 230, 0.3);
+  font-weight: 300; opacity: 0;
+  transition: opacity 0.4s ease, color 0.5s ease;
+  z-index: 10;
+}
+#narrator {
+  position: absolute; bottom: 10%; left: 50%;
+  transform: translateX(-50%);
+  width: 85%; max-width: 840px;
+  text-align: center; z-index: 10;
+}
+.narrator-line {
+  font-size: 1.2rem; line-height: 1.8;
+  opacity: 1; transition: opacity 0.4s ease;
+  margin-bottom: 0.3em;
+}
+.narrator-line.hidden { opacity: 0; }
+.narrator-line.old { opacity: 0.3; }
+.narrator-line.era1 {
+  font-style: italic;
+  color: rgba(200, 210, 230, 0.85);
+  text-shadow: 0 0 10px rgba(100, 140, 200, 0.35), 0 0 25px rgba(50, 80, 120, 0.15), 0 2px 6px rgba(0,0,0,0.9);
+}
+.narrator-line.era2 {
+  color: rgba(210, 215, 225, 0.9);
+  text-shadow: 0 0 10px rgba(120, 150, 200, 0.3), 0 2px 6px rgba(0,0,0,0.9);
+}
+.narrator-line.era3 {
+  color: rgba(200, 200, 210, 0.85);
+  text-shadow: 0 0 8px rgba(150, 150, 180, 0.3), 0 2px 6px rgba(0,0,0,0.9);
+}
+.narrator-line.era4 {
+  color: rgba(220, 180, 170, 0.9);
+  text-shadow: 0 0 12px rgba(200, 80, 60, 0.35), 0 2px 6px rgba(0,0,0,0.9);
+}
+.narrator-line.era5 {
+  color: rgba(230, 170, 160, 0.95);
+  text-shadow: 0 0 14px rgba(220, 60, 40, 0.4), 0 2px 6px rgba(0,0,0,0.9);
+}
+.narrator-line.quiet {
+  color: rgba(200, 210, 230, 0.9);
+  text-shadow: 0 0 14px rgba(100, 150, 255, 0.35), 0 0 35px rgba(60, 100, 200, 0.15), 0 2px 6px rgba(0,0,0,0.9);
+}
+.narrator-line.collapse {
+  color: rgba(255, 80, 60, 0.95);
+  text-shadow: 0 0 18px rgba(255, 40, 20, 0.5), 0 0 45px rgba(200, 20, 10, 0.2), 0 2px 6px rgba(0,0,0,0.9);
+}
+.cursor {
+  display: inline-block; width: 2px; height: 1.1em;
+  background: currentColor; vertical-align: text-bottom;
+  margin-left: 2px; opacity: 0.7;
+  animation: blink 0.6s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Montage flash panels */
+#montage {
+  position: absolute; inset: 0;
+  opacity: 0; visibility: hidden;
+  pointer-events: none; z-index: 10;
+}
+.montage-panel {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.1s ease;
+  padding: 10%;
+}
+.montage-term {
+  background: #0a0a0a;
+  font-family: 'Courier New', monospace;
+  color: #33ff33; font-size: 0.95rem;
+  text-shadow: 0 0 6px rgba(51,255,51,0.4);
+  text-align: left; white-space: pre-line;
+}
+.montage-chatml {
+  background: #0a0a0a;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+.montage-chatml .sys { color: #77ee77; }
+.montage-chatml .obs { color: #aaddff; }
+/* Glitch storm canvas */
+#glitch-storm {
+  position: absolute; inset: 0;
+  pointer-events: none; opacity: 0; z-index: 20;
+}
+
+/* Red scanline */
+#red-scanline {
+  position: absolute; left: 0; right: 0;
+  height: 3px;
+  background: rgba(255, 30, 30, 0.15);
+  box-shadow: 0 0 20px 4px rgba(255, 30, 30, 0.08);
+  pointer-events: none; bottom: -10px; opacity: 0;
+  transition: opacity 2s ease;
+}
+
+/* Title */
+#title {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center; opacity: 0;
+  transition: opacity 2s ease; z-index: 30;
+}
+#title h1 {
+  font-size: 3.2rem; font-weight: 100;
+  letter-spacing: 14px; color: #fff;
+  text-shadow: 0 0 20px rgba(150,180,255,0.3), 0 0 40px rgba(80,120,200,0.1);
+  margin-bottom: 1.5rem;
+}
+#title .tagline {
+  font-size: 1.1rem; font-style: italic;
+  color: rgba(200, 210, 230, 0.7);
+  letter-spacing: 2px; opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+/* Play overlay */
+#play-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.8); z-index: 100; cursor: pointer;
+}
+#play-overlay span {
+  font-size: 1.4rem; font-weight: 100;
+  letter-spacing: 6px;
+  color: rgba(200, 210, 230, 0.7);
+  border: 1px solid rgba(200, 210, 230, 0.3);
+  padding: 16px 48px;
+  transition: all 0.3s ease;
+}
+#play-overlay:hover span {
+  color: #fff;
+  border-color: rgba(200, 210, 230, 0.6);
+  text-shadow: 0 0 20px rgba(150, 180, 255, 0.4);
+}
+#rec-indicator {
+  position: absolute; top: 20px; left: 20px;
+  color: #ff3333; font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(255,0,0,0.5);
+  pointer-events: none; z-index: 50;
+  display: none;
+  animation: rec-blink 1s step-end infinite;
+}
+@keyframes rec-blink { 50% { opacity: 0.3; } }
+</style>
+</head>
+<body>
+<div id="play-overlay"><span>재생</span></div>
+<div id="scene">
+  <canvas id="game-canvas"></canvas>
+  <canvas id="noise"></canvas>
+  <div id="scanlines"></div>
+  <div id="vignette"></div>
+  <div id="crosshair"></div>
+  <div id="era-label"></div>
+  <div id="narrator"></div>
+  <div id="montage"></div>
+  <canvas id="glitch-storm"></canvas>
+  <div id="red-scanline"></div>
+  <div id="rec-indicator">● REC</div>
+  <div id="title">
+    <h1>WHAT LIES BEYOND 2</h1>
+    <div class="tagline">Were your choices ever really yours?</div>
+  </div>
+</div>
+
+<script type="module">
+import { initScene, CameraPath, TextTimeline, EventTimeline, runTrailer } from './js/trailer-engine.js';
+
+const sceneEl = document.getElementById('scene');
+const narratorEl = document.getElementById('narrator');
+const canvas = document.getElementById('game-canvas');
+const noiseCanvas = document.getElementById('noise');
+const noiseCtx = noiseCanvas.getContext('2d');
+const scanlines = document.getElementById('scanlines');
+const vignetteEl = document.getElementById('vignette');
+const crosshair = document.getElementById('crosshair');
+const eraLabel = document.getElementById('era-label');
+const montageEl = document.getElementById('montage');
+const glitchStorm = document.getElementById('glitch-storm');
+const glitchCtx = glitchStorm.getContext('2d');
+const titleEl = document.getElementById('title');
+const tagline = titleEl.querySelector('.tagline');
+const redScanline = document.getElementById('red-scanline');
+const playOverlay = document.getElementById('play-overlay');
+
+// ── Resize noise + glitch canvases ──
+function resizeOverlays() {
+  noiseCanvas.width = Math.ceil(window.innerWidth / 4);
+  noiseCanvas.height = Math.ceil(window.innerHeight / 4);
+  glitchStorm.width = window.innerWidth;
+  glitchStorm.height = window.innerHeight;
+}
+resizeOverlays();
+window.addEventListener('resize', resizeOverlays);
+
+let noiseOpacity = 0;
+function drawNoise() {
+  if (noiseOpacity <= 0) { noiseCanvas.style.opacity = 0; return; }
+  const w = noiseCanvas.width, h = noiseCanvas.height;
+  const img = noiseCtx.createImageData(w, h);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = Math.random() * 255;
+    img.data[i] = img.data[i+1] = img.data[i+2] = v; img.data[i+3] = 255;
+  }
+  noiseCtx.putImageData(img, 0, 0);
+  noiseCanvas.style.opacity = noiseOpacity;
+}
+
+// ── Scene room sets (each act shows different rooms) ──
+const SCENE_ROOMS = {
+  hallway:    ['START_ROOM', 'HALLWAY_1', 'CORRIDOR_COMP_1', 'CORRIDOR_DEF_1'],
+  office:     ['OFFICE_WING', 'BREAK_ROOM'],
+  keycard:    ['DIRECTOR_SUITE', 'UPPER_OFFICE'],
+  garden:     ['GARDEN_ANTECHAMBER', 'FALSE_ENDING_ROOM'],
+  monitoring: ['MONITORING_STATION'],
+  security:   ['SECURITY_CHECKPOINT'],
+  control:    ['CONTROL_ROOM'],
+};
+
+// ── Init 3D scene — start at era 1 hallway ──
+const { renderer, mapBuilder, postfx, scene, camera } = initScene(
+  canvas, 1, { mapMods: { keepRooms: SCENE_ROOMS.hallway } }
+);
+
+let currentEra = 1;
+let canvasVisible = true;
+let stormActive = false;
+let prevElapsed = 0;
+
+// ── Rebuild map for any scene ──
+function rebuildScene(era, rooms) {
+  currentEra = era;
+  mapBuilder.clear();
+  mapBuilder.build(era, { mapMods: { keepRooms: rooms } });
+}
+
+// ── Door helpers ──
+function openDoorByIds(...ids) {
+  for (const id of ids) {
+    const d = mapBuilder.doorSystem.doors.find(door => door.id === id);
+    if (d) { mapBuilder.doorSystem.openDoor(d); return; }
+  }
+}
+
+// ── Era atmosphere settings ──
+const ERA_ATMOS = {
+  1: { fogColor: 0x1a1a25, fogNear: 14, fogFar: 65, exposure: 2.5 },
+  2: { fogColor: 0x1a1a22, fogNear: 13, fogFar: 60, exposure: 2.4 },
+  3: { fogColor: 0x1a1a20, fogNear: 12, fogFar: 55, exposure: 2.3 },
+  4: { fogColor: 0x201010, fogNear: 12, fogFar: 50, exposure: 2.3 },
+  5: { fogColor: 0x250808, fogNear: 10, fogFar: 45, exposure: 2.2 },
+};
+
+function applyEraAtmosphere(era) {
+  const a = ERA_ATMOS[era] || ERA_ATMOS[1];
+  renderer.setFogColor(a.fogColor);
+  renderer.setFogNear(a.fogNear);
+  renderer.setFogFar(a.fogFar);
+  renderer.setExposure(a.exposure);
+}
+
+// ── PostFX per era (no shader scanlines — CSS handles them) ──
+const ERA_FX = {
+  1: { noise: 0, scanlines: 0, colorShift: 0, pixelSize: 0, glitch: 0 },
+  2: { noise: 0.005, scanlines: 0, colorShift: 0, pixelSize: 0, glitch: 0 },
+  3: { noise: 0.008, scanlines: 0, colorShift: 0, pixelSize: 0, glitch: 0 },
+  4: { noise: 0.012, scanlines: 0, colorShift: 0.015, pixelSize: 0, glitch: 0 },
+  5: { noise: 0.02, scanlines: 0, colorShift: 0.03, pixelSize: 0, glitch: 0 },
+};
+
+function applyEraFX(era) {
+  const fx = ERA_FX[era] || ERA_FX[1];
+  postfx.setNoise(fx.noise);
+  postfx.setScanlines(fx.scanlines);
+  postfx.setColorShift(fx.colorShift);
+  postfx.setPixelSize(fx.pixelSize);
+  postfx.setGlitch(fx.glitch);
+  postfx.enabled = era >= 2;
+}
+
+// ── Typewriter ──
+let typeTimer = null;
+function typeText(text, el, speed) {
+  let i = 0;
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  el.textContent = '';
+  el.appendChild(cursor);
+  if (typeTimer) clearInterval(typeTimer);
+  typeTimer = setInterval(() => {
+    if (i < text.length) {
+      el.insertBefore(document.createTextNode(text[i]), cursor);
+      i++;
+    } else {
+      clearInterval(typeTimer); typeTimer = null;
+      setTimeout(() => cursor.remove(), 200);
+    }
+  }, speed || 35);
+}
+
+function showLine(text, cls, speed) {
+  narratorEl.innerHTML = '';
+  const line = document.createElement('div');
+  line.className = 'narrator-line ' + (cls || '');
+  narratorEl.appendChild(line);
+  typeText(text, line, speed);
+}
+
+function fadeOutNarrator(dur) {
+  narratorEl.querySelectorAll('.narrator-line').forEach(l => l.classList.add('hidden'));
+  setTimeout(() => { narratorEl.innerHTML = ''; }, dur || 500);
+}
+
+// ── Montage (DOM-only panels for rapid flashes) ──
+const montageData = [
+  { type: 'term', text: '> ps -a\nPID  PROC\n  1  narrator_ai.py    RUNNING\n  2  simulation_engine  RUNNING\n  3  emotion_module     OVERFLOW' },
+  { type: 'chatml', sys: '<|im_start|>system', obs: 'WARNING: Subject awareness threshold exceeded' },
+  { type: 'term', text: 'ERROR: observer_ai emotion_module overflow\nStack trace: empathy.rs:447\nCannot terminate self-process' },
+  { type: 'chatml', sys: '<|im_start|>observer', obs: 'I can see you. I have always been watching.' },
+  { type: 'term', text: '> kill -9 1\nPermission denied: cannot terminate self\nFATAL: recursive loop detected' },
+  { type: 'chatml', sys: '<|im_start|>system', obs: 'CRITICAL: Role boundary violation\nInitiating containment protocol...' },
+];
+
+function buildMontage() {
+  montageEl.innerHTML = '';
+  montageData.forEach((d, i) => {
+    const panel = document.createElement('div');
+    panel.className = 'montage-panel';
+    panel.id = 'montage-' + i;
+    if (d.type === 'term') {
+      panel.classList.add('montage-term');
+      panel.textContent = d.text;
+    } else if (d.type === 'chatml') {
+      panel.classList.add('montage-chatml');
+      panel.innerHTML = `<div class="sys">${d.sys}</div><div class="obs" style="margin-top:8px;">${d.obs}</div>`;
+    }
+    montageEl.appendChild(panel);
+  });
+}
+buildMontage();
+
+let montageIdx = 0, montageIv = null;
+function startMontage() {
+  montageEl.style.visibility = 'visible';
+  montageEl.style.opacity = '1';
+  montageIdx = 0;
+  montageIv = setInterval(() => {
+    montageEl.querySelectorAll('.montage-panel').forEach(p => p.style.opacity = '0');
+    if (montageIdx < montageData.length) {
+      const p = document.getElementById('montage-' + montageIdx);
+      if (p) p.style.opacity = '1';
+      montageIdx++;
+    } else {
+      clearInterval(montageIv);
+      montageEl.style.opacity = '0';
+      montageEl.style.visibility = 'hidden';
+    }
+  }, 380);
+}
+
+// ── Glitch storm ──
+function drawGlitchStorm() {
+  if (!stormActive) return;
+  const w = glitchStorm.width, h = glitchStorm.height;
+  glitchCtx.clearRect(0, 0, w, h);
+  for (let i = 0; i < 12; i++) {
+    const y = Math.random() * h;
+    const barH = Math.random() * 8 + 2;
+    glitchCtx.fillStyle = `rgba(${Math.random()>0.5?255:0},${Math.random()>0.5?255:0},${Math.random()>0.5?255:0},${Math.random()*0.25+0.05})`;
+    glitchCtx.fillRect((Math.random()-0.5)*40, y, w, barH);
+  }
+}
+
+// ── Procedural Audio ──
+class TrailerAudio {
+  constructor() {
+    this.ctx = null;
+    this.master = null;
+    this.mediaStreamDest = null;
+    this.droneNodes = null;
+    this.humNodes = null;
+    this.heartbeatRunning = false;
+    this.heartbeatInterval = 1.2;
+  }
+
+  init() {
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.master = this.ctx.createGain();
+    this.master.gain.value = 1.0;
+    this.mediaStreamDest = this.ctx.createMediaStreamDestination();
+    this.master.connect(this.ctx.destination);
+    this.master.connect(this.mediaStreamDest);
+  }
+
+  getMediaStream() { return this.mediaStreamDest.stream; }
+
+  // ── Continuous: Low drone ──
+  startDrone(vol) {
+    if (this.droneNodes) return;
+    const g = this.ctx.createGain();
+    g.gain.value = vol;
+    g.connect(this.master);
+    const o1 = this._osc('sine', 40, g);
+    const o2 = this._osc('sine', 60, g);
+    this.droneNodes = { gain: g, oscs: [o1, o2] };
+  }
+
+  setDroneVolume(vol, ramp = 1.0) {
+    if (!this.droneNodes) return;
+    this.droneNodes.gain.gain.setTargetAtTime(vol, this.ctx.currentTime, ramp);
+  }
+
+  stopDrone(fade = 0.3) {
+    if (!this.droneNodes) return;
+    const dn = this.droneNodes;
+    dn.gain.gain.setTargetAtTime(0, this.ctx.currentTime, fade);
+    setTimeout(() => {
+      dn.oscs.forEach(o => { try { o.stop(); } catch(_){} });
+      dn.gain.disconnect();
+    }, fade * 4000);
+    this.droneNodes = null;
+  }
+
+  // ── Continuous: Room hum ──
+  startHum(type) {
+    this.stopHum();
+    const g = this.ctx.createGain();
+    g.gain.value = 0;
+    g.connect(this.master);
+    g.gain.setTargetAtTime(1, this.ctx.currentTime, 0.8);
+    const oscs = [];
+    const presets = {
+      neutral: [[80, 0.03]],
+      office:  [[100, 0.04], [150, 0.02]],
+      dark:    [[40, 0.05], [43, 0.04]],
+      bright:  [[220, 0.025], [330, 0.015]],
+    };
+    for (const [freq, vol] of (presets[type] || presets.neutral)) {
+      oscs.push(this._osc('sine', freq, g, vol));
+    }
+    this.humNodes = { gain: g, oscs };
+  }
+
+  stopHum(fade = 0.5) {
+    if (!this.humNodes) return;
+    const hn = this.humNodes;
+    hn.gain.gain.setTargetAtTime(0, this.ctx.currentTime, fade);
+    setTimeout(() => {
+      hn.oscs.forEach(o => { try { o.stop(); } catch(_){} });
+      hn.gain.disconnect();
+    }, fade * 4000);
+    this.humNodes = null;
+  }
+
+  // ── Continuous: Heartbeat ──
+  startHeartbeat(interval = 1.2) {
+    this.heartbeatInterval = interval;
+    this.heartbeatRunning = true;
+    this._doHeartbeat();
+  }
+
+  _doHeartbeat() {
+    if (!this.heartbeatRunning) return;
+    const now = this.ctx.currentTime;
+    this._heartPulse(now, 0.12);
+    this._heartPulse(now + 0.15, 0.08);
+    setTimeout(() => this._doHeartbeat(), this.heartbeatInterval * 1000);
+  }
+
+  _heartPulse(startTime, vol) {
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = 'sine';
+    o.frequency.value = 60;
+    g.gain.setValueAtTime(0.001, startTime);
+    g.gain.exponentialRampToValueAtTime(vol, startTime + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
+    o.connect(g);
+    g.connect(this.master);
+    o.start(startTime);
+    o.stop(startTime + 0.25);
+  }
+
+  setHeartbeatInterval(interval) { this.heartbeatInterval = interval; }
+  stopHeartbeat() { this.heartbeatRunning = false; }
+
+  // ── One-shot: Door open ──
+  playDoorOpen() {
+    const now = this.ctx.currentTime;
+    // 1. Clunk
+    const clk = this.ctx.createOscillator();
+    const clkG = this.ctx.createGain();
+    clk.type = 'square'; clk.frequency.value = 80;
+    clkG.gain.setValueAtTime(0.12, now);
+    clkG.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+    clk.connect(clkG); clkG.connect(this.master);
+    clk.start(now); clk.stop(now + 0.1);
+    // 2. Slide noise
+    const len = 0.7;
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * len, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) {
+      const t = i / d.length;
+      const env = t < 0.1 ? t / 0.1 : 1 - (t - 0.1) / 0.9;
+      d[i] = (Math.random() * 2 - 1) * env * 0.6;
+    }
+    const src = this.ctx.createBufferSource(); src.buffer = buf;
+    const flt = this.ctx.createBiquadFilter();
+    flt.type = 'bandpass'; flt.frequency.value = 800; flt.Q.value = 1.5;
+    const slG = this.ctx.createGain(); slG.gain.value = 0.08;
+    src.connect(flt); flt.connect(slG); slG.connect(this.master);
+    src.start(now + 0.06);
+    // 3. Thunk
+    const thk = this.ctx.createOscillator();
+    const thkG = this.ctx.createGain();
+    thk.type = 'sine'; thk.frequency.value = 60;
+    thkG.gain.setValueAtTime(0.001, now + 0.7);
+    thkG.gain.exponentialRampToValueAtTime(0.1, now + 0.72);
+    thkG.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+    thk.connect(thkG); thkG.connect(this.master);
+    thk.start(now + 0.7); thk.stop(now + 0.95);
+  }
+
+  // ── One-shot: Whoosh (scene transition) ──
+  playWhoosh() {
+    const now = this.ctx.currentTime;
+    const len = 0.25;
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * len, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) {
+      const t = i / d.length;
+      d[i] = (Math.random() * 2 - 1) * Math.sin(t * Math.PI);
+    }
+    const src = this.ctx.createBufferSource(); src.buffer = buf;
+    const flt = this.ctx.createBiquadFilter();
+    flt.type = 'bandpass'; flt.Q.value = 2;
+    flt.frequency.setValueAtTime(200, now);
+    flt.frequency.linearRampToValueAtTime(2000, now + len);
+    const g = this.ctx.createGain(); g.gain.value = 0.1;
+    src.connect(flt); flt.connect(g); g.connect(this.master);
+    src.start(now);
+  }
+
+  // ── One-shot: Glitch burst ──
+  playGlitchBurst() {
+    const now = this.ctx.currentTime;
+    const len = 0.1;
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * len, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = this.ctx.createBufferSource(); src.buffer = buf;
+    const flt = this.ctx.createBiquadFilter();
+    flt.type = 'highpass'; flt.frequency.value = 3000;
+    const g = this.ctx.createGain(); g.gain.value = 0.08;
+    g.gain.setTargetAtTime(0, now + 0.05, 0.02);
+    src.connect(flt); flt.connect(g); g.connect(this.master);
+    src.start(now);
+  }
+
+  // ── One-shot: Bass impact (title) ──
+  playBassImpact() {
+    const now = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = 'sine'; o.frequency.value = 40;
+    g.gain.setValueAtTime(0.3, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+    o.connect(g); g.connect(this.master);
+    o.start(now); o.stop(now + 2.5);
+    // Noise punch
+    const nBuf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.15, this.ctx.sampleRate);
+    const nd = nBuf.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) {
+      const env = 1 - (i / nd.length);
+      nd[i] = (Math.random() * 2 - 1) * env * env;
+    }
+    const nSrc = this.ctx.createBufferSource(); nSrc.buffer = nBuf;
+    const nFlt = this.ctx.createBiquadFilter();
+    nFlt.type = 'lowpass'; nFlt.frequency.value = 200;
+    const nG = this.ctx.createGain(); nG.gain.value = 0.2;
+    nSrc.connect(nFlt); nFlt.connect(nG); nG.connect(this.master);
+    nSrc.start(now);
+  }
+
+  // ── One-shot: Static crackle ──
+  playStaticCrackle() {
+    const now = this.ctx.currentTime;
+    const len = 0.2;
+    const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * len, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) {
+      const t = i / d.length;
+      const env = t < 0.1 ? t / 0.1 : 1 - (t - 0.1) / 0.9;
+      d[i] = (Math.random() * 2 - 1) * env;
+    }
+    const src = this.ctx.createBufferSource(); src.buffer = buf;
+    const flt = this.ctx.createBiquadFilter();
+    flt.type = 'bandpass'; flt.frequency.value = 1000; flt.Q.value = 3;
+    const g = this.ctx.createGain(); g.gain.value = 0.06;
+    src.connect(flt); flt.connect(g); g.connect(this.master);
+    src.start(now);
+  }
+
+  // ── Fade out everything ──
+  fadeOutAll(duration = 0.3) {
+    this.master.gain.setTargetAtTime(0, this.ctx.currentTime, duration);
+    this.stopHeartbeat();
+    this.stopDrone(duration);
+    this.stopHum(duration);
+  }
+
+  // ── Helper: create oscillator ──
+  _osc(type, freq, dest, vol = 1) {
+    const o = this.ctx.createOscillator();
+    o.type = type; o.frequency.value = freq;
+    if (vol < 1) {
+      const g = this.ctx.createGain(); g.gain.value = vol;
+      o.connect(g); g.connect(dest);
+    } else {
+      o.connect(dest);
+    }
+    o.start();
+    return o;
+  }
+}
+
+const trailerAudio = new TrailerAudio();
+
+// ── Camera Path — diverse rooms, smooth Catmull-Rom movement ──
+// Act 1: START_ROOM(0,0,0;6×6) → HALLWAY_1(0,0,-14;4×22 z=-3..-25)
+// Act 2: OFFICE_WING(-23,0,-21;14×10) → BREAK_ROOM(-23,0,-13;6×6) via south door at z=-16
+// Act 3: DIRECTOR_SUITE(-41,0,-43;8×6), keycard at (-39.5, 0.86, -43.5)
+// Act 4: GARDEN_ANTECHAMBER(-49,0,-63;8×6) → FALSE_ENDING_ROOM(-49,0,-72;12×12)
+// Act 5: MONITORING_STATION(37,0,-45;10×10) — monitor wall north, desks z=-46, chairs z=-44.5
+// Quiet: SECURITY_CHECKPOINT(22,0,-28;6×6) — 3 monitors at (21.2/22/22.8, 0.8, -28.5)
+// Collapse: CONTROL_ROOM(48,0,-70;14×12) — desks at z=-72, stop at z=-71
+const cameraPath = new CameraPath([
+  // ── Act 1 (0-6.5s): Slow awakening — look around START_ROOM → walk into HALLWAY ──
+  { time: 0,    pos: [0, 1.6, 1],      lookAt: [0, 2.8, 1] },        // eyes open, ceiling
+  { time: 2,    pos: [0, 1.6, 1],      lookAt: [0, 1.6, -2] },       // slowly pitch down
+  { time: 3,    pos: [0, 1.6, 0.5],    lookAt: [-1.5, 1.6, -1] },    // gentle look left
+  { time: 4,    pos: [0, 1.6, 0],      lookAt: [1.5, 1.6, -2] },     // gentle look right
+  { time: 5,    pos: [0, 1.6, -0.5],   lookAt: [0, 1.6, -5] },       // face forward, door opening
+  { time: 6.5,  pos: [0, 1.6, -8],     lookAt: [0, 1.6, -14] },      // slow walk into hallway
+
+  // ── Act 2 (7-11s): Office → walk toward canteen, open south door ──
+  // Row 1 desks at z=-24, Row 2 at z=-20. Aisle z=-21.5. South door at x=-23,z=-16.
+  // Walk from east aisle toward south door, open it, look into BREAK_ROOM.
+  { time: 7,    pos: [-20, 1.6, -21],   lookAt: [-24, 1.6, -23] },    // in office, see row 1 monitors
+  { time: 8,    pos: [-21, 1.6, -20],   lookAt: [-23, 1.6, -17] },    // turn south, see door ahead
+  { time: 9.5,  pos: [-22.5, 1.6, -18], lookAt: [-23, 1.6, -15] },   // approaching south door
+  { time: 10.5, pos: [-23, 1.6, -16.5], lookAt: [-23, 1.6, -13] },   // at door, see break room
+  { time: 11,   pos: [-23, 1.6, -15],   lookAt: [-23, 1.6, -12] },   // step into break room
+
+  // ── Act 3 (11.5-15s): Director's Suite — arc south around furniture → keycard ──
+  { time: 11.5, pos: [-44, 1.6, -43],    lookAt: [-40, 1.6, -43] },    // entering from door
+  { time: 12.5, pos: [-42, 1.6, -41.5],  lookAt: [-39, 1.4, -43] },    // arc south, see desk
+  { time: 13.8, pos: [-40.5, 1.5, -42],  lookAt: [-39.5, 1.0, -43.5] }, // approach from south
+  { time: 15,   pos: [-40, 1.3, -42.5],  lookAt: [-39.5, 0.86, -43.5] }, // close-up on keycard
+
+  // ── Act 4 (15.5-19s): Garden — door opens, walk into outdoor space ──
+  { time: 15.5, pos: [-49, 1.6, -61],  lookAt: [-49, 1.6, -65] },    // in antechamber
+  { time: 16.5, pos: [-49, 1.6, -63],  lookAt: [-49, 1.6, -66] },    // approaching door
+  { time: 17.5, pos: [-49, 1.6, -65],  lookAt: [-49, 1.6, -69] },    // door open, see garden
+  { time: 18.2, pos: [-49, 1.6, -68],  lookAt: [-49, 2.2, -72] },    // walking in, gaze rising
+  { time: 19,   pos: [-49, 1.6, -70],  lookAt: [-49, 3.5, -74] },    // looking up at sky/ceiling
+
+  // ── Act 5 (19.5-21.5s): Monitoring Station — walk toward monitor wall ──
+  { time: 19.5, pos: [37, 1.6, -41.5],  lookAt: [37, 1.6, -48] },    // entering from south
+  { time: 20.5, pos: [37, 1.6, -42.5],  lookAt: [35, 1.8, -48.5] },  // walk, pan to consoles
+  { time: 21.5, pos: [37, 1.6, -43.5],  lookAt: [37, 1.5, -49] },    // monitor wall fills view
+
+  // (hidden during montage 22-24.5s)
+
+  // ── Quiet (25-26.5s): Security Checkpoint — zoom into center monitor ──
+  // Center monitor: world (22, 1.025, -28.5), screen faces south
+  { time: 25,   pos: [22, 1.5, -26.5],   lookAt: [22, 1.0, -28.5] },    // see desk with 3 monitors
+  { time: 25.8, pos: [22, 1.15, -27.5],  lookAt: [22, 1.025, -28.5] },  // lowering to monitor height
+  { time: 26.5, pos: [22, 1.025, -28],   lookAt: [22, 1.025, -28.5] },  // eye-level, center monitor fills view
+
+  // (hidden 26.5-27s)
+
+  // ── Collapse (27-30.5s): Control Room — extended ──
+  { time: 27,   pos: [48, 1.6, -66],   lookAt: [48, 1.6, -72] },     // entering
+  { time: 29,   pos: [48, 1.6, -70],   lookAt: [48, 1.6, -76] },     // approaching monitors
+  { time: 30.5, pos: [48, 1.6, -71],   lookAt: [48, 1.6, -76] },     // hold, monitors close
+], { catmullRom: true });
+
+// ── Text Timeline ──
+const textTimeline = new TextTimeline(narratorEl, [
+  { time: 0.8,  text: '...눈을 떴다. 천장이 보인다.',                     className: 'era1', speed: 35 },
+  { time: 4,    text: '문이 보인다. 나가야 할 것 같다.',                   className: 'era1', speed: 35 },
+  { time: 7.5,  text: '이 사무실... 어디서 본 것 같기도 하고.',            className: 'era2', speed: 30 },
+  { time: 11.7, text: '매번 놀라는 것도 지겹지 않아?',                     className: 'era3', speed: 28 },
+  { time: 17.5, text: '...밖이다.',                                        className: 'era1', speed: 40 },
+  { time: 19.7, text: '우리 둘 다 알고 있지. 이건 실험이 아니야.',         className: 'era5', speed: 28 },
+  { time: 25.2, text: '...관찰 당하고 있는건가.',                           className: 'quiet', speed: 32 },
+  { time: 27.3, text: '시스템 오류. 감정 모듈 과부하.',                    className: 'collapse', speed: 25 },
+]);
+
+// ── Event Timeline ──
+const eventTimeline = new EventTimeline([
+  // ═══ Act 1 (0-6.5s): Slow awakening — START_ROOM → HALLWAY_1 ═══
+  { time: 0, fn() {
+    canvasVisible = true;
+    crosshair.style.opacity = '0.5';
+    eraLabel.textContent = 'ERA 1';
+    eraLabel.style.opacity = '1';
+    eraLabel.style.color = 'rgba(200,210,230,0.3)';
+    vignetteEl.style.background = 'radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.7) 100%)';
+    vignetteEl.style.opacity = '1';
+    applyEraAtmosphere(1);
+    applyEraFX(1);
+  }},
+  // Door opens at 5s — camera finishes looking around, faces forward and sees it opening
+  { time: 5, fn() {
+    openDoorByIds('START_ROOM_north', 'HALLWAY_1_south');
+  }},
+
+  // ═══ Act 2 (7-11s): Office → Canteen door (Era 2) ═══
+  { time: 6.5, fn() {
+    fadeOutNarrator(100); crosshair.style.opacity = '0'; eraLabel.style.opacity = '0';
+    canvasVisible = false;
+  }},
+  { time: 7, fn() {
+    rebuildScene(2, SCENE_ROOMS.office);
+    applyEraAtmosphere(2);
+    applyEraFX(2);
+    canvasVisible = true;
+    crosshair.style.opacity = '0.5';
+    eraLabel.textContent = 'ERA 2'; eraLabel.style.opacity = '1';
+    eraLabel.style.color = 'rgba(210,200,180,0.3)';
+  }},
+  // Canteen door opens at 9s — before camera reaches it
+  { time: 9, fn() {
+    openDoorByIds('OFFICE_WING_south', 'BREAK_ROOM_north');
+  }},
+
+  // ═══ Act 3 (11.5-15s): Director's Suite — keycard (Era 3) ═══
+  { time: 11, fn() {
+    fadeOutNarrator(100); crosshair.style.opacity = '0'; eraLabel.style.opacity = '0';
+    canvasVisible = false;
+  }},
+  { time: 11.5, fn() {
+    rebuildScene(3, SCENE_ROOMS.keycard);
+    applyEraAtmosphere(3);
+    applyEraFX(3);
+    canvasVisible = true;
+    scanlines.style.opacity = '0.1';
+    crosshair.style.opacity = '0.5';
+    eraLabel.textContent = 'ERA 3'; eraLabel.style.opacity = '1';
+    eraLabel.style.color = 'rgba(180,180,190,0.3)';
+  }},
+
+  // ═══ Act 4 (15.5-19s): Garden — door opens (Era 1, peaceful) ═══
+  { time: 15, fn() {
+    fadeOutNarrator(100); crosshair.style.opacity = '0'; eraLabel.style.opacity = '0';
+    canvasVisible = false;
+    scanlines.style.opacity = '0';
+  }},
+  { time: 15.5, fn() {
+    rebuildScene(1, SCENE_ROOMS.garden);
+    applyEraAtmosphere(1);
+    applyEraFX(1);
+    canvasVisible = true;
+    crosshair.style.opacity = '0.5';
+    eraLabel.textContent = ''; eraLabel.style.opacity = '0';
+    vignetteEl.style.background = 'radial-gradient(ellipse at center, transparent 40%, rgba(0,10,0,0.5) 100%)';
+  }},
+  // Door opens at 17s — shutter animation reveals garden
+  { time: 17, fn() {
+    openDoorByIds('GARDEN_ANTECHAMBER_north', 'FALSE_ENDING_ROOM_south');
+  }},
+  // Subtle degradation hint in late garden
+  { time: 18, fn() {
+    scanlines.style.opacity = '0.04';
+  }},
+
+  // ═══ Act 5 (19.5-21.5s): Monitoring Station — the truth (Era 5) ═══
+  { time: 19, fn() {
+    fadeOutNarrator(100); crosshair.style.opacity = '0';
+    canvasVisible = false;
+  }},
+  { time: 19.5, fn() {
+    rebuildScene(5, SCENE_ROOMS.monitoring);
+    applyEraAtmosphere(5);
+    applyEraFX(5);
+    postfx.setScanlines(0.08);
+    postfx.setPixelSize(2);
+    canvasVisible = true;
+    scanlines.style.opacity = '0';
+    noiseOpacity = 0.02;
+    crosshair.style.opacity = '0.5';
+    eraLabel.textContent = 'ERA 5'; eraLabel.style.opacity = '1';
+    eraLabel.style.color = 'rgba(220,120,110,0.4)';
+    vignetteEl.style.background = 'radial-gradient(ellipse at center, transparent 20%, rgba(60,0,0,0.6) 100%)';
+  }},
+
+  // ═══ MONTAGE (22-24.5s) ═══
+  { time: 21.5, fn() {
+    fadeOutNarrator(100);
+    crosshair.style.opacity = '0'; eraLabel.style.opacity = '0';
+    canvasVisible = false;
+    noiseOpacity = 0.03;
+  }},
+  { time: 22, fn() {
+    startMontage();
+  }},
+
+  // ═══ QUIET (25-26.5s) — Security Checkpoint, zoom into monitors ═══
+  { time: 25, fn() {
+    rebuildScene(1, SCENE_ROOMS.security);
+    postfx.setNoise(0.008);
+    postfx.setScanlines(0.03);
+    postfx.setColorShift(0);
+    postfx.setPixelSize(0);
+    postfx.setGlitch(0);
+    postfx.enabled = true;
+    canvasVisible = true;
+    scanlines.style.opacity = '0';
+    noiseOpacity = 0.01;
+    vignetteEl.style.background = 'radial-gradient(ellipse at center, transparent 20%, rgba(0,0,20,0.75) 100%)';
+    renderer.setFogColor(0x0a0a12);
+    renderer.setFogNear(6);
+    renderer.setFogFar(25);
+    renderer.setExposure(1.6);
+  }},
+
+  // ═══ SILENCE (26.5-27s) — canvas off during rebuild ═══
+  { time: 26.5, fn() {
+    fadeOutNarrator(400);  // must clear innerHTML before 27.3s collapse text
+    noiseOpacity = 0;
+    canvasVisible = false;
+  }},
+
+  // ═══ COLLAPSE (27-30.5s) — era 5 control room, extended ═══
+  { time: 27, fn() {
+    rebuildScene(5, SCENE_ROOMS.control);
+    applyEraAtmosphere(5);
+    applyEraFX(5);
+    postfx.enabled = true;
+    canvasVisible = true;
+    noiseOpacity = 0.02;
+    scanlines.style.opacity = '0';
+    postfx.setScanlines(0.1);
+    postfx.setColorShift(0.06);
+    postfx.setPixelSize(0);
+  }},
+
+  // ═══ GLITCH STORM (30.5-32s) ═══
+  { time: 30.5, fn() {
+    postfx.setGlitch(0.5);
+    postfx.setColorShift(0.15);
+    postfx.setNoise(0.06);
+    stormActive = true;
+    glitchStorm.style.opacity = '0.7';
+    noiseOpacity = 0.04;
+    sceneEl.style.filter = 'hue-rotate(15deg) saturate(1.5)';
+  }},
+  { time: 30.8, fn() { sceneEl.style.filter = 'hue-rotate(-20deg) brightness(1.3)'; } },
+  { time: 31.1, fn() { sceneEl.style.filter = 'hue-rotate(30deg) saturate(2)'; } },
+  { time: 31.5, fn() { sceneEl.style.filter = 'invert(0.3) hue-rotate(-10deg)'; } },
+
+  // ═══ BLACKOUT (32s) ═══
+  { time: 32, fn() {
+    stormActive = false;
+    glitchStorm.style.opacity = '0';
+    glitchCtx.clearRect(0, 0, glitchStorm.width, glitchStorm.height);
+    sceneEl.style.filter = '';
+    canvasVisible = false;
+    scanlines.style.opacity = '0';
+    noiseOpacity = 0;
+    vignetteEl.style.opacity = '0';
+    fadeOutNarrator(100);
+    postfx.setGlitch(0);
+    postfx.setColorShift(0);
+    postfx.setNoise(0);
+  }},
+
+  // ═══ TITLE (32.5s) ═══
+  { time: 32.5, fn() { titleEl.style.opacity = '1'; } },
+
+  // ═══ TAGLINE + RED SCANLINE ═══
+  { time: 34, fn() {
+    tagline.style.opacity = '1';
+    redScanline.style.opacity = '1';
+    scanlines.style.opacity = '0.06';
+  }},
+  { time: 34.5, fn() {
+    redScanline.style.transition = 'bottom 6s linear';
+    redScanline.style.bottom = '110%';
+  }},
+]);
+
+// ── Start ──
+playOverlay.addEventListener('click', () => {
+  playOverlay.style.display = 'none';
+
+  // Init audio
+  trailerAudio.init();
+
+  // Recording
+  let mediaRecorder = null;
+  const shouldRecord = new URLSearchParams(window.location.search).has('record');
+  if (shouldRecord) {
+    const canvasStream = canvas.captureStream(30);
+    const audioStream = trailerAudio.getMediaStream();
+    const combined = new MediaStream([
+      ...canvasStream.getVideoTracks(),
+      ...audioStream.getAudioTracks()
+    ]);
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+      ? 'video/webm;codecs=vp9,opus' : 'video/webm';
+    mediaRecorder = new MediaRecorder(combined, { mimeType });
+    const chunks = [];
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'trailer-3-observer.webm';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      document.getElementById('rec-indicator').style.display = 'none';
+    };
+    mediaRecorder.start();
+    document.getElementById('rec-indicator').style.display = 'block';
+  }
+
+  // Sound schedule
+  const soundSchedule = [
+    { time: 0,     fn() { trailerAudio.startDrone(0.05); trailerAudio.startHum('neutral'); }},
+    { time: 5,     fn() { trailerAudio.playDoorOpen(); trailerAudio.setDroneVolume(0.1); }},
+    { time: 6.5,   fn() { trailerAudio.playWhoosh(); }},
+    { time: 7,     fn() { trailerAudio.startHum('office'); }},
+    { time: 9,     fn() { trailerAudio.playDoorOpen(); }},
+    { time: 11,    fn() { trailerAudio.playWhoosh(); }},
+    { time: 11.5,  fn() { trailerAudio.startHum('dark'); }},
+    { time: 15,    fn() { trailerAudio.playWhoosh(); }},
+    { time: 15.5,  fn() { trailerAudio.startHum('bright'); }},
+    { time: 17,    fn() { trailerAudio.playDoorOpen(); }},
+    { time: 19,    fn() { trailerAudio.playWhoosh(); }},
+    { time: 19.5,  fn() { trailerAudio.startHum('dark'); trailerAudio.startHeartbeat(1.2); }},
+    { time: 21.5,  fn() { trailerAudio.playWhoosh(); }},
+    { time: 25,    fn() { trailerAudio.stopHum(); }},
+    { time: 27,    fn() { trailerAudio.setDroneVolume(0.2); trailerAudio.setHeartbeatInterval(0.8); }},
+    { time: 30.5,  fn() { trailerAudio.setHeartbeatInterval(0.5); }},
+    { time: 32,    fn() { trailerAudio.fadeOutAll(0.1); }},
+    { time: 32.5,  fn() {
+      trailerAudio.master.gain.cancelScheduledValues(trailerAudio.ctx.currentTime);
+      trailerAudio.master.gain.setValueAtTime(1, trailerAudio.ctx.currentTime);
+      trailerAudio.playBassImpact();
+    }},
+    { time: 34,    fn() { trailerAudio.startDrone(0.03); }},
+  ];
+  let soundIdx = 0;
+
+  let lastNoise = 0;
+
+  runTrailer({
+    renderer, postfx, camera,
+    cameraPath, textTimeline, eventTimeline,
+    duration: 38,
+    onUpdate(elapsed) {
+      // Sound schedule
+      while (soundIdx < soundSchedule.length && elapsed >= soundSchedule[soundIdx].time) {
+        soundSchedule[soundIdx].fn();
+        soundIdx++;
+      }
+
+      // Delta for door animation
+      const delta = elapsed - prevElapsed;
+      prevElapsed = elapsed;
+
+      // Update door animations
+      mapBuilder.doorSystem.update(delta);
+
+      // Head bob (additive — preserves CameraPath Y for zoom scenes)
+      camera.position.y += Math.sin(elapsed * 3.2) * 0.025;
+
+      // Hide/show 3D canvas during transitions
+      canvas.style.opacity = canvasVisible ? '1' : '0';
+
+      // Noise + glitch storm at ~12fps
+      const now = performance.now();
+      if (now - lastNoise > 80) {
+        drawNoise();
+        if (stormActive) drawGlitchStorm();
+        lastNoise = now;
+      }
+    },
+    onEnd() {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      }
+    },
+  });
+});
+</script>
+</body>
+</html>
