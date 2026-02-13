@@ -145,9 +145,6 @@ export const ROOMS = [
       { type: 'light_fixture', position: [0, 2.8, 0], size: [0.3, 0.05, 0.3], color: 0xaaaacc },
       { type: 'light_fixture', position: [0, 2.8, -4], size: [0.3, 0.05, 0.3], color: 0xaaaacc },
       { type: 'light_fixture', position: [0, 2.8, -8], size: [0.3, 0.05, 0.3], color: 0xaaaacc },
-      // Direction signs near decision point (wall-mounted, edge against wall)
-      { type: 'sign_left', position: [-1.8, 2.2, -7], size: [0.4, 0.2, 0.05], color: 0x4a6a4a },
-      { type: 'sign_right', position: [1.8, 2.2, -7], size: [0.4, 0.2, 0.05], color: 0x6a4a4a },
     ],
   }),
 

@@ -229,7 +229,7 @@ body {
   <div id="rec-indicator">● REC</div>
   <div id="title">
     <h1>WHAT LIES BEYOND 2</h1>
-    <div class="tagline">Were your choices ever really yours?</div>
+    <div class="tagline">What is outside the simulation?</div>
   </div>
 </div>
 
@@ -855,8 +855,8 @@ const eventTimeline = new EventTimeline([
     rebuildScene(5, SCENE_ROOMS.monitoring);
     applyEraAtmosphere(5);
     applyEraFX(5);
-    postfx.setScanlines(0.08);
-    postfx.setPixelSize(2);
+    postfx.setScanlines(0.015);
+    postfx.setPixelSize(0.003);
     canvasVisible = true;
     scanlines.style.opacity = '0';
     noiseOpacity = 0.02;
@@ -912,8 +912,8 @@ const eventTimeline = new EventTimeline([
     canvasVisible = true;
     noiseOpacity = 0.02;
     scanlines.style.opacity = '0';
-    postfx.setScanlines(0.1);
-    postfx.setColorShift(0.06);
+    postfx.setScanlines(0.02);
+    postfx.setColorShift(0.015);
     postfx.setPixelSize(0);
   }},
 

@@ -3214,20 +3214,29 @@ export class MapBuilder {
     plate.position.set(0, sh / 2, 0);
     group.add(plate);
 
-    // Arrow (triangle pointing left or right)
-    const arrowDir = direction === 'left' ? -1 : 1;
-    const arrowW = sw * 0.3;
-    const arrowH = sh * 0.4;
+    // Arrow — shaft + triangular head
+    const dir = direction === 'left' ? -1 : 1;
+    const shaftW = sw * 0.35;
+    const shaftH = sh * 0.2;
+    const headW = sh * 0.35;
+    const headH = sh * 0.55;
+    const z = sd / 2 + 0.005;
+    const cy = sh * 0.5;
 
-    // Arrow shaft
-    const shaft = new THREE.Mesh(new THREE.BoxGeometry(arrowW, arrowH * 0.35, 0.01), arrowMat);
-    shaft.position.set(-arrowDir * arrowW * 0.2, sh * 0.5, sd / 2 + 0.005);
+    // Shaft (horizontal bar)
+    const shaft = new THREE.Mesh(new THREE.BoxGeometry(shaftW, shaftH, 0.01), arrowMat);
+    shaft.position.set(-dir * shaftW * 0.15, cy, z);
     group.add(shaft);
 
-    // Arrow head (wider box approximation)
-    const head = new THREE.Mesh(new THREE.BoxGeometry(arrowH * 0.35, arrowH, 0.01), arrowMat);
-    head.position.set(arrowDir * arrowW * 0.4, sh * 0.5, sd / 2 + 0.005);
-    group.add(head);
+    // Arrowhead (triangle via ShapeGeometry)
+    const shape = new THREE.Shape();
+    shape.moveTo(0, -headH / 2);
+    shape.lineTo(dir * headW, 0);
+    shape.lineTo(0, headH / 2);
+    shape.closePath();
+    const headMesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), arrowMat);
+    headMesh.position.set(dir * shaftW * 0.3, cy, z);
+    group.add(headMesh);
 
     // Border
     const borderMat = this._getOrCreateMaterial(0xffffff, { roughness: 0.5, metalness: 0.1 });
