@@ -167,6 +167,8 @@ document.getElementById('click-to-play').addEventListener('click', () => {
 
 // Player lock/unlock
 player.onLock = () => {
+  // Guard: don't override CCTV / terminal state with PLAYING
+  if (gameState.is(State.CCTV) || gameState.is(State.TERMINAL)) return;
   gameState.set(State.PLAYING);
   audio.init();
   audio.setAmbiance(AudioSystem.getRoomAmbianceType(gameState.currentRoom));
@@ -1271,8 +1273,10 @@ function restartGame() {
     applyVariantEffects(currentVariant);
   }
 
-  // Close code input if open
-  closeCodeInput();
+  // Reset code input state directly — don't use closeCodeInput() which
+  // schedules a delayed player.lock() that can interfere with CCTV/terminal modes
+  codeOverlay.style.display = 'none';
+  codeInputActive = false;
 
   // Remove variant HUD if exists
   const oldHud = document.getElementById('variant-hud');
@@ -1855,16 +1859,15 @@ function gameLoop() {
 
 // ── Init ──────────────────────────────────────────────────
 
-ui.init();
-ui.showResetButton(memory.getEra() >= 2);
-
 // Era routing on initial boot (CCTV / terminal modes skip normal play)
 if (routeByEra(era)) {
   console.log(`Boot: era=${era} → special mode`);
+} else {
+  ui.init();
+  ui.showResetButton(memory.getEra() >= 2);
+  const [startX, startY, startZ] = PLAYER_START.position;
+  player.camera.position.set(startX, startY, startZ);
 }
-
-const [startX, startY, startZ] = PLAYER_START.position;
-player.camera.position.set(startX, startY, startZ);
 
 // postfx starts disabled — enabled by updateEnvironment when defiance kicks in
 

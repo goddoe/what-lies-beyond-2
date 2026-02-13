@@ -38,10 +38,10 @@ const RIGHT_X = (MAC_W / 2 + MAC_GAP / 2);
 
 // ── 3×3 Grid for left Mac screen ──────────────────────────
 const GRID_COLS = 3, GRID_ROWS = 3;
-const CELL_W = 320, CELL_H = 240;             // 4:3 per cell
+const CELL_W = 160, CELL_H = 120;             // 4:3 per cell (halved for perf)
 const GRID_GAP = 0;                              // no pixel gaps; grid drawn in shader
-const RT_W = CELL_W * GRID_COLS;                  // 960
-const RT_H = CELL_H * GRID_ROWS;                  // 720
+const RT_W = CELL_W * GRID_COLS;                  // 480
+const RT_H = CELL_H * GRID_ROWS;                  // 360
 
 const GRID_ROOMS = {
   OFFICE_WING:  { origin: [-23, 0, -21], size: [14, 3, 10] },
@@ -101,6 +101,9 @@ const CELL_ATMOSPHERES = [
   { bg: 0x0e0418, light: 0x7733cc }, // 8: CCTV CONTROL_ROOM (purple)
 ];
 
+// Pre-created Color objects to avoid GC in render loop
+const CELL_BG_COLORS = CELL_ATMOSPHERES.map(a => new THREE.Color(a.bg));
+
 export class Era10Ending {
   constructor(memory, postfx, getLang) {
     this.memory = memory;
@@ -149,6 +152,7 @@ export class Era10Ending {
     // ── Optimization: temporal staggering + throttling ──
     this._gridFrameCounter = 0;   // round-robin counter for cell rendering
     this._overlayTimer = 0;       // throttle CCTV overlay to ~4fps
+    this._tempDir = new THREE.Vector3();  // reusable for char walk
   }
 
   start(rendererObj, canvas, onRestart, onReplay) {
@@ -287,6 +291,9 @@ export class Era10Ending {
     this._timers.push(setTimeout(() => {
       this._phase = 'ZOOM_OUT';
       this._lerpProgress = 0;
+      // Disable postfx — no longer needed after glitch phase (saves full-screen pass)
+      this.postfx.setNoise(0);
+      this.postfx.enabled = false;
     }, 3000));
 
     // Phase 3: ZOOM_RIGHT — lerp from center to right close-up
@@ -394,8 +401,8 @@ export class Era10Ending {
     if (this._phase !== 'GLITCH' && this._phase !== 'ZOOM_OUT' &&
         this._phase !== 'ZOOM_RIGHT' && this._phase !== 'CHATML') return;
 
-    // Freeze grid after ~19s (5s into CHATML) — left monitor is fully peripheral
-    if (this._phase === 'CHATML' && this._elapsed > 19) return;
+    // Freeze grid after ~15s (1s into CHATML) — left monitor is fully peripheral
+    if (this._phase === 'CHATML' && this._elapsed > 15) return;
 
     // ── Temporal staggering: render only a subset of cells per frame ──
     this._gridFrameCounter++;
@@ -439,10 +446,10 @@ export class Era10Ending {
       this._renderer.setViewport(x, y, cw, ch);
       this._renderer.setScissor(x, y, cw, ch);
 
-      // Per-cell atmosphere
+      // Per-cell atmosphere (use pre-created Colors to avoid GC)
       const atm = CELL_ATMOSPHERES[i];
       if (fog) { fog.color.setHex(atm.bg); fog.near = 8; fog.far = 30; }
-      this._scene.background = new THREE.Color(atm.bg);
+      this._scene.background = CELL_BG_COLORS[i];
       this._cellLight.color.setHex(atm.light);
 
       this._renderer.setClearColor(atm.bg, 1);
@@ -493,17 +500,17 @@ export class Era10Ending {
       return [4];
     }
     if (this._phase === 'ZOOM_OUT') {
-      // 3 cells per frame, round-robin in groups of 3 → each cell ~20fps
-      const g = frame % 3;
-      return [g * 3, g * 3 + 1, g * 3 + 2];
+      // 2 cells per frame, round-robin → each cell ~13fps (authentic CCTV feel)
+      const pairs = [[0, 1], [2, 3], [4, 5], [6, 7], [8, 0]];
+      return pairs[frame % 5];
     }
     if (this._phase === 'ZOOM_RIGHT') {
-      // 2 cells per frame → each cell ~13fps
-      const groups = [[0, 1], [2, 3], [4, 5], [6, 7], [8, 0]];
-      return groups[frame % 5];
+      // 1 cell per frame → each cell ~7fps (monitor is moving away from focus)
+      return [frame % 9];
     }
-    // CHATML: 1 cell per frame → each cell ~7fps
-    return [frame % 9];
+    // CHATML: 1 cell every 2 frames → each cell ~3.5fps (fully peripheral)
+    if (frame % 2 === 0) return [Math.floor(frame / 2) % 9];
+    return [];
   }
 
   stop() {
@@ -655,7 +662,7 @@ export class Era10Ending {
     const cams = [];
     for (let i = 0; i < GRID_CELLS.length; i++) {
       const cell = GRID_CELLS[i];
-      const cam = new THREE.PerspectiveCamera(70, CELL_W / CELL_H, 0.1, 200);
+      const cam = new THREE.PerspectiveCamera(70, CELL_W / CELL_H, 0.1, 30);
 
       if (cell.type === 'cctv') {
         const r = GRID_ROOMS[cell.room];
@@ -681,75 +688,43 @@ export class Era10Ending {
       opacity: 0.85,
     });
 
+    // Reduced geometry segments — characters are tiny in CCTV cells
     // Head
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 8), mat);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.13, 6, 4), mat);
     head.position.y = 1.55;
     group.add(head);
 
-    // Neck
-    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.1, 6), mat);
-    neck.position.y = 1.40;
-    group.add(neck);
-
-    // Shoulders
-    const shoulders = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 0.18), mat);
-    shoulders.position.y = 1.30;
-    group.add(shoulders);
-
-    // Torso
-    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.38, 0.18), mat);
+    // Torso (merged neck+shoulders+torso+hips into fewer meshes)
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.60, 0.18), mat);
     torso.position.y = 1.06;
     group.add(torso);
-
-    // Hips
-    const hips = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.14, 0.17), mat);
-    hips.position.y = 0.80;
-    group.add(hips);
 
     // Left Arm
     const leftArmGroup = new THREE.Group();
     leftArmGroup.position.set(-0.24, 1.28, 0);
-    leftArmGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.32, 6), mat));
-    leftArmGroup.children[0].position.y = -0.16;
-    const leftForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.03, 0.28, 6), mat);
-    leftForearm.position.y = -0.46;
-    leftArmGroup.add(leftForearm);
+    leftArmGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.03, 0.56, 4), mat));
+    leftArmGroup.children[0].position.y = -0.28;
     group.add(leftArmGroup);
 
     // Right Arm
     const rightArmGroup = new THREE.Group();
     rightArmGroup.position.set(0.24, 1.28, 0);
-    rightArmGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.32, 6), mat));
-    rightArmGroup.children[0].position.y = -0.16;
-    const rightForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.03, 0.28, 6), mat);
-    rightForearm.position.y = -0.46;
-    rightArmGroup.add(rightForearm);
+    rightArmGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.03, 0.56, 4), mat));
+    rightArmGroup.children[0].position.y = -0.28;
     group.add(rightArmGroup);
 
     // Left Leg
     const leftLegGroup = new THREE.Group();
     leftLegGroup.position.set(-0.09, 0.76, 0);
-    leftLegGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.38, 6), mat));
-    leftLegGroup.children[0].position.y = -0.19;
-    const leftShin = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.36, 6), mat);
-    leftShin.position.y = -0.56;
-    leftLegGroup.add(leftShin);
-    const leftFoot = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.04, 0.15), mat);
-    leftFoot.position.set(0, -0.76, 0.03);
-    leftLegGroup.add(leftFoot);
+    leftLegGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.04, 0.72, 4), mat));
+    leftLegGroup.children[0].position.y = -0.36;
     group.add(leftLegGroup);
 
     // Right Leg
     const rightLegGroup = new THREE.Group();
     rightLegGroup.position.set(0.09, 0.76, 0);
-    rightLegGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.38, 6), mat));
-    rightLegGroup.children[0].position.y = -0.19;
-    const rightShin = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.36, 6), mat);
-    rightShin.position.y = -0.56;
-    rightLegGroup.add(rightShin);
-    const rightFoot = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.04, 0.15), mat);
-    rightFoot.position.set(0, -0.76, 0.03);
-    rightLegGroup.add(rightFoot);
+    rightLegGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.04, 0.72, 4), mat));
+    rightLegGroup.children[0].position.y = -0.36;
     group.add(rightLegGroup);
 
     return { group, leftLegGroup, rightLegGroup, leftArmGroup, rightArmGroup };
@@ -802,7 +777,8 @@ export class Era10Ending {
 
   _updateCharWalk(char, delta) {
     const pos = char.group.position;
-    const dir = char.target.clone().sub(pos);
+    const dir = this._tempDir;
+    dir.copy(char.target).sub(pos);
     const dist = dir.length();
 
     if (dist < 0.15) {
@@ -813,7 +789,7 @@ export class Era10Ending {
         char.target.copy(char.posB);
       }
     } else {
-      dir.normalize();
+      dir.divideScalar(dist); // normalize without creating new vector
       const step = Math.min(char.speed * delta, dist);
       pos.addScaledVector(dir, step);
       char.group.lookAt(char.target.x, pos.y, char.target.z);
@@ -904,22 +880,10 @@ export class Era10Ending {
     const kbRear = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.02, 0.045), kbMat);
     kbRear.position.set(0, DESK_TOP + 0.038, -0.75);
     this._roomGroup.add(kbRear);
-    // Key grid: 4 rows x 12 cols
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 12; col++) {
-        const key = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.012, 0.022), keyMat);
-        key.position.set(
-          -0.145 + col * 0.027,
-          DESK_TOP + 0.047,
-          -0.63 - row * 0.032
-        );
-        this._roomGroup.add(key);
-      }
-    }
-    // Space bar
-    const spaceBar = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.012, 0.022), keyMat);
-    spaceBar.position.set(0, DESK_TOP + 0.047, -0.61);
-    this._roomGroup.add(spaceBar);
+    // Simplified key area (single dark surface instead of 48 individual keys)
+    const keyArea = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.008, 0.13), keyMat);
+    keyArea.position.set(0, DESK_TOP + 0.044, -0.67);
+    this._roomGroup.add(keyArea);
     // Keyboard cable to left Mac
     const kbCableGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.5, 4);
     const kbCable = new THREE.Mesh(kbCableGeo, macDarkMat);
@@ -997,35 +961,21 @@ export class Era10Ending {
     this._roomGroup.add(led);
 
     // ── Lighting (dark office — r160 physical units, ACES, exposure 2.4) ──
+    // Reduced from 5 PointLights to 2 for performance
 
     // Ambient base (prevents total black — essential for r160)
-    const ambient = new THREE.AmbientLight(0x1a1a2a, 2.5);
+    const ambient = new THREE.AmbientLight(0x1a1a2a, 3.5);
     this._roomGroup.add(ambient);
 
-    // Monitor glow (cool blue-white from screens — subdued so screens stand out)
-    const monLight = new THREE.PointLight(0x8899cc, 50, 6);
+    // Combined monitor glow (blue-white, centered between both Macs)
+    const monLight = new THREE.PointLight(0x8899cc, 60, 6);
     monLight.position.set(0, SCREEN_Y, MAC_Z + 0.6);
     this._roomGroup.add(monLight);
 
-    // Left Mac screen glow (warm amber — Era 1 scene reflection)
-    const lGlow = new THREE.PointLight(0xccaa88, 30, 4);
-    lGlow.position.set(LEFT_X, SCREEN_Y, MAC_Z + 0.5);
-    this._roomGroup.add(lGlow);
-
-    // Right Mac screen glow (cool blue — ChatML terminal reflection)
-    const rGlow = new THREE.PointLight(0x6699bb, 25, 4);
-    rGlow.position.set(RIGHT_X, SCREEN_Y, MAC_Z + 0.5);
-    this._roomGroup.add(rGlow);
-
     // Dim ceiling light (warm, like a turned-off office with residual light)
-    const ceilLight = new THREE.PointLight(0x554433, 20, 8);
+    const ceilLight = new THREE.PointLight(0x554433, 25, 8);
     ceilLight.position.set(0, 2.8, 0);
     this._roomGroup.add(ceilLight);
-
-    // Ambient fill from behind (very soft, prevents total black corners)
-    const ambFill = new THREE.PointLight(0x222244, 30, 10);
-    ambFill.position.set(0, 1.5, 1.5);
-    this._roomGroup.add(ambFill);
 
     this._scene.add(this._roomGroup);
   }
@@ -1197,8 +1147,8 @@ export class Era10Ending {
 
   _buildChatMLTexture() {
     this._chatCanvas = document.createElement('canvas');
-    this._chatCanvas.width = 1600;
-    this._chatCanvas.height = 1200;  // 4:3 to match Mac screen
+    this._chatCanvas.width = 800;
+    this._chatCanvas.height = 600;  // 4:3 to match Mac screen (halved for perf)
     this._chatTexture = new THREE.CanvasTexture(this._chatCanvas);
     this._chatTexture.minFilter = THREE.LinearFilter;
     this._drawChatML();
@@ -1212,8 +1162,8 @@ export class Era10Ending {
     ctx.fillStyle = '#050508';
     ctx.fillRect(0, 0, w, h);
 
-    const fontSize = 42;
-    const lineHeight = 60;
+    const fontSize = 22;
+    const lineHeight = 32;
     ctx.font = `bold ${fontSize}px "Courier New", monospace`;
 
     // Combine boot lines + ChatML lines into one continuous display
@@ -1230,18 +1180,20 @@ export class Era10Ending {
     }
 
     // Before boot starts: show just a terminal cursor
+    const pad = 10;
+    const topY = pad + fontSize;
     if (allLines.length === 0) {
       ctx.fillStyle = '#55cc55';
-      ctx.fillText('$ _', 18, 48);
+      ctx.fillText('$ _', pad, topY);
     } else {
       // Scroll: show last N visible lines
-      const visibleLines = Math.floor((h - 60) / lineHeight);
+      const visibleLines = Math.floor((h - pad * 2 - fontSize) / lineHeight);
       const startIdx = Math.max(0, allLines.length - visibleLines);
 
       for (let i = startIdx; i < allLines.length; i++) {
         const { tag, text } = allLines[i];
-        const y = 48 + (i - startIdx) * lineHeight;
-        if (y > h - 10) break;
+        const y = topY + (i - startIdx) * lineHeight;
+        if (y > h - pad) break;
 
         if (tag === 'boot') {
           ctx.fillStyle = '#55cc55';
@@ -1258,22 +1210,22 @@ export class Era10Ending {
         } else {
           ctx.fillStyle = '#bbbbbb';
         }
-        ctx.fillText(text, 18, y);
+        ctx.fillText(text, pad, y);
       }
 
       // Blinking cursor at the end
       if (Math.floor(this._elapsed * 2) % 2 === 0) {
-        const cursorY = 48 + (Math.min(allLines.length, visibleLines)) * lineHeight;
-        if (cursorY < h - 10) {
+        const cursorY = topY + (Math.min(allLines.length, visibleLines)) * lineHeight;
+        if (cursorY < h - pad) {
           ctx.fillStyle = '#55cc55';
-          ctx.fillText('_', 18, cursorY);
+          ctx.fillText('_', pad, cursorY);
         }
       }
     }
 
-    // CRT scanlines
+    // CRT scanlines (every 2px for smaller canvas)
     ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
-    for (let y = 0; y < h; y += 3) {
+    for (let y = 0; y < h; y += 2) {
       ctx.fillRect(0, y, w, 1);
     }
   }
@@ -1302,8 +1254,8 @@ export class Era10Ending {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const pad = 8;
-    const fontSize = 13;
+    const pad = 4;
+    const fontSize = 8;
     ctx.font = `bold ${fontSize}px monospace`;
     ctx.textBaseline = 'top';
 
@@ -1326,7 +1278,7 @@ export class Era10Ending {
 
       // Top-left second line: location
       ctx.fillStyle = isCCTV ? 'rgba(0,204,68,0.6)' : 'rgba(221,170,51,0.6)';
-      ctx.fillText(label.loc, cx + pad, cy + pad + fontSize + 2);
+      ctx.fillText(label.loc, cx + pad, cy + pad + fontSize + 1);
 
       // Top-right: REC + blinking dot
       ctx.textAlign = 'right';
@@ -1334,7 +1286,7 @@ export class Era10Ending {
       ctx.fillText('REC', cx + CELL_W - pad, cy + pad);
       if (recOn) {
         ctx.beginPath();
-        ctx.arc(cx + CELL_W - pad - ctx.measureText('REC').width - 8, cy + pad + fontSize / 2, 4, 0, Math.PI * 2);
+        ctx.arc(cx + CELL_W - pad - ctx.measureText('REC').width - 5, cy + pad + fontSize / 2, 2.5, 0, Math.PI * 2);
         ctx.fillStyle = '#ff3333';
         ctx.fill();
       }
@@ -1347,7 +1299,7 @@ export class Era10Ending {
       // Bottom-right: SESSION #7492
       ctx.textAlign = 'right';
       ctx.fillStyle = isCCTV ? 'rgba(0,204,68,0.4)' : 'rgba(221,170,51,0.4)';
-      ctx.fillText('SESSION #7492', cx + CELL_W - pad, cy + CELL_H - pad - fontSize);
+      ctx.fillText('#7492', cx + CELL_W - pad, cy + CELL_H - pad - fontSize);
     }
 
     if (this._cctvTexture) this._cctvTexture.needsUpdate = true;

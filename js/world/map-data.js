@@ -385,9 +385,9 @@ export const ROOMS = [
       { type: 'window', position: [0, 0.8, 3.8], size: [6, 1.8, 0.05], color: 0x0a0a20 },
       // Railing in front of window
       { type: 'railing', position: [0, 0, 2.5], size: [6, 1, 0.1], color: 0x555566 },
-      // Desk + monitor workstation (against west wall, rotated 90° so screen faces room)
-      { type: 'desk', position: [-3.5, 0, -1], size: [1.2, 0.75, 0.6], color: 0x333344, rotY: -Math.PI / 2 },
-      { type: 'monitor', position: [-3.2, 0.75, -1], size: [0.6, 0.55, 0.35], color: 0x111122, rotY: -Math.PI / 2 },
+      // Desk + monitor workstation (against west wall, screen faces room interior)
+      { type: 'desk', position: [-3.5, 0, -1], size: [1.2, 0.75, 0.6], color: 0x333344, rotY: Math.PI / 2 },
+      { type: 'monitor', position: [-3.4, 0.75, -1], size: [0.6, 0.55, 0.35], color: 0x111122, rotY: Math.PI / 2 },
       // Bench seating (against east wall)
       { type: 'bench', position: [3.5, 0, 0], size: [0.5, 0.4, 2], color: 0x3a3a4a },
       // Floor light accents
